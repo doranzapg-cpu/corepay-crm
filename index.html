@@ -1577,8 +1577,7 @@ function buildReport() {
   document.getElementById('reportContent').innerHTML = kpis + ownerTable + urgentTable + topTable + aiPanel;
 }
 
-<!-- ===== SERVICE WORKER REGISTRATION (MC-8) ===== -->
-<script>
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('sw.js', { scope: './' })
@@ -1586,11 +1585,11 @@ if ('serviceWorker' in navigator) {
         console.log('[CorePay PWA] SW registrado. Scope:', reg.scope);
       })
       .catch(function(err) {
-        console.warn('[CorePay PWA] SW falló:', err);
+        console.warn('[CorePay PWA] SW fallido:', err);
       });
   });
 }
+
 </script>
-<!-- ===== /SERVICE WORKER REGISTRATION ===== -->
 </body>
 </html>
