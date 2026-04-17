@@ -55,7 +55,7 @@ button,input,select,textarea{font:inherit}
 @keyframes scan{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
 .cover-gridfx{position:absolute;inset:0;background-image:linear-gradient(rgba(0,255,255,.03) 1px, transparent 1px),linear-gradient(90deg, rgba(0,255,255,.03) 1px, transparent 1px);background-size:50px 50px;animation:gridfade 3s ease-out forwards;pointer-events:none}
 @keyframes gridfade{0%{opacity:0}100%{opacity:.4}}
-.cover-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse, rgba(0,200,255,.08) 0%, transparent 70%);pointer-events:none}
+.cover-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:min(600px,100vw);height:300px;background:radial-gradient(ellipse, rgba(0,200,255,.08) 0%, transparent 70%);pointer-events:none}
 .cover-inner{position:relative;width:min(1220px,100%);max-height:calc(100vh - 28px);border:1px solid rgba(0,240,255,.2);border-radius:28px;padding:20px 34px 24px;background:linear-gradient(180deg, rgba(4,10,22,.85), rgba(1,4,11,.92));box-shadow:0 0 80px rgba(0,240,255,.06),0 24px 80px rgba(0,0,0,.5);display:grid;grid-template-rows:auto auto auto auto auto;align-content:center;justify-items:center;text-align:center;overflow-y:auto;row-gap:8px;animation:coverIn .6s ease-out}
 @keyframes coverIn{0%{opacity:0;transform:scale(.97)}100%{opacity:1;transform:scale(1)}}
 .cover-logo{width:min(320px,50vw);height:auto;display:block;margin:0 auto 2px;mix-blend-mode:screen;filter:brightness(1.1) contrast(1.05) drop-shadow(0 0 20px rgba(0,200,255,.18));animation:logoIn 1s ease-out .2s both}
@@ -74,7 +74,7 @@ button,input,select,textarea{font:inherit}
 .cover-actions .btn.primary{padding:14px 42px;border-radius:999px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,240,255,.3)}50%{box-shadow:0 0 0 8px rgba(0,240,255,.0)}}
 @media (max-width:900px){.cover-overlay{padding:10px}.cover-inner{max-height:calc(100vh - 20px);padding:16px 20px 20px;row-gap:6px}.cover-grid{gap:16px}.cover-card{width:180px}.cover-title{font-size:30px}.cover-sub{font-size:13px}}
-@media (max-width:640px){.cover-inner{max-height:calc(100vh - 16px);padding:14px 16px 18px;row-gap:6px}.cover-logo{width:min(200px,50vw)}.cover-grid{display:grid;grid-template-columns:1fr;gap:8px;margin:0}.cover-card{width:100%;max-width:320px}.cover-iconbox{width:48px;height:48px}.cover-actions .btn.primary{padding:11px 28px}}
+@media (max-width:640px){.cover-overlay{padding:0;overflow-y:auto;align-items:flex-start}.cover-inner{width:100%;min-height:100vh;max-height:none;border-radius:0;border:none;padding:32px 20px 28px;row-gap:10px;box-shadow:none}.cover-logo{width:min(180px,55vw)}.cover-kicker{letter-spacing:.12em;font-size:10px}.cover-title{font-size:clamp(24px,7vw,32px);letter-spacing:.04em}.cover-sub{font-size:12px;max-width:100%}.cover-grid{display:grid;grid-template-columns:1fr;gap:8px;width:100%}.cover-card{width:100%;max-width:none;display:flex;align-items:center;gap:12px;text-align:left}.cover-iconbox{width:44px;height:44px;flex-shrink:0;margin:0}.cover-card h3{font-size:12px}.cover-card p{font-size:11px}.cover-actions .btn.primary{padding:13px 32px;width:100%;max-width:280px}}
 
 /* === LAYOUT === */
 .layout{display:grid;grid-template-columns:320px 1fr;gap:16px;align-items:start}
@@ -203,8 +203,9 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 .table-open{padding:6px 12px;font-size:12px}
 #emptyState{display:none;padding:40px;text-align:center;color:var(--muted)}
 #emptyState.hidden{display:none}
+#cardView{display:none}
 @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.layout{grid-template-columns:1fr}}
-@media(max-width:700px){.kpis{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}}
+@media(max-width:700px){.kpis{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}.lead-drawer{width:100vw;border-left:none;border-radius:0}.drawer-head{padding:16px 16px}.drawer-tabs{padding:10px 16px 0}.drawer-body{padding:16px 16px}.drawer-foot{padding:12px 16px;flex-direction:column;align-items:stretch}.drawer-foot .save-feedback{order:2;text-align:center;font-size:11px}.drawer-foot .btn{width:100%;justify-content:center}.cover-overlay{overflow-x:hidden}.topbar{grid-template-columns:1fr;gap:10px;padding:14px}.brand img{width:120px}.brand h1{font-size:16px}.topbar-actions{justify-content:flex-start;flex-wrap:wrap}.search-wrap{min-width:0;max-width:none;width:100%}.app{padding:10px}.filters-body{display:none}.filters-body.open{display:grid}.panel-head{cursor:pointer;user-select:none}.filter-toggle-icon{margin-left:auto;font-size:18px;transition:transform .22s ease;color:var(--cyan)}.filter-toggle-icon.open{transform:rotate(180deg)}.table-wrap{display:none}.table-card{overflow:visible}.app{max-width:100%;width:100%;overflow-x:hidden;padding:10px}table{min-width:0}.main{min-width:0;max-width:100%}.panel{min-width:0;max-width:100%}#cardView{max-width:100%;box-sizing:border-box}.lead-card{max-width:100%;box-sizing:border-box}.card-view-empty{display:none;padding:32px;text-align:center;color:var(--muted)}#cardView{display:grid;gap:10px;padding:12px}.lead-card{border:1px solid var(--line);border-radius:16px;padding:14px;background:rgba(12,18,32,.96);cursor:pointer;transition:.15s ease;overflow:hidden;width:100%;box-sizing:border-box}.lead-card:active{border-color:var(--line2);background:rgba(0,240,255,.04)}.lead-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px}.lead-card-name{font-size:15px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lead-card-tags{display:flex;gap:4px;flex-shrink:0;align-items:flex-start;flex-wrap:wrap;max-width:48%}.lead-card-row{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);margin-bottom:5px;overflow:hidden;width:100%}.lead-card-row span:last-child{color:var(--text);text-align:right;max-width:65%;word-break:break-word}.lead-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}.lead-card-owner{font-size:11px;color:var(--muted)}.lead-card-btn{padding:7px 14px;font-size:12px}}
 </style>
 </head>
 <body>
@@ -293,8 +294,8 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 
     <!-- SIDEBAR FILTERS -->
     <aside class="panel">
-      <div class="panel-head"><h2>Filtros</h2><span class="meta" id="filterCount">0 activos</span></div>
-      <div class="filters-body">
+      <div class="panel-head" id="filterPanelHead"><h2>Filtros</h2><span class="meta" id="filterCount">0 activos</span><span class="filter-toggle-icon" id="filterToggleIcon">▾</span></div>
+      <div class="filters-body" id="filtersBody">
         <div class="field"><label>Owner</label><select id="filterOwner"></select></div>
         <div class="field"><label>Status</label><select id="filterStatus"></select></div>
         <div class="field"><label>Status 2</label><select id="filterStatus2"></select></div>
@@ -380,6 +381,7 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
           </table>
           <div id="emptyState">Sin leads que mostrar con los filtros actuales.</div>
         </div>
+        <div id="cardView"></div>
       </div>
 
     </div><!-- /main -->
@@ -541,6 +543,17 @@ function bindEvents() {
   el.btnSaveLead.addEventListener('click', saveLead);
   el.btnDeleteLead.addEventListener('click', deleteLead);
   if (el.btnEnterCover) el.btnEnterCover.addEventListener('click', enterApp);
+  // MC-4: toggle filtros en móvil
+  const filterPanelHead = document.getElementById('filterPanelHead');
+  const filtersBodyEl = document.getElementById('filtersBody');
+  const filterToggleIcon = document.getElementById('filterToggleIcon');
+  if (filterPanelHead && filtersBodyEl) {
+    filterPanelHead.addEventListener('click', () => {
+      if (window.innerWidth > 700) return;
+      const isOpen = filtersBodyEl.classList.toggle('open');
+      if (filterToggleIcon) filterToggleIcon.classList.toggle('open', isOpen);
+    });
+  }
   if (el.btnReport) el.btnReport.addEventListener('click', openReport);
   if (el.btnConfigToggle) el.btnConfigToggle.addEventListener('click', () => {
     const panel = el.configPanel;
@@ -724,7 +737,7 @@ function sortLeads(leads, sort) {
 }
 
 /* ===== RENDER ===== */
-function renderAll() { renderKpis(); renderCharts(); renderDonuts(); renderTable(); updateStatusPills(); }
+function renderAll() { renderKpis(); renderCharts(); renderDonuts(); renderTable(); renderCards(); updateStatusPills(); }
 
 function renderKpis() {
   const leads = state.filteredLeads;
@@ -781,6 +794,39 @@ function renderTable() {
   }).join('');
   [...el.tableBody.querySelectorAll('tr')].forEach(row => row.addEventListener('click', () => openDrawer(row.dataset.id)));
   [...el.tableBody.querySelectorAll('[data-open-id]')].forEach(btn => btn.addEventListener('click', ev => { ev.stopPropagation(); openDrawer(btn.dataset.openId); }));
+}
+
+// MC-5: render cards en móvil
+function renderCards() {
+  const cardView = document.getElementById('cardView');
+  if (!cardView) return;
+  const rows = state.filteredLeads;
+  if (!rows.length) { cardView.innerHTML = '<div class="card-view-empty" style="display:block;padding:32px;text-align:center;color:var(--muted)">Sin leads que mostrar.</div>'; return; }
+  cardView.innerHTML = rows.map(lead => {
+    const uid = lead.id_lead && String(lead.id_lead).trim() !== '' ? String(lead.id_lead) : `__row__${lead._rowNumber||''}`;
+    const nombre = escapeHtml(lead.nombre_comercial || 'Sin nombre');
+    const owner = escapeHtml(lead.owner || 'Sin owner');
+    const servicio = escapeHtml(lead.servicio_potencial || '—');
+    const sucursales = escapeHtml(lead.num_sucursales || '—');
+    const facturacion = lead.facturacion_promedio ? escapeHtml(formatMoney(lead.facturacion_promedio)) : '—';
+    const seguimiento = lead.fecha_seguimiento ? `<span style="color:var(--amber)">${escapeHtml(formatDate(lead.fecha_seguimiento))}</span>` : '<span style="color:var(--muted)">—</span>';
+    return `<div class="lead-card" data-id="${escapeAttr(uid)}">
+      <div class="lead-card-top">
+        <div class="lead-card-name">${nombre}</div>
+        <div class="lead-card-tags">${renderPriorityTag(lead.prioridad||'')}${renderStatusTag(lead.status||'')}</div>
+      </div>
+      <div class="lead-card-row"><span>Servicio</span><span>${servicio}</span></div>
+      <div class="lead-card-row"><span>Facturación</span><span>${facturacion}</span></div>
+      <div class="lead-card-row"><span>Sucursales</span><span>${sucursales}</span></div>
+      <div class="lead-card-row"><span>Seguimiento</span><span>${seguimiento}</span></div>
+      <div class="lead-card-footer">
+        <span class="lead-card-owner">👤 ${owner}</span>
+        <button type="button" class="btn primary lead-card-btn" data-open-id="${escapeAttr(uid)}">Abrir</button>
+      </div>
+    </div>`;
+  }).join('');
+  [...cardView.querySelectorAll('.lead-card')].forEach(card => card.addEventListener('click', () => openDrawer(card.dataset.id)));
+  [...cardView.querySelectorAll('[data-open-id]')].forEach(btn => btn.addEventListener('click', ev => { ev.stopPropagation(); openDrawer(btn.dataset.openId); }));
 }
 
 function formatCell(col, value, lead) {
