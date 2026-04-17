@@ -143,20 +143,45 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 .donut-legend-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .donut-legend-val{color:var(--muted);font-variant-numeric:tabular-nums}
 /* === REPORT MODAL === */
-.report-kpi-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:10px}
-.report-kpi{background:rgba(0,240,255,.05);border:1px solid rgba(0,240,255,.1);border-radius:12px;padding:10px 8px;text-align:center}
-.report-kpi .rk-val{font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--cyan)}
-.report-kpi .rk-label{font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:3px;line-height:1.3}
-.report-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-.report-table th{background:rgba(0,240,255,.06);color:var(--muted);padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:11px;letter-spacing:.05em;text-transform:uppercase;overflow:hidden;white-space:nowrap}
-.report-table td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.report-table tr:hover td{background:rgba(0,240,255,.03)}
-.report-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.report-section{margin-bottom:18px}
-.report-section h3{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
-@media (max-width:900px){.report-kpi-grid{grid-template-columns:repeat(4,1fr)}}
+#reportBackdrop{scrollbar-width:thin;scrollbar-color:rgba(0,240,255,.2) transparent}
+.report-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.report-kpi{background:linear-gradient(135deg,rgba(0,240,255,.07),rgba(0,240,255,.02));border:1px solid rgba(0,240,255,.14);border-radius:14px;padding:14px 12px;text-align:center;position:relative;overflow:hidden}
+.report-kpi::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,240,255,.04),transparent);pointer-events:none}
+.report-kpi .rk-val{font-size:26px;font-weight:800;letter-spacing:-.04em;color:var(--cyan);line-height:1}
+.report-kpi .rk-label{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:5px;line-height:1.3}
+.report-kpi.accent{background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(34,197,94,.03));border-color:rgba(34,197,94,.2)}
+.report-kpi.accent .rk-val{color:#4ade80}
+.report-kpi.warn{background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(239,68,68,.03));border-color:rgba(239,68,68,.2)}
+.report-kpi.warn .rk-val{color:#f87171}
+.report-kpi.money{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.02));border-color:rgba(245,158,11,.18)}
+.report-kpi.money .rk-val{color:#fbbf24;font-size:18px}
+.report-alert-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.report-alert{border-radius:10px;padding:10px 14px;font-size:12px;display:flex;align-items:center;gap:10px;font-weight:500}
+.report-alert.red{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.report-alert.amber{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.report-divider{height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);margin:20px 0}
+.report-section-title{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.report-section-title span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.report-section-title::after{content:'';flex:1;height:1px;background:var(--line)}
+.report-table-wrap{width:100%;overflow-x:auto}
+.report-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;min-width:0}
+.report-table th{background:rgba(0,240,255,.05);color:var(--muted);padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.report-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.report-table tbody tr:hover td{background:rgba(0,240,255,.03)}
+.report-table tbody tr:last-child td{border-bottom:none}
+.report-section{margin-bottom:24px}
+/* AI panel */
+.ai-panel{margin-top:4px;border:1px solid rgba(0,240,255,.2);border-radius:16px;background:linear-gradient(135deg,rgba(0,240,255,.05),rgba(59,130,246,.03));overflow:hidden}
+.ai-panel-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid rgba(0,240,255,.1)}
+.ai-panel-head .ai-badge{font-size:10px;letter-spacing:.14em;text-transform:uppercase;background:rgba(0,240,255,.12);color:var(--cyan);border:1px solid rgba(0,240,255,.2);border-radius:999px;padding:3px 10px;font-weight:700}
+.ai-panel-head h3{margin:0;font-size:13px;font-weight:700;letter-spacing:.06em;flex:1}
+.ai-panel-body{padding:16px 18px;min-height:90px;display:flex;align-items:center;justify-content:center}
+.ai-placeholder{text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
+.ai-placeholder strong{display:block;color:var(--cyan);font-size:14px;margin-bottom:4px;letter-spacing:.04em}
+@media (max-width:900px){.report-kpi-grid{grid-template-columns:repeat(2,1fr)}.report-alert-row{grid-template-columns:1fr}}
 @media print{#reportBackdrop{position:static!important;background:white!important;color:black!important;padding:0!important}
   #reportBackdrop>div{box-shadow:none!important;border:none!important;background:white!important;color:black!important}
+  .ai-panel{display:none}
   button{display:none!important}}
 
 /* === SUGGESTION BANNER === */
@@ -388,16 +413,17 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
   </div><!-- /layout -->
 
 <!-- ===== EXECUTIVE REPORT MODAL ===== -->
-<div id="reportBackdrop" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);overflow-y:auto;padding:16px 20px">
-  <div style="width:100%;max-width:1400px;margin:0 auto;background:var(--panel);border:1px solid var(--line2);border-radius:20px;padding:24px 28px;box-shadow:0 0 80px rgba(0,240,255,.1);box-sizing:border-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+<div id="reportBackdrop" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);overflow-y:auto;overflow-x:hidden;padding:20px;box-sizing:border-box">
+  <div style="width:100%;max-width:1100px;margin:0 auto;background:linear-gradient(180deg,rgba(12,20,38,.98),rgba(8,13,22,.99));border:1px solid rgba(0,240,255,.18);border-radius:24px;padding:24px 28px;box-shadow:0 0 100px rgba(0,240,255,.08),0 30px 80px rgba(0,0,0,.6);box-sizing:border-box;min-width:0">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--line)">
       <div>
-        <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:.06em">📊 REPORTE EJECUTIVO</h2>
-        <p style="margin:4px 0 0;color:var(--muted);font-size:13px" id="reportDateRange">Core Pay Intelligence CRM</p>
+        <div style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin-bottom:6px;opacity:.8">Core Pay Intelligence</div>
+        <h2 style="margin:0;font-size:26px;font-weight:800;letter-spacing:.04em;text-transform:uppercase">Reporte Ejecutivo</h2>
+        <p style="margin:5px 0 0;color:var(--muted);font-size:12px;letter-spacing:.04em" id="reportDateRange">—</p>
       </div>
-      <div style="display:flex;gap:10px">
-        <button class="btn primary" onclick="printReport()">🖨 Imprimir</button>
-        <button class="btn ghost" onclick="closeReport()">✕ Cerrar</button>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn primary" onclick="printReport()" style="font-size:12px;padding:9px 16px">🖨 Imprimir</button>
+        <button class="btn ghost" onclick="closeReport()" style="font-size:12px;padding:9px 14px">✕ Cerrar</button>
       </div>
     </div>
     <div id="reportContent"></div>
@@ -1390,44 +1416,44 @@ function buildReport() {
   const firmados = countByStatus(leads, CONFIG.KPI_STATUS_MAP.firmados);
   const pendientes = countByStatus(leads, CONFIG.KPI_STATUS_MAP.pendientes);
   const propuestas = countByStatus(leads, CONFIG.KPI_STATUS_MAP.propuestas);
+  const contactados = countByStatus(leads, CONFIG.KPI_STATUS_MAP.contactados);
   const withProb = leads.filter(l=>parseNumeric(l.probabilidad_cierre)>0);
   const avgProb = withProb.length ? (withProb.reduce((s,l)=>{const n=parseNumeric(l.probabilidad_cierre);return s+(n<=1&&n>0?n*100:n);},0)/withProb.length).toFixed(0) : '—';
   const convRate = total>0 ? ((conv/total)*100).toFixed(1)+'%' : '—';
   const withFact = leads.filter(l=>parseNumeric(l.facturacion_promedio)>0);
   const totalFact = withFact.reduce((s,l)=>s+parseNumeric(l.facturacion_promedio),0);
-  // Follow-up vencidos
   const now = new Date();
   const vencidos = leads.filter(l=>l.fecha_seguimiento&&new Date(l.fecha_seguimiento)<now).length;
-  // Sin contacto 7+ días
   const sinContacto = leads.filter(l=>{
     if(!l.ultima_actualizacion) return false;
     const d = Math.floor((now-new Date(l.ultima_actualizacion))/86400000);
     return d>=7 && !['TRANSACCIONANDO','NO INTERESADO','CANCELADO','PAUSADO'].includes(l.status);
   }).length;
 
-  const kpis = `<div class="report-section">
-    <h3>Resumen ejecutivo · ${new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'})}</h3>
+  document.getElementById('reportDateRange').textContent = new Date().toLocaleDateString('es-MX',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+  // === SECCIÓN 1: KPIs PIPELINE ===
+  const kpis = `
+  <div class="report-section">
+    <div class="report-section-title"><span>Pipeline general</span></div>
     <div class="report-kpi-grid">
       <div class="report-kpi"><div class="rk-val">${total}</div><div class="rk-label">Total leads</div></div>
       <div class="report-kpi"><div class="rk-val">${pendientes}</div><div class="rk-label">Pendientes</div></div>
-      <div class="report-kpi"><div class="rk-val">${propuestas}</div><div class="rk-label">Propuesta/NDA</div></div>
-      <div class="report-kpi"><div class="rk-val">${firmados}</div><div class="rk-label">Firmados</div></div>
-      <div class="report-kpi"><div class="rk-val">${conv}</div><div class="rk-label">Transaccionando</div></div>
+      <div class="report-kpi"><div class="rk-val">${contactados}</div><div class="rk-label">Contactados</div></div>
+      <div class="report-kpi"><div class="rk-val">${propuestas}</div><div class="rk-label">Propuesta / NDA</div></div>
+      <div class="report-kpi accent"><div class="rk-val">${firmados}</div><div class="rk-label">Firmados</div></div>
+      <div class="report-kpi accent"><div class="rk-val">${conv}</div><div class="rk-label">Transaccionando</div></div>
       <div class="report-kpi"><div class="rk-val">${convRate}</div><div class="rk-label">Tasa conversión</div></div>
-      <div class="report-kpi"><div class="rk-val">${avgProb}%</div><div class="rk-label">Prob. prom.</div></div>
-      <div class="report-kpi"><div class="rk-val" style="font-size:15px">${formatMoney(totalFact)}</div><div class="rk-label">Facturación pipeline</div></div>
+      <div class="report-kpi money"><div class="rk-val">${formatMoney(totalFact)}</div><div class="rk-label">Facturación pipeline</div></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-      <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:10px;padding:9px 14px;font-size:12px;display:flex;align-items:center;gap:8px">
-        🚨 <span><strong>${sinContacto}</strong> leads sin contacto 7+ días</span>
-      </div>
-      <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.18);border-radius:10px;padding:9px 14px;font-size:12px;display:flex;align-items:center;gap:8px">
-        📅 <span><strong>${vencidos}</strong> seguimientos vencidos</span>
-      </div>
+    <div class="report-alert-row">
+      <div class="report-alert red">🚨 <span><strong>${sinContacto}</strong> leads sin contacto 7+ días — acción requerida</span></div>
+      <div class="report-alert amber">📅 <span><strong>${vencidos}</strong> seguimientos vencidos — reagendar hoy</span></div>
     </div>
-  </div>`;
+  </div>
+  <div class="report-divider"></div>`;
 
-  // Owner breakdown
+  // === SECCIÓN 2: DESEMPEÑO POR EJECUTIVO ===
   const ownerMap = new Map();
   leads.forEach(l => {
     const o = l.owner||'Sin asignar';
@@ -1443,19 +1469,28 @@ function buildReport() {
   });
   const ownerRows = [...ownerMap.entries()].sort((a,b)=>b[1].total-a[1].total).map(([o,d])=>{
     const prob = d.probCount ? (d.probSum/d.probCount<=1 ? Math.round(d.probSum/d.probCount*100) : Math.round(d.probSum/d.probCount)) : 0;
-    return `<tr><td style="font-weight:700">${escapeHtml(o)}</td><td>${d.total}</td><td>${d.propuestas}</td><td>${d.firmados}</td><td>${d.transac}</td><td>${prob}%</td><td>${formatMoney(d.factSum)}</td></tr>`;
+    return `<tr>
+      <td style="font-weight:700;color:var(--text)">${escapeHtml(o)}</td>
+      <td>${d.total}</td><td>${d.propuestas}</td><td>${d.firmados}</td>
+      <td style="color:#4ade80;font-weight:700">${d.transac}</td>
+      <td style="color:var(--cyan)">${prob}%</td>
+      <td style="color:#fbbf24;font-weight:600">${formatMoney(d.factSum)}</td>
+    </tr>`;
   }).join('');
 
-  const ownerTable = `<div class="report-section">
-    <h3>Desempeño por ejecutivo</h3>
-    <table class="report-table" style="table-layout:auto">
-      <colgroup><col style="width:15%"><col style="width:9%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:13%"><col style="width:27%"></colgroup>
-      <thead><tr><th>Owner</th><th>Total</th><th>Propuesta</th><th>Firmados</th><th>Transac.</th><th>Prob. prom.</th><th>Facturación</th></tr></thead>
+  const ownerTable = `
+  <div class="report-section">
+    <div class="report-section-title"><span>Desempeño por ejecutivo</span></div>
+    <div class="report-table-wrap"><table class="report-table">
+      <thead><tr>
+        <th>Ejecutivo</th><th>Total</th><th>Propuesta</th><th>Firmados</th><th>Transac.</th><th>Prob.</th><th>Facturación</th>
+      </tr></thead>
       <tbody>${ownerRows}</tbody>
-    </table>
-  </div>`;
+    </table></div>
+  </div>
+  <div class="report-divider"></div>`;
 
-  // Leads que necesitan acción urgente
+  // === SECCIÓN 3: ATENCIÓN URGENTE ===
   const urgentes = leads.filter(l=>{
     const d = l.ultima_actualizacion ? Math.floor((now-new Date(l.ultima_actualizacion))/86400000) : 999;
     return d>=7 && !['TRANSACCIONANDO','NO INTERESADO','CANCELADO','PAUSADO'].includes(l.status);
@@ -1463,41 +1498,69 @@ function buildReport() {
     const da = a.ultima_actualizacion ? new Date(a.ultima_actualizacion).getTime() : 0;
     const db = b.ultima_actualizacion ? new Date(b.ultima_actualizacion).getTime() : 0;
     return da-db;
-  }).slice(0,10);
+  }).slice(0,8);
 
   const urgentRows = urgentes.map(l=>{
     const d = l.ultima_actualizacion ? Math.floor((now-new Date(l.ultima_actualizacion))/86400000) : '—';
-    return `<tr><td>${escapeHtml(l.nombre_comercial||'—')}</td><td>${escapeHtml(l.owner||'—')}</td><td>${renderStatusTag(l.status)}</td><td>${renderPriorityTag(l.prioridad)}</td><td style="color:var(--red);font-weight:600">${d} días</td><td>${escapeHtml(l.proxima_accion||'—')}</td></tr>`;
+    const dColor = typeof d==='number' && d>=14 ? 'var(--red)' : 'var(--amber)';
+    return `<tr>
+      <td style="font-weight:600">${escapeHtml(l.nombre_comercial||'—')}</td>
+      <td>${escapeHtml(l.owner||'—')}</td>
+      <td>${renderStatusTag(l.status)}</td>
+      <td>${renderPriorityTag(l.prioridad)}</td>
+      <td style="color:${dColor};font-weight:700">${d} días</td>
+    </tr>`;
   }).join('');
 
-  const urgentTable = urgentes.length ? `<div class="report-section">
-    <h3>⚠️ Atención urgente — sin movimiento 7+ días</h3>
-    <table class="report-table">
-      <colgroup><col style="width:25%"><col style="width:12%"><col style="width:18%"><col style="width:12%"><col style="width:13%"><col style="width:20%"></colgroup>
-      <thead><tr><th>Lead</th><th>Owner</th><th>Status</th><th>Prioridad</th><th>Sin contacto</th><th>Próxima acción</th></tr></thead>
+  const urgentTable = urgentes.length ? `
+  <div class="report-section">
+    <div class="report-section-title"><span>⚠️ Acción inmediata — sin movimiento 7+ días</span></div>
+    <div class="report-table-wrap"><table class="report-table">
+      <thead><tr><th>Lead</th><th>Owner</th><th>Status</th><th>Prioridad</th><th>Sin contacto</th></tr></thead>
       <tbody>${urgentRows}</tbody>
-    </table>
-  </div>` : '';
+    </table></div>
+  </div>
+  <div class="report-divider"></div>` : '';
 
-  // Top leads por probabilidad
+  // === SECCIÓN 4: TOP LEADS ===
   const topLeads = [...leads].filter(l=>parseNumeric(l.probabilidad_cierre)>0)
-    .sort((a,b)=>parseNumeric(b.probabilidad_cierre)-parseNumeric(a.probabilidad_cierre)).slice(0,10);
+    .sort((a,b)=>parseNumeric(b.probabilidad_cierre)-parseNumeric(a.probabilidad_cierre)).slice(0,8);
   const topRows = topLeads.map(l=>
-    `<tr><td>${escapeHtml(l.nombre_comercial||'—')}</td><td>${escapeHtml(l.owner||'—')}</td><td>${renderStatusTag(l.status)}</td><td style="color:var(--cyan);font-weight:700">${formatProb(l.probabilidad_cierre)}</td><td>${formatMoney(l.facturacion_promedio)}</td><td>${escapeHtml(l.fecha_seguimiento||'—')}</td></tr>`
+    `<tr>
+      <td style="font-weight:600">${escapeHtml(l.nombre_comercial||'—')}</td>
+      <td>${escapeHtml(l.owner||'—')}</td>
+      <td>${renderStatusTag(l.status)}</td>
+      <td style="color:var(--cyan);font-weight:700">${formatProb(l.probabilidad_cierre)}</td>
+      <td style="color:#fbbf24;font-weight:600">${formatMoney(l.facturacion_promedio)}</td>
+    </tr>`
   ).join('');
-  const topTable = topLeads.length ? `<div class="report-section">
-    <h3>🎯 Top leads por probabilidad</h3>
-    <table class="report-table">
-      <colgroup><col style="width:28%"><col style="width:13%"><col style="width:18%"><col style="width:13%"><col style="width:16%"><col style="width:12%"></colgroup>
-      <thead><tr><th>Lead</th><th>Owner</th><th>Status</th><th>Probabilidad</th><th>Facturación</th><th>Seguimiento</th></tr></thead>
+
+  const topTable = topLeads.length ? `
+  <div class="report-section">
+    <div class="report-section-title"><span>🎯 Top leads por probabilidad de cierre</span></div>
+    <div class="report-table-wrap"><table class="report-table">
+      <thead><tr><th>Lead</th><th>Owner</th><th>Status</th><th>Prob.</th><th>Facturación</th></tr></thead>
       <tbody>${topRows}</tbody>
-    </table>
-  </div>` : '';
+    </table></div>
+  </div>
+  <div class="report-divider"></div>` : '';
 
-  // Two-column layout for urgentes + top
-  const bottomSection = (urgentTable || topTable) ? `<div class="report-two-col">${urgentTable||''}${topTable||''}</div>` : '';
+  // === SECCIÓN 5: AI PLACEHOLDER ===
+  const aiPanel = `
+  <div class="ai-panel">
+    <div class="ai-panel-head">
+      <h3>Análisis estratégico</h3>
+      <span class="ai-badge">✦ IA · Próximamente</span>
+    </div>
+    <div class="ai-panel-body">
+      <div class="ai-placeholder">
+        <strong>Inteligencia de negocio en tiempo real</strong>
+        En la siguiente versión, Core Pay AI analizará este pipeline y generará recomendaciones ejecutivas, alertas de riesgo y estrategias de cierre personalizadas por lead.
+      </div>
+    </div>
+  </div>`;
 
-  document.getElementById('reportContent').innerHTML = kpis + ownerTable + bottomSection;
+  document.getElementById('reportContent').innerHTML = kpis + ownerTable + urgentTable + topTable + aiPanel;
 }
 
 </script>
