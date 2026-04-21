@@ -163,7 +163,7 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 .sender-card{background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:22px 24px;width:min(340px,92vw);box-shadow:0 24px 60px rgba(0,0,0,.5)}
 .sender-card h4{margin:0 0 4px;font-size:15px;font-weight:700;color:var(--text)}
 .sender-card p{margin:0 0 16px;font-size:12px;color:var(--muted)}
-.sender-option{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:.15s ease;background:rgba(9,13,22,.8)}
+.sender-option{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:.15s ease;background:rgba(9,13,22,.8);overflow:hidden}
 .sender-option:hover{border-color:var(--line2);background:rgba(0,240,255,.05)}
 .sender-option .sender-tag{font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:999px;flex-shrink:0}
 .sender-tag.corepay{background:rgba(0,240,255,.12);color:var(--cyan);border:1px solid rgba(0,240,255,.2)}
@@ -1752,8 +1752,8 @@ function _qaShowPicker() {
     const connected = !!oauthTokens[acc.email];
     return `<div class="sender-option" onclick="qaPickAccount('${acc.email}')">
       <span class="sender-tag ${acc.tag}">${acc.label}</span>
-      <span class="sender-email">${acc.email}</span>
-      <span style="margin-left:auto;font-size:11px;color:${connected?'#22c55e':'var(--muted)'}">${connected?'✓ conectada':'sin conectar'}</span>
+      <span class="sender-email" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${acc.email}</span>
+      <span style="flex-shrink:0;font-size:11px;color:${connected?'#22c55e':'var(--muted)'};white-space:nowrap">${connected?'✓ conectada':'sin conectar'}</span>
     </div>`;
   }).join('');
   picker.classList.remove('hidden');
