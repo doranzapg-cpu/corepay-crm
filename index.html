@@ -6,6 +6,8 @@
 <title>CORE PAY | CRM</title>
 <!-- ===== PWA META TAGS (MC-8) ===== -->
 <link rel="manifest" href="manifest.json" />
+<!-- Google Identity Services (OAuth MC) -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <meta name="theme-color" content="#00f0ff" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -138,6 +140,37 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 .status-contactado{background:rgba(59,130,246,.12);color:#93c5fd;border:1px solid rgba(59,130,246,.2)}
 .status-propuesta{background:rgba(245,158,11,.12);color:#fcd34d;border:1px solid rgba(245,158,11,.2)}
 .status-firmado{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.2)}
+/* === QUICK ACTIONS BAR (MC-9) === */
+.quick-actions-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.btn-qa{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid var(--line);background:rgba(9,13,22,.95);color:var(--text);cursor:pointer;transition:.18s ease}
+.btn-qa:hover{border-color:var(--line2);transform:translateY(-1px);color:var(--cyan)}
+.btn-qa:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-meet{border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.08);color:#93c5fd}
+.btn-meet:hover{border-color:rgba(59,130,246,.6);color:#bfdbfe}
+/* === GOOGLE OAUTH (MC-OAuth) === */
+.oauth-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(9,13,22,.8);margin-bottom:10px;flex-wrap:wrap}
+.oauth-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.oauth-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0}
+.oauth-dot.connected{background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.5)}
+.oauth-user{font-size:12px;color:var(--cyan);font-weight:600}
+.btn-oauth{font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid rgba(0,240,255,.3);background:rgba(0,240,255,.08);color:var(--cyan);cursor:pointer;transition:.15s ease}
+.btn-oauth:hover{background:rgba(0,240,255,.15)}
+.btn-oauth.disconnect{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.06);color:#fca5a5}
+.btn-oauth.disconnect:hover{background:rgba(239,68,68,.12)}
+/* === SENDER PICKER (MC-9b) === */
+.sender-picker{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(4px)}
+.sender-picker.hidden{display:none}
+.sender-card{background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:22px 24px;width:min(340px,92vw);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.sender-card h4{margin:0 0 4px;font-size:15px;font-weight:700;color:var(--text)}
+.sender-card p{margin:0 0 16px;font-size:12px;color:var(--muted)}
+.sender-option{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:.15s ease;background:rgba(9,13,22,.8)}
+.sender-option:hover{border-color:var(--line2);background:rgba(0,240,255,.05)}
+.sender-option .sender-tag{font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:999px;flex-shrink:0}
+.sender-tag.corepay{background:rgba(0,240,255,.12);color:var(--cyan);border:1px solid rgba(0,240,255,.2)}
+.sender-tag.netpay{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
+.sender-email{font-size:13px;color:var(--text)}
+.sender-cancel{width:100%;margin-top:4px;padding:9px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;transition:.15s ease}
+.sender-cancel:hover{color:var(--text);border-color:var(--line2)}
 .status-transaccionando{background:rgba(0,240,255,.12);color:#67e8f9;border:1px solid rgba(0,240,255,.2)}
 .status-no-interesado{background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.2)}
 
@@ -447,6 +480,17 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 </div><!-- /app -->
 
 <!-- ===== DRAWER ===== -->
+<!-- ===== SENDER PICKER MODAL (MC-9b) ===== -->
+<div class="sender-picker hidden" id="senderPicker">
+  <div class="sender-card">
+    <h4>¿Desde qué cuenta envías?</h4>
+    <p id="senderPickerTo"></p>
+    <div id="senderOptions"></div>
+    <button class="sender-cancel" onclick="closeSenderPicker()">Cancelar</button>
+  </div>
+</div>
+<!-- ===== /SENDER PICKER MODAL ===== -->
+
 <div class="drawer-backdrop" id="drawerBackdrop"></div>
 <div class="lead-drawer" id="leadDrawer">
   <div class="drawer-head">
@@ -486,7 +530,7 @@ const CONFIG = {
     pendientes:['PENDIENTE'],
     contactados:['CONTACTADO','WHATSAPP ENVIADO','MAIL ENVIADO','VISITA/LLAMADA PROGRAMADA','PRESENTACIÓN ENVIADA'],
     propuestas:['PROPUESTA ENVIADA','NDA EN PROCESO'],
-    firmados:['NDA EN FIRMA','EN PROCESO DE FIRMA','FIRMADO'],
+    firmados:['FIRMADO'],
     transaccionando:['TRANSACCIONANDO']
   },
   MONEY_FIELDS:['facturacion_promedio','ticket_promedio','monto_penalizacion'],
@@ -1097,6 +1141,7 @@ function sectionGeneral(lead) {
     ${textField('nombre_contacto','Nombre contacto',lead.nombre_contacto)}
     ${textField('puesto','Puesto',lead.puesto)}
     ${textField('email','Email',lead.email,'email')}
+    ${lead.email ? `<div class="field"><label>&nbsp;</label><a class="btn btn-qa" href="mailto:${escapeAttr(lead.email)}" style="margin-top:2px;font-size:12px">✉ Abrir en cliente de correo</a></div>` : ''}
     ${textField('telefono','Teléfono',lead.telefono)}
   </div></section>`;
 }
@@ -1151,12 +1196,35 @@ function sectionAddress(lead) {
 }
 
 function sectionSeguimiento(lead) {
-  return `<section class="section"><h3>Seguimiento y cierre</h3><div class="grid-3">
+  // Datos almacenados en state para que los botones los lean sin pasar params por onclick
+  state._qaLead = {
+    email:   (lead.email||'').trim(),
+    nombre:  (lead.nombre_comercial||lead.nombre_contacto||''),
+    accion:  (lead.proxima_accion||''),
+    fecha:   lead.fecha_seguimiento ? formatDateInput(lead.fecha_seguimiento) : ''
+  };
+
+  return `<section class="section"><h3>Seguimiento y cierre</h3>
+  <div id="oauthBarInDrawer"></div>
+  <div class="quick-actions-bar">
+    <button class="btn btn-qa" onclick="qaOpenMailPicker()" title="Elegir cuenta y abrir Gmail">✉ Enviar correo</button>
+    <button class="btn btn-qa" onclick="qaOpenCalPicker('cal')" title="Crear evento en Google Calendar">📅 Agendar</button>
+    <button class="btn btn-qa btn-meet" onclick="qaOpenCalPicker('meet')" title="Crear reunión con Google Meet">🎥 Meet</button>
+  </div>
+  <div class="grid-3">
     ${selectField('razon_perdida','Razón de pérdida',lead.razon_perdida,RAZON_PERDIDA_OPTS)}
     ${textField('proxima_accion','Próxima acción',lead.proxima_accion)}
     <div class="field"><label>Fecha de seguimiento</label><input data-field="fecha_seguimiento" type="date" value="${escapeAttr(formatDateInput(lead.fecha_seguimiento))}" /></div>
   </div></section>`;
 }
+
+/* === PREPARACIÓN PARA INTEGRACIÓN PROFUNDA (MC-OAUTH) ===
+   Cuando se implemente OAuth con Google, reemplazar los links estáticos por:
+   - Gmail API: POST /gmail/v1/users/me/messages/send
+   - Calendar API: POST /calendar/v3/calendars/primary/events (con conferenceData para Meet)
+   Tokens se almacenarán en localStorage bajo 'corepay_google_token'
+   Scope requerido: gmail.compose + calendar.events
+*/
 
 function sectionComments(lead) {
   return `<section class="section"><h3>Comentarios</h3><div class="field"><label>Notas / comentarios</label><textarea data-field="comentarios" rows="5">${escapeHtml(lead.comentarios||'')}</textarea></div></section>`;
@@ -1577,6 +1645,232 @@ function buildReport() {
   document.getElementById('reportContent').innerHTML = kpis + ownerTable + urgentTable + topTable + aiPanel;
 }
 
+
+/* === GOOGLE OAUTH + QUICK ACTIONS (MC-OAuth) ===
+   Client Secret NO va aquí — solo Client ID (público por diseño OAuth2 PKCE/implicit).
+   Preparado para multi-usuario: oauthState.account se puebla desde perfil de usuario.
+   Scopes: gmail.compose (redactar, no leer) + calendar.events (crear eventos)
+*/
+const GOOGLE_CLIENT_ID = '60959181114-8jkgu9tc11vu8ul40c5gq2a6cj6vbs8k.apps.googleusercontent.com';
+const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/gmail.compose https://www.googleapis.com/auth/calendar.events';
+
+const SENDER_ACCOUNTS = [
+  { email: 'connect@corepay.com.mx',        label: 'Core Pay', tag: 'corepay' },
+  { email: 'matt@corepay.com.mx',           label: 'Core Pay', tag: 'corepay' },
+  { email: 'ruben.matturano@netpay.com.mx', label: 'NetPay',   tag: 'netpay'  }
+];
+
+const oauthState = {
+  token:   null,
+  email:   null,
+  client:  null
+};
+
+// ── Init Google Identity Services ─────────────────────────────────────────────
+function oauthInit() {
+  if (!window.google) return;
+  oauthState.client = window.google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: GOOGLE_SCOPES,
+    callback: (resp) => {
+      if (resp.error) { console.warn('[OAuth]', resp.error); return; }
+      oauthState.token = resp.access_token;
+      // Obtener email del token info
+      fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${resp.access_token}`)
+        .then(r => r.json())
+        .then(info => {
+          oauthState.email = info.email || null;
+          localStorage.setItem('corepay_oauth_email', oauthState.email || '');
+          oauthRenderBar();
+          // Si había una acción pendiente, ejecutarla
+          if (oauthState._pendingAction) {
+            oauthState._pendingAction();
+            oauthState._pendingAction = null;
+          }
+        });
+    }
+  });
+  // Restaurar email previo si existe
+  oauthState.email = localStorage.getItem('corepay_oauth_email') || null;
+  oauthRenderBar();
+}
+
+function oauthConnect() {
+  if (!oauthState.client) { alert('Google aún no cargó. Espera un momento e intenta de nuevo.'); return; }
+  oauthState.client.requestAccessToken({ prompt: 'select_account' });
+}
+
+function oauthDisconnect() {
+  if (oauthState.token) window.google?.accounts.oauth2.revoke(oauthState.token, ()=>{});
+  oauthState.token = null;
+  oauthState.email = null;
+  localStorage.removeItem('corepay_oauth_email');
+  oauthRenderBar();
+}
+
+function oauthRenderBar() {
+  const bars = document.querySelectorAll('#oauthBarInDrawer');
+  const html = oauthState.email
+    ? `<div class="oauth-bar">
+        <span class="oauth-dot connected"></span>
+        <span class="oauth-status">Conectado como</span>
+        <span class="oauth-user">${oauthState.email}</span>
+        <button class="btn-oauth disconnect" onclick="oauthDisconnect()">Desconectar</button>
+       </div>`
+    : `<div class="oauth-bar">
+        <span class="oauth-dot"></span>
+        <span class="oauth-status">Sin cuenta Google conectada — los botones abrirán el navegador</span>
+        <button class="btn-oauth" onclick="oauthConnect()">🔗 Conectar cuenta Google</button>
+       </div>`;
+  bars.forEach(b => { if(b) b.innerHTML = html; });
+}
+
+// ── Quick Action helpers ───────────────────────────────────────────────────────
+let _qaPickerMode = 'mail';
+
+function qaOpenMailPicker() { _qaPickerMode = 'mail'; _qaShowPicker(); }
+function qaOpenCalPicker(mode) { _qaPickerMode = mode; _qaShowPicker(); }
+
+function _qaShowPicker() {
+  const qa     = state._qaLead || {};
+  const picker = document.getElementById('senderPicker');
+  const toEl   = document.getElementById('senderPickerTo');
+  const optsEl = document.getElementById('senderOptions');
+  const labels = { mail:'Enviar desde:', cal:'Agendar desde cuenta:', meet:'Meet desde cuenta:' };
+
+  toEl.textContent = qa.email ? `Para: ${qa.email}` : (_qaPickerMode==='mail' ? 'Sin email definido en el lead' : qa.nombre||'');
+  document.querySelector('.sender-card h4').textContent = labels[_qaPickerMode] || 'Elige cuenta:';
+
+  optsEl.innerHTML = SENDER_ACCOUNTS.map(acc => `
+    <div class="sender-option" onclick="qaPickAccount('${acc.email}')">
+      <span class="sender-tag ${acc.tag}">${acc.label}</span>
+      <span class="sender-email">${acc.email}</span>
+    </div>`).join('');
+  picker.classList.remove('hidden');
+}
+
+function qaPickAccount(senderEmail) {
+  closeSenderPicker();
+  const qa     = state._qaLead || {};
+  const to     = qa.email   || '';
+  const name   = qa.nombre  || '';
+  const accion = qa.accion  || '';
+  const fecha  = qa.fecha   || '';
+
+  if (_qaPickerMode === 'mail') {
+    _qaSendMail(senderEmail, to, name, accion);
+  } else {
+    _qaCreateCalEvent(senderEmail, name, to, accion, fecha, _qaPickerMode === 'meet');
+  }
+}
+
+function _qaCalDate(fechaVal) {
+  try {
+    const d = fechaVal ? new Date(fechaVal+'T10:00:00') : (() => { const n=new Date(); n.setDate(n.getDate()+1); return n; })();
+    const pad = n => String(n).padStart(2,'0');
+    const ymd = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+    return { url: `${ymd}T100000/${ymd}T110000`, iso: d.toISOString().split('T')[0] };
+  } catch(e) { return { url:'', iso:'' }; }
+}
+
+// ── Mail: API real si hay token, fallback a URL ────────────────────────────────
+function _qaSendMail(from, to, name, accion) {
+  const subject = `[Core Pay] ${name} — Seguimiento comercial`;
+  const bodyText = `Hola,\n\nTe escribo en seguimiento a nuestra conversación sobre los servicios de Core Pay.\n\n`
+                 + (accion ? `Próxima acción acordada: ${accion}\n\n` : '')
+                 + `Quedo a tus órdenes,\nEquipo Core Pay`;
+
+  if (oauthState.token) {
+    // Gmail API — crea borrador listo para enviar
+    const mime = [`From: ${from}`, to?`To: ${to}`:'', `Subject: ${subject}`,
+                  'MIME-Version: 1.0','Content-Type: text/plain; charset=UTF-8','',bodyText].filter(Boolean).join('\r\n');
+    const encoded = btoa(unescape(encodeURIComponent(mime))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    fetch('https://gmail.googleapis.com/gmail/v1/users/me/drafts', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${oauthState.token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: { raw: encoded } })
+    }).then(r => {
+      if (r.ok) {
+        window.open(`https://mail.google.com/mail/?authuser=${encodeURIComponent(from)}#drafts`, '_blank', 'noopener');
+        showToast('Borrador creado en Gmail ✓');
+      } else { r.json().then(e => { console.warn('[Gmail API]',e); _qaMailFallback(from,to,subject,bodyText); }); }
+    }).catch(() => _qaMailFallback(from, to, subject, bodyText));
+  } else {
+    _qaMailFallback(from, to, subject, bodyText);
+  }
+}
+
+function _qaMailFallback(from, to, subject, body) {
+  const url = `https://mail.google.com/mail/?authuser=${encodeURIComponent(from)}&view=cm`
+            + (to?`&to=${encodeURIComponent(to)}`:'')
+            + `&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(url, '_blank', 'noopener');
+}
+
+// ── Calendar: API real si hay token, fallback a URL ───────────────────────────
+function _qaCreateCalEvent(fromEmail, name, guestEmail, accion, fecha, isMeet) {
+  const calDate = _qaCalDate(fecha);
+  const title   = isMeet ? `Meet Core Pay — ${name}` : `Seguimiento Core Pay — ${name}`;
+  const desc    = `Lead: ${name}\n${guestEmail?'Email: '+guestEmail+'\n':''}${accion?'Acción: '+accion+'\n':''}\nAgendado desde Core Pay CRM`;
+
+  if (oauthState.token) {
+    const startDate = calDate.iso || (() => { const d=new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; })();
+    const event = {
+      summary: title,
+      description: desc,
+      start: { dateTime: `${startDate}T10:00:00`, timeZone: 'America/Mexico_City' },
+      end:   { dateTime: `${startDate}T11:00:00`, timeZone: 'America/Mexico_City' },
+      attendees: guestEmail ? [{ email: guestEmail }] : [],
+      ...(isMeet ? { conferenceData: { createRequest: { requestId: `corepay-${Date.now()}`, conferenceSolutionKey: { type: 'hangoutsMeet' } } } } : {})
+    };
+    fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events${isMeet?'?conferenceDataVersion=1':''}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${oauthState.token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(event)
+    }).then(r => r.json()).then(ev => {
+      if (ev.id) {
+        const msg = isMeet && ev.hangoutLink ? `Meet creado: ${ev.hangoutLink}` : 'Evento creado en Calendar ✓';
+        showToast(msg);
+        if (ev.htmlLink) window.open(ev.htmlLink, '_blank', 'noopener');
+      } else { _qaCalFallback(fromEmail, name, guestEmail, accion, calDate.url, isMeet); }
+    }).catch(() => _qaCalFallback(fromEmail, name, guestEmail, accion, calDate.url, isMeet));
+  } else {
+    _qaCalFallback(fromEmail, name, guestEmail, accion, calDate.url, isMeet);
+  }
+}
+
+function _qaCalFallback(from, name, guest, accion, calDateUrl, isMeet) {
+  const title = isMeet ? `Meet Core Pay — ${name}` : `Seguimiento Core Pay — ${name}`;
+  const desc  = `Lead: ${name}\n${guest?'Email: '+guest+'\n':''}${accion?'Acción: '+accion+'\n':''}\nAgendado desde Core Pay CRM`;
+  const url   = `https://calendar.google.com/calendar/render?authuser=${encodeURIComponent(from)}`
+              + `&action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(desc)}`
+              + `&dates=${encodeURIComponent(calDateUrl)}`
+              + (guest?`&add=${encodeURIComponent(guest)}`:'')
+              + (isMeet?`&location=${encodeURIComponent('Google Meet')}`:'');
+  window.open(url, '_blank', 'noopener');
+}
+
+function showToast(msg) {
+  let t = document.getElementById('crmToast');
+  if (!t) { t = document.createElement('div'); t.id='crmToast';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0f1726;border:1px solid rgba(0,240,255,.3);color:#00f0ff;padding:10px 20px;border-radius:12px;font-size:13px;z-index:99999;transition:opacity .3s ease';
+    document.body.appendChild(t); }
+  t.textContent = msg; t.style.opacity='1';
+  clearTimeout(t._to);
+  t._to = setTimeout(()=>{ t.style.opacity='0'; }, 3000);
+}
+
+function closeSenderPicker() {
+  document.getElementById('senderPicker').classList.add('hidden');
+}
+
+document.getElementById('senderPicker').addEventListener('click', function(e) {
+  if (e.target === this) closeSenderPicker();
+});
+
+// Init OAuth cuando Google cargue
+if (window.google) { oauthInit(); }
+else { window.addEventListener('load', () => setTimeout(oauthInit, 800)); }
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
