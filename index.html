@@ -652,6 +652,7 @@ function bindEvents() {
     state.activeTab = tab.dataset.tab;
     [...el.drawerTabs.querySelectorAll('.dtab')].forEach(t => t.classList.toggle('active', t === tab));
     [...el.drawerBody.querySelectorAll('.tab-panel')].forEach(p => p.classList.toggle('active', p.dataset.panel === state.activeTab));
+    if (state.activeTab === 'seguimiento') oauthRenderBar();
   });
   // Filter change → auto-apply
   ['filterOwner','filterStatus','filterStatus2','filterGiro','filterServicio','filterAdquirente','filterPrioridad','filterProbabilidad','filterOrigen'].forEach(id => {
@@ -1066,6 +1067,7 @@ function openDrawer(uid) {
   setActiveTab('info');
   el.drawerBody.innerHTML = buildDrawerTabs(state.selectedLead);
   wireDrawerInteractions();
+  oauthRenderBar();
   el.drawerBackdrop.classList.add('open');
   el.leadDrawer.classList.add('open');
 }
