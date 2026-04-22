@@ -248,7 +248,7 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 /* === TABLA TPVs DINÁMICA (MC-12) === */
 .tpv-section-grid{display:grid;grid-template-columns:1fr;gap:14px}
 .tpv-subsection-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:600}
-.tpv-table{width:100%;max-width:100%;border-collapse:collapse;margin-bottom:6px;table-layout:fixed;overflow:hidden}
+.tpv-table{width:100%;max-width:100%;border-collapse:collapse;margin-bottom:6px;table-layout:fixed;overflow:hidden;min-width:0}
 .tpv-table th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 10px;text-align:left;border-bottom:1px solid var(--line);font-weight:600}
 .tpv-table th:last-child{width:80px;text-align:center}
 .tpv-table td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;vertical-align:middle}
@@ -1402,7 +1402,26 @@ function wireDrawerInteractions() {
   );
   [...el.drawerBody.querySelectorAll('.multi-select')].forEach(container => {
     const head = container.querySelector('.multi-head');
-    head.addEventListener('click', () => container.classList.toggle('open'));
+    const body = container.querySelector('.multi-body');
+    // MC-14 fix: position body as fixed to escape overflow-y:auto clipping on .lead-drawer
+    function openMultiFixed() {
+      const rect = head.getBoundingClientRect();
+      body.style.position = 'fixed';
+      body.style.top = rect.bottom + 'px';
+      body.style.left = rect.left + 'px';
+      body.style.width = rect.width + 'px';
+      body.style.zIndex = '9999';
+      body.style.display = 'block';
+      container.classList.add('open');
+    }
+    function closeMultiFixed() {
+      body.style.display = '';
+      container.classList.remove('open');
+    }
+    head.addEventListener('click', e => {
+      e.stopPropagation();
+      if (container.classList.contains('open')) { closeMultiFixed(); } else { openMultiFixed(); }
+    });
     const checks = [...container.querySelectorAll('input[type="checkbox"]')];
     checks.forEach(check => check.addEventListener('change', () => {
       refreshMultiSummary(container);
@@ -1410,6 +1429,13 @@ function wireDrawerInteractions() {
       if (ot) toggleOtherField(ot, checks.some(c => c.checked && isOtherSelected(c.value)));
     }));
     refreshMultiSummary(container);
+  });
+  // Close any open multi-select when clicking outside
+  document.addEventListener('click', () => {
+    el.drawerBody.querySelectorAll('.multi-select.open').forEach(c => {
+      c.querySelector('.multi-body').style.display = '';
+      c.classList.remove('open');
+    });
   });
   [...el.drawerBody.querySelectorAll('input[data-format="money"]')].forEach(bindMoneyInput);
   [...el.drawerBody.querySelectorAll('input[data-format="percent"]')].forEach(bindPercentInput);
