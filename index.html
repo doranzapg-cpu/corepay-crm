@@ -110,6 +110,9 @@ button,input,select,textarea{font:inherit}
 .kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
 .kpi{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg, rgba(18,29,49,.96), rgba(9,13,22,.98));padding:16px;min-height:110px;position:relative;overflow:hidden;transition:.2s}
 .kpi:hover{border-color:var(--line2)}
+.kpi.clickable{cursor:pointer;user-select:none}
+.kpi.clickable:hover{border-color:var(--cyan);background:linear-gradient(180deg,rgba(0,240,255,.07),rgba(9,13,22,.98))}
+.kpi.kpi-active{border-color:rgba(0,240,255,.5);box-shadow:0 0 0 2px rgba(0,240,255,.12)}
 .kpi::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,240,255,.03),transparent);pointer-events:none}
 .kpi .label{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
 .kpi .value{margin-top:12px;font-size:30px;font-weight:700;letter-spacing:-.04em}
@@ -231,7 +234,52 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
   .ai-panel{display:none}
   button{display:none!important}}
 
-/* === SUGGESTION BANNER === */
+/* === SELECTOR PRESENTACIONES DRIVE (MC-12) === */
+.drive-pres-panel{border:1px solid rgba(59,130,246,.2);border-radius:14px;padding:14px 16px;background:linear-gradient(135deg,rgba(59,130,246,.06),rgba(59,130,246,.02));margin-bottom:14px}
+.drive-pres-panel h4{margin:0 0 12px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#93c5fd;display:flex;align-items:center;gap:8px}
+.drive-pres-selects{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.drive-pres-results{display:grid;gap:6px}
+.drive-pres-file{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:rgba(8,12,20,.7);transition:.15s}
+.drive-pres-file:hover{border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.06)}
+.drive-pres-icon{font-size:16px;flex-shrink:0}
+.drive-pres-name{flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.drive-pres-open{padding:5px 12px;border-radius:8px;border:1px solid rgba(59,130,246,.3);background:rgba(59,130,246,.08);color:#93c5fd;font-size:11px;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:.15s}
+.drive-pres-open:hover{background:rgba(59,130,246,.2)}
+/* === TABLA TPVs DINÁMICA (MC-12) === */
+.tpv-section-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.tpv-subsection-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:600}
+.tpv-table{width:100%;max-width:100%;border-collapse:collapse;margin-bottom:6px;table-layout:fixed;overflow:hidden}
+.tpv-table th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 10px;text-align:left;border-bottom:1px solid var(--line);font-weight:600}
+.tpv-table th:last-child{width:80px;text-align:center}
+.tpv-table td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;vertical-align:middle}
+.tpv-table td:first-child{color:var(--text);font-weight:500}
+.tpv-table td:last-child{text-align:center;width:80px}
+.tpv-qty-input{width:56px;max-width:56px;min-width:0;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-align:center;font-size:13px;outline:none}
+.tpv-qty-input:focus{border-color:rgba(0,240,255,.34)}
+/* === CONTACTOS MÚLTIPLES (MC-11) === */
+.contacts-list{display:grid;gap:10px;margin-bottom:10px}
+.contact-item{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(8,12,20,.8);position:relative}
+.contact-item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.contact-rol-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:rgba(0,240,255,.1);color:var(--cyan);border:1px solid rgba(0,240,255,.2)}
+.contact-rol-tag.decisor{background:rgba(239,68,68,.1);color:#fca5a5;border-color:rgba(239,68,68,.25)}
+.contact-rol-tag.seguimiento{background:rgba(245,158,11,.1);color:#fcd34d;border-color:rgba(245,158,11,.25)}
+.contact-rol-tag.tecnico{background:rgba(59,130,246,.1);color:#93c5fd;border-color:rgba(59,130,246,.25)}
+.contact-rol-tag.otro{background:rgba(148,163,184,.1);color:#94a3b8;border-color:rgba(148,163,184,.2)}
+.btn-del-contact{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:6px;line-height:1;transition:.15s}
+.btn-del-contact:hover{color:#fca5a5;background:rgba(239,68,68,.1)}
+.btn-add-contact{width:100%;padding:9px;border-radius:10px;border:1px dashed rgba(0,240,255,.25);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;transition:.15s;text-align:center}
+.btn-add-contact:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,240,255,.04)}
+/* === DRIVE LINKS (MC-11) === */
+.drive-links-list{display:grid;gap:8px;margin-bottom:10px}
+.drive-link-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:rgba(8,12,20,.7)}
+.drive-link-label{flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drive-link-url{flex:2;min-width:0}
+.drive-link-url input{width:100%;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:12px;outline:none}
+.drive-link-url input:focus{border-color:rgba(0,240,255,.34)}
+.btn-drive-open{padding:6px 10px;border-radius:8px;border:1px solid rgba(59,130,246,.3);background:rgba(59,130,246,.08);color:#93c5fd;font-size:11px;cursor:pointer;white-space:nowrap;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.btn-drive-open:hover{background:rgba(59,130,246,.16)}
+.btn-del-drive{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 6px;border-radius:6px;transition:.15s}
+.btn-del-drive:hover{color:#fca5a5;background:rgba(239,68,68,.1)}
 .suggestion-banner{background:linear-gradient(135deg,rgba(0,240,255,.08),rgba(59,130,246,.06));border:1px solid rgba(0,240,255,.18);border-radius:14px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px;font-size:13px;line-height:1.45}
 .suggestion-banner.warn{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.04));border-color:rgba(245,158,11,.25);color:#fcd34d}
 .suggestion-banner.urgent{background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(239,68,68,.05));border-color:rgba(239,68,68,.25);color:#fca5a5}
@@ -525,7 +573,7 @@ const SAVED_URL = localStorage.getItem('COREPAY_API_BASE_URL') || '';
 const CONFIG = {
   API_BASE_URL: SAVED_URL || 'https://script.google.com/macros/s/AKfycbxMUc8sM-Hf_aZREwHwptKrcBiMBfC3i599gsFd8UbtuO0XPe9Jte0hyRec50Fuvz-Q/exec',
   TABLE_COLUMNS: ['id_lead','origen','owner','nombre_comercial','servicio_potencial','num_sucursales','facturacion_promedio','status','prioridad','probabilidad_cierre','nombre_contacto','telefono','fecha_seguimiento'],
-  EXPORT_COLUMNS: ['id_lead','origen','owner','nombre_comercial','razon_social','giro_preliminar','servicio_potencial','num_sucursales','facturacion_promedio','ticket_promedio','tasa_debito','tasa_credito','tasa_amex','tasa_internacional','plazos_msi','tasa_msi','penalizaciones_cuotas','concepto','monto_penalizacion','principal_problematica','adquirente_actual','servicios_actuales','servicios_de_interes','status','status_2','probabilidad_cierre','prioridad','razon_perdida','proxima_accion','fecha_seguimiento','nombre_contacto','puesto','email','telefono','calle','num_ext','int','colonia','cp','estado','municipio','comentarios','owner_otro','servicio_potencial_otro','concepto_otro','principal_problematica_otro','adquirente_actual_otro','servicios_actuales_otro','servicios_de_interes_otro','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag'],
+  EXPORT_COLUMNS: ['id_lead','origen','owner','nombre_comercial','razon_social','giro_preliminar','servicio_potencial','num_sucursales','facturacion_promedio','ticket_promedio','tasa_debito','tasa_credito','tasa_amex','tasa_internacional','plazos_msi','tasa_msi','penalizaciones_cuotas','concepto','monto_penalizacion','principal_problematica','adquirente_actual','servicios_actuales','servicios_de_interes','tipo_tpvs_tiene','tipo_tpvs_necesita','contactos_extra','drive_links','status','status_2','probabilidad_cierre','prioridad','razon_perdida','proxima_accion','fecha_seguimiento','nombre_contacto','puesto','email','telefono','calle','num_ext','int','colonia','cp','estado','municipio','comentarios','owner_otro','servicio_potencial_otro','concepto_otro','principal_problematica_otro','adquirente_actual_otro','servicios_actuales_otro','servicios_de_interes_otro','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag'],
   KPI_STATUS_MAP: {
     pendientes:['PENDIENTE'],
     contactados:['CONTACTADO','WHATSAPP ENVIADO','MAIL ENVIADO','VISITA/LLAMADA PROGRAMADA','PRESENTACIÓN ENVIADA'],
@@ -827,14 +875,36 @@ function renderAll() { renderKpis(); renderCharts(); renderDonuts(); renderTable
 function renderKpis() {
   const leads = state.filteredLeads;
   const metrics = [
-    {label:'Total leads', value:leads.length, sub:'Registros visibles'},
-    {label:'Pendientes', value:countByStatus(leads,CONFIG.KPI_STATUS_MAP.pendientes), sub:'Sin acción comercial'},
-    {label:'Contactados', value:countByStatus(leads,CONFIG.KPI_STATUS_MAP.contactados), sub:'Con acción comercial'},
-    {label:'Propuesta/NDA', value:countByStatus(leads,CONFIG.KPI_STATUS_MAP.propuestas), sub:'Etapa media'},
-    {label:'Firmados', value:countByStatus(leads,CONFIG.KPI_STATUS_MAP.firmados), sub:'Cierre avanzado'},
-    {label:'Transaccionando', value:countByStatus(leads,CONFIG.KPI_STATUS_MAP.transaccionando), sub:'Lead convertido'}
+    {label:'Total leads', value:leads.length, sub:'Registros visibles', filterKey:null, filterVal:null},
+    {label:'Pendientes', value:countByStatus(leads,CONFIG.KPI_STATUS_MAP.pendientes), sub:'Sin acción comercial', filterKey:'status', filterVal:'PENDIENTE'},
+    {label:'Contactados', value:countByStatus(leads,CONFIG.KPI_STATUS_MAP.contactados), sub:'Con acción comercial', filterKey:'status', filterVal:'CONTACTADO'},
+    {label:'Propuesta/NDA', value:countByStatus(leads,CONFIG.KPI_STATUS_MAP.propuestas), sub:'Etapa media', filterKey:'status', filterVal:'PROPUESTA ENVIADA'},
+    {label:'Firmados', value:countByStatus(leads,CONFIG.KPI_STATUS_MAP.firmados), sub:'Cierre avanzado', filterKey:'status', filterVal:'FIRMADO'},
+    {label:'Transaccionando', value:countByStatus(leads,CONFIG.KPI_STATUS_MAP.transaccionando), sub:'Lead convertido', filterKey:'status', filterVal:'TRANSACCIONANDO'}
   ];
-  el.kpis.innerHTML = metrics.map(item => `<article class="kpi"><div class="label">${escapeHtml(item.label)}</div><div class="value">${item.value}</div><div class="sub">${escapeHtml(item.sub)}</div></article>`).join('');
+  el.kpis.innerHTML = metrics.map((item,idx) => {
+    const clickable = item.filterKey ? 'clickable' : '';
+    const title = item.filterKey ? `title="Filtrar por: ${item.label}"` : '';
+    return `<article class="kpi ${clickable}" data-kpi-idx="${idx}" ${title}><div class="label">${escapeHtml(item.label)}</div><div class="value">${item.value}</div><div class="sub">${escapeHtml(item.sub)}</div></article>`;
+  }).join('');
+  // Bind click events
+  [...el.kpis.querySelectorAll('.kpi.clickable')].forEach(kpiEl => {
+    kpiEl.addEventListener('click', () => {
+      const idx = parseInt(kpiEl.dataset.kpiIdx);
+      const m = metrics[idx];
+      if (!m || !m.filterKey) return;
+      const isActive = kpiEl.classList.contains('kpi-active');
+      [...el.kpis.querySelectorAll('.kpi')].forEach(k => k.classList.remove('kpi-active'));
+      if (isActive) {
+        // toggle off — clear status filter
+        el.filterStatus.value = '';
+      } else {
+        kpiEl.classList.add('kpi-active');
+        el.filterStatus.value = m.filterVal;
+      }
+      applyFilters();
+    });
+  });
 }
 
 function countByStatus(leads,statuses) { return leads.filter(l => statuses.includes((l.status||'').trim())).length; }
@@ -1013,6 +1083,8 @@ function blankLeadTemplate() {
     adquirente_actual:'', servicios_actuales:'', servicios_de_interes:'', status:'PENDIENTE', status_2:'', probabilidad_cierre:'10%', prioridad:'MEDIA',
     razon_perdida:'', proxima_accion:'', fecha_seguimiento:'',
     nombre_contacto:'', puesto:'', email:'', telefono:'',
+    tipo_tpvs_tiene:'', tipo_tpvs_necesita:'{}',
+    contactos_extra:'[]', drive_links:'[]',
     calle:'', num_ext:'', int:'', colonia:'', cp:'', estado:'', municipio:'', comentarios:'',
     owner_otro:'', servicio_potencial_otro:'', concepto_otro:'', principal_problematica_otro:'', adquirente_actual_otro:'', servicios_actuales_otro:'', servicios_de_interes_otro:'',
     fecha_alta:now, ultima_actualizacion:now
@@ -1140,12 +1212,66 @@ function sectionGeneral(lead) {
     ${numericField('num_sucursales','No. sucursales',lead.num_sucursales)}
     ${moneyField('facturacion_promedio','Facturación promedio',lead.facturacion_promedio)}
     ${moneyField('ticket_promedio','Ticket promedio',lead.ticket_promedio)}
+  </div></section>
+  <section class="section"><h3>Contacto principal</h3><div class="grid-3">
     ${textField('nombre_contacto','Nombre contacto',lead.nombre_contacto)}
     ${textField('puesto','Puesto',lead.puesto)}
     ${textField('email','Email',lead.email,'email')}
     ${lead.email ? `<div class="field"><label>&nbsp;</label><a class="btn btn-qa" href="mailto:${escapeAttr(lead.email)}" style="margin-top:2px;font-size:12px">✉ Abrir en cliente de correo</a></div>` : ''}
     ${textField('telefono','Teléfono',lead.telefono)}
-  </div></section>`;
+  </div></section>
+  ${sectionContactosExtra(lead)}`;
+}
+
+function sectionContactosExtra(lead) {
+  let contacts = [];
+  try { contacts = JSON.parse(lead.contactos_extra || '[]'); if(!Array.isArray(contacts)) contacts=[]; } catch(e){ contacts=[]; }
+  const roles = ['Decisor','Seguimiento','Técnico','Financiero','Legal','Otro'];
+  const roleClass = r => ({decisor:'decisor',seguimiento:'seguimiento','técnico':'tecnico','técnico':'tecnico'}[normalizeText(r)] || 'otro');
+  const contactHTML = contacts.map((c,i) => `
+    <div class="contact-item" data-ci="${i}">
+      <div class="contact-item-head">
+        <span class="contact-rol-tag ${roleClass(c.rol||'')}">${escapeHtml(c.rol||'Sin rol')}</span>
+        <button type="button" class="btn-del-contact" onclick="delContactExtra(${i})" title="Eliminar contacto">✕</button>
+      </div>
+      <div class="grid-3" style="gap:8px">
+        <div class="field" style="margin:0"><label style="font-size:11px">Nombre</label><input type="text" class="ci-field" data-ci="${i}" data-key="nombre" value="${escapeAttr(c.nombre||'')}" placeholder="Nombre" /></div>
+        <div class="field" style="margin:0"><label style="font-size:11px">Puesto</label><input type="text" class="ci-field" data-ci="${i}" data-key="puesto" value="${escapeAttr(c.puesto||'')}" placeholder="Puesto" /></div>
+        <div class="field" style="margin:0"><label style="font-size:11px">Rol</label><select class="ci-field" data-ci="${i}" data-key="rol">${roles.map(r=>`<option value="${r}"${(c.rol||'')==r?'selected':''}>${r}</option>`).join('')}</select></div>
+        <div class="field" style="margin:0"><label style="font-size:11px">Email</label><input type="email" class="ci-field" data-ci="${i}" data-key="email" value="${escapeAttr(c.email||'')}" placeholder="email@..." /></div>
+        <div class="field" style="margin:0"><label style="font-size:11px">Teléfono</label><input type="text" class="ci-field" data-ci="${i}" data-key="tel" value="${escapeAttr(c.tel||'')}" placeholder="Teléfono" /></div>
+        <div class="field" style="margin:0"><label style="font-size:11px">Notas</label><input type="text" class="ci-field" data-ci="${i}" data-key="notas" value="${escapeAttr(c.notas||'')}" placeholder="Notas" /></div>
+      </div>
+    </div>`).join('');
+  return `<section class="section"><h3>Contactos adicionales</h3>
+    <div class="contacts-list" id="contactsExtraList">${contactHTML}</div>
+    <button type="button" class="btn-add-contact" onclick="addContactExtra()">+ Agregar contacto</button>
+    <input type="hidden" data-field="contactos_extra" id="contactosExtraHidden" value="${escapeAttr(JSON.stringify(contacts))}" />
+  </section>`;
+}
+
+function sectionDriveLinks(lead) {
+  let links = [];
+  try { links = JSON.parse(lead.drive_links || '[]'); if(!Array.isArray(links)) links=[]; } catch(e){ links=[]; }
+  const DRIVE_LABELS = ['Contrato','Propuesta','Presentación NetPay','KYC','Identificación','Estado de cuenta','NDA','Otro'];
+  const linksHTML = links.map((lk,i) => `
+    <div class="drive-link-item" data-dli="${i}">
+      <div class="drive-link-label">
+        <select class="dli-field" data-dli="${i}" data-key="label" style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:12px;color:var(--text)">
+          ${DRIVE_LABELS.map(l=>`<option value="${l}"${(lk.label||'')==l?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </div>
+      <div class="drive-link-url">
+        <input type="url" class="dli-field" data-dli="${i}" data-key="url" value="${escapeAttr(lk.url||'')}" placeholder="https://drive.google.com/..." />
+      </div>
+      ${lk.url ? `<a class="btn-drive-open" href="${escapeAttr(lk.url)}" target="_blank" rel="noopener">↗ Abrir</a>` : `<span class="btn-drive-open" style="opacity:.3;cursor:default">↗</span>`}
+      <button type="button" class="btn-del-drive" onclick="delDriveLink(${i})" title="Eliminar">✕</button>
+    </div>`).join('');
+  return `<section class="section"><h3>Links de Drive</h3>
+    <div class="drive-links-list" id="driveLinksExtraList">${linksHTML}</div>
+    <button type="button" class="btn-add-contact" onclick="addDriveLink()" style="border-color:rgba(59,130,246,.25);color:#93c5fd">+ Agregar link de Drive</button>
+    <input type="hidden" data-field="drive_links" id="driveLinksHidden" value="${escapeAttr(JSON.stringify(links))}" />
+  </section>`;
 }
 
 function sectionPipeline(lead) {
@@ -1175,6 +1301,23 @@ function sectionPricing(lead) {
 }
 
 function sectionSetupActual(lead) {
+  const tieneTpvOpts = state.catalogs.tiene_tpv || ['WiFi','Gprs','Lector','Otro (especificar)'];
+  const necesitaOpts = state.catalogs.necesita_tpv || ['Smart','Smart +','Go','Kiosk','Fort','Station','Otro (especificar)'];
+  let tpvNecesitaMap = {};
+  try {
+    const raw = lead.tipo_tpvs_necesita || '{}';
+    tpvNecesitaMap = JSON.parse(raw);
+    if (typeof tpvNecesitaMap !== 'object' || Array.isArray(tpvNecesitaMap)) tpvNecesitaMap = {};
+  } catch(e){ tpvNecesitaMap = {}; }
+
+  const necesitaRows = necesitaOpts.map(tipo => {
+    const qty = tpvNecesitaMap[tipo] || 0;
+    return `<tr>
+      <td>${escapeHtml(tipo)}</td>
+      <td><input type="number" class="tpv-qty-input" data-tpv-tipo="${escapeAttr(tipo)}" value="${qty > 0 ? qty : ''}" min="0" max="999" placeholder="0" /></td>
+    </tr>`;
+  }).join('');
+
   return `<section class="section"><h3>Setup actual del cliente</h3><div class="grid-3">
     ${multiSelectField('adquirente_actual','Adquirente actual',lead.adquirente_actual,state.catalogs.adquirente_actual,'adquirente_actual_otro')}
     ${textField('adquirente_actual_otro','Adquirente otro',lead.adquirente_actual_otro,'text',containsOther(lead.adquirente_actual)?'':'hidden')}
@@ -1182,7 +1325,26 @@ function sectionSetupActual(lead) {
     ${textField('servicios_actuales_otro','Servicios actuales otro',lead.servicios_actuales_otro,'text',containsOther(lead.servicios_actuales)?'':'hidden')}
     ${multiSelectField('servicios_de_interes','Servicios de interés',lead.servicios_de_interes,state.catalogs.servicios_de_interes,'servicios_de_interes_otro')}
     ${textField('servicios_de_interes_otro','Servicios de interés otro',lead.servicios_de_interes_otro,'text',containsOther(lead.servicios_de_interes)?'':'hidden')}
-  </div></section>`;
+  </div></section>
+  <section class="section"><h3>TPVs</h3>
+    <div class="tpv-section-grid">
+
+      <div style="overflow:visible;position:relative">
+        <div class="tpv-subsection-label">🖥 Equipo actual (tiene)</div>
+        ${multiSelectField('tipo_tpvs_tiene','Tipo de equipo actual',lead.tipo_tpvs_tiene,tieneTpvOpts)}
+      </div>
+
+      <div>
+        <div class="tpv-subsection-label">📦 Equipo requerido (necesita)</div>
+        <table class="tpv-table">
+          <thead><tr><th>Tipo</th><th>Cantidad</th></tr></thead>
+          <tbody>${necesitaRows}</tbody>
+        </table>
+        <input type="hidden" data-field="tipo_tpvs_necesita" id="tpvNecesitaHidden" value="${escapeAttr(JSON.stringify(tpvNecesitaMap))}" />
+      </div>
+
+    </div>
+  </section>`;
 }
 
 function sectionAddress(lead) {
@@ -1213,6 +1375,7 @@ function sectionSeguimiento(lead) {
     <button class="btn btn-qa" onclick="qaOpenCalPicker('cal')" title="Crear evento en Google Calendar">📅 Agendar</button>
     <button class="btn btn-qa btn-meet" onclick="qaOpenCalPicker('meet')" title="Crear reunión con Google Meet">🎥 Meet</button>
   </div>
+  ${sectionDrivePresentaciones()}
   <div class="grid-3">
     ${selectField('razon_perdida','Razón de pérdida',lead.razon_perdida,RAZON_PERDIDA_OPTS)}
     ${textField('proxima_accion','Próxima acción',lead.proxima_accion)}
@@ -1250,6 +1413,23 @@ function wireDrawerInteractions() {
   });
   [...el.drawerBody.querySelectorAll('input[data-format="money"]')].forEach(bindMoneyInput);
   [...el.drawerBody.querySelectorAll('input[data-format="percent"]')].forEach(bindPercentInput);
+  // Sync contactos extra inputs → hidden field
+  el.drawerBody.addEventListener('input', e => {
+    const ciInput = e.target.closest('.ci-field');
+    if (ciInput) syncContactosExtra();
+    const dliInput = e.target.closest('.dli-field');
+    if (dliInput) syncDriveLinks();
+    const tpvInput = e.target.closest('.tpv-qty-input');
+    if (tpvInput) syncTpvNecesita();
+  });
+  el.drawerBody.addEventListener('change', e => {
+    const ciInput = e.target.closest('.ci-field');
+    if (ciInput) syncContactosExtra();
+    const dliInput = e.target.closest('.dli-field');
+    if (dliInput) syncDriveLinks();
+    const tpvInput = e.target.closest('.tpv-qty-input');
+    if (tpvInput) syncTpvNecesita();
+  });
 }
 
 function toggleOtherField(fieldName, show) {
@@ -1861,6 +2041,260 @@ function showToast(msg) {
     document.body.appendChild(t); }
   t.textContent=msg; t.style.opacity='1';
   clearTimeout(t._to); t._to=setTimeout(()=>{ t.style.opacity='0'; },3500);
+}
+
+/* ===== DRIVE CATALOG — PRESENTACIONES (MC-12) ===== */
+const DRIVE_CATALOG = {
+  'Industria': {
+    'RESTAURANT': [
+      { name:'NETPAY - RESTAURANT 2026', ext:'pdf', url:'https://drive.google.com/file/d/13asRGDxmdyO1Zc1tuB2BsNbqgyg4MbsU/view' },
+      { name:'RESTAURANT ONE PAGER 2026', ext:'pdf', url:'https://drive.google.com/file/d/1nfJAf4WtlU-Smn7BfBrRi2w3XI11bZr2/view' }
+    ],
+    'RETAIL': [
+      { name:'NetPay One Pager Retail', ext:'pdf', url:'https://drive.google.com/file/d/1VMGd8BpPlq6cfpWdatXdQP-yb4n6Chym/view' },
+      { name:'NetPay - Retail Sales Deck', ext:'pdf', url:'https://drive.google.com/file/d/1HmnX4O0v-LURHNDGstorKypcd0DxdDR-/view' }
+    ],
+    'EDUCATION': [
+      { name:'OnePager EDUCATION 2026', ext:'pptx', url:'https://drive.google.com/file/d/1fSUj1A45Cj9i_ZpYvvJWNkQk2oZ7_TLf/view' },
+      { name:'OnePager EDUCACIÓN BÁSICA 2026', ext:'pptx', url:'https://drive.google.com/file/d/14gJG3W1XG5jqaM2bHpEFNoKVKerIzcOQ/view' },
+      { name:'OnePager UNIVERSIDADES 2026', ext:'pptx', url:'https://drive.google.com/file/d/1QYQoSjo2z-iXxjSn6qTvF2UdkVxet056/view' },
+      { name:'OnePager GUARDERÍAS 2026', ext:'pptx', url:'https://drive.google.com/file/d/1HkHmaaYh25Yrh0wzihIS0HGpj65U6XmJ/view' },
+      { name:'OnePager COLEGIOS PRIVADOS 2026', ext:'pptx', url:'https://drive.google.com/file/d/1EKEHMBGWETvRKfvIhDkB-Wq8f2tIzsIH/view' }
+    ],
+    'HOSPITALITY': [
+      { name:'OnePager Hospitality', ext:'pptx', url:'https://drive.google.com/file/d/1aUq_9Ow4DczxuvUrZZ_HT83LNBUXbowd/view' },
+      { name:'OnePager Hospitality', ext:'pdf', url:'https://drive.google.com/file/d/1AScitajdXwfns-PG69mQ0r6iEy2yKKWO/view' }
+    ],
+    'GAS STATIONS': [
+      { name:'NETPAY - GASOLINERÍAS 2026', ext:'pdf', url:'https://drive.google.com/file/d/1vfhskglzNwMzsTXRgRCIgNLqh1vewqVe/view' },
+      { name:'NETPAY - GAS STATIONS ONE PAGER 2026', ext:'pdf', url:'https://drive.google.com/file/d/1vYD4JNlRf_uTJHaYuKw9VU8MaqBKZjMB/view' }
+    ],
+    'MASTER DECK': [
+      { name:'NETPAY - MASTER DECK 2026', ext:'pdf', url:'https://drive.google.com/file/d/1G2scPovTNEKPdeXeal7DVbIDWQGqO1mV/view' }
+    ]
+  },
+  'Manuales': {
+    'SMART': [
+      { name:'Manual Smart 2025 y Spin Premia', ext:'pdf', url:'https://drive.google.com/file/d/1d2FJTvHBTfw6jW6nlE9x0N2rhwCPsIpN/view' }
+    ]
+  },
+  'Servicios': {
+    'SPIN PREMIA': [
+      { name:'SPIN PREMIA CLIENTES', ext:'pdf', url:'https://drive.google.com/file/d/1VTrjkxFmYd43LBMJyjfSFYJf0f1bW2g_/view' }
+    ],
+    'SMART ACCOUNT': [
+      { name:'Smart Account', ext:'pdf', url:'https://drive.google.com/file/d/1cQmqrQ7Cj-IbCd_xlOK4QDWiXX7FqWBQ/view' }
+    ],
+    'NETPAY LIQUIDITY': [
+      { name:'NETPAY - LIQUIDITY 2026', ext:'pdf', url:'https://drive.google.com/file/d/18oZN-SSsDCZDJGCxsA-xiT857dL1yMw1/view' },
+      { name:'NetPay - Liquidity One Pager', ext:'pdf', url:'https://drive.google.com/file/d/1mK9hh7fqKXa-zmYJowlnwhcrjHRgQjGB/view' }
+    ]
+  }
+};
+
+function sectionDrivePresentaciones() {
+  const cats = Object.keys(DRIVE_CATALOG);
+  const catOpts = cats.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
+  return `<div class="drive-pres-panel">
+    <h4>📂 Presentaciones NetPay · Drive</h4>
+    <div class="drive-pres-selects">
+      <div class="field" style="margin:0">
+        <label style="font-size:11px">Categoría</label>
+        <select id="driveCat" onchange="driveRenderSubcat()">
+          <option value="">— Seleccionar —</option>
+          ${catOpts}
+        </select>
+      </div>
+      <div class="field" style="margin:0">
+        <label style="font-size:11px">Subcategoría</label>
+        <select id="driveSubcat" onchange="driveRenderFiles()">
+          <option value="">— Seleccionar —</option>
+        </select>
+      </div>
+    </div>
+    <div class="drive-pres-results" id="drivePresResults"></div>
+  </div>`;
+}
+
+function driveRenderSubcat() {
+  const cat = document.getElementById('driveCat')?.value;
+  const subSel = document.getElementById('driveSubcat');
+  const results = document.getElementById('drivePresResults');
+  if (!subSel) return;
+  if (!cat || !DRIVE_CATALOG[cat]) { subSel.innerHTML='<option value="">— Seleccionar —</option>'; if(results) results.innerHTML=''; return; }
+  const subs = Object.keys(DRIVE_CATALOG[cat]);
+  subSel.innerHTML = '<option value="">— Seleccionar —</option>' + subs.map(s=>`<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('');
+  if (results) results.innerHTML = '';
+}
+
+function driveRenderFiles() {
+  const cat = document.getElementById('driveCat')?.value;
+  const sub = document.getElementById('driveSubcat')?.value;
+  const results = document.getElementById('drivePresResults');
+  if (!results) return;
+  if (!cat || !sub || !DRIVE_CATALOG[cat]?.[sub]) { results.innerHTML=''; return; }
+  const files = DRIVE_CATALOG[cat][sub];
+  const extIcon = ext => ext==='pdf'?'📄':ext==='pptx'?'📊':'📁';
+  results.innerHTML = files.map(f => `
+    <div class="drive-pres-file">
+      <span class="drive-pres-icon">${extIcon(f.ext)}</span>
+      <span class="drive-pres-name">${escapeHtml(f.name)}</span>
+      <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,.06)">${f.ext}</span>
+      <a class="drive-pres-open" href="${escapeAttr(f.url)}" target="_blank" rel="noopener">↗ Abrir</a>
+    </div>`).join('');
+}
+
+/* ===== TPV NECESITA SYNC (MC-12) ===== */
+function syncTpvNecesita() {
+  const h = document.getElementById('tpvNecesitaHidden');
+  if (!h) return;
+  const map = {};
+  [...el.drawerBody.querySelectorAll('.tpv-qty-input')].forEach(inp => {
+    const tipo = inp.dataset.tpvTipo;
+    const qty = parseInt(inp.value) || 0;
+    if (tipo && qty > 0) map[tipo] = qty;
+  });
+  h.value = JSON.stringify(map);
+}
+
+/* ===== CONTACTOS EXTRA (MC-11) ===== */
+function _getContactosExtra() {
+  const h = document.getElementById('contactosExtraHidden');
+  if (!h) return [];
+  try { return JSON.parse(h.value||'[]'); } catch(e){ return []; }
+}
+function syncContactosExtra() {
+  const h = document.getElementById('contactosExtraHidden');
+  if (!h) return;
+  const contacts = _getContactosExtra();
+  [...el.drawerBody.querySelectorAll('.ci-field')].forEach(inp => {
+    const i = parseInt(inp.dataset.ci);
+    const key = inp.dataset.key;
+    if (!contacts[i]) contacts[i] = {};
+    contacts[i][key] = inp.value;
+  });
+  h.value = JSON.stringify(contacts);
+}
+function addContactExtra() {
+  const contacts = _getContactosExtra();
+  contacts.push({nombre:'',puesto:'',rol:'Seguimiento',email:'',tel:'',notas:''});
+  const h = document.getElementById('contactosExtraHidden');
+  if (h) h.value = JSON.stringify(contacts);
+  // Re-render section
+  const lead = Object.assign({}, state.selectedLead||{}, {contactos_extra: JSON.stringify(contacts)});
+  const list = document.getElementById('contactsExtraList');
+  const roles = ['Decisor','Seguimiento','Técnico','Financiero','Legal','Otro'];
+  const roleClass = r => ({decisor:'decisor',seguimiento:'seguimiento'}[normalizeText(r)] || 'otro');
+  const i = contacts.length - 1;
+  const c = contacts[i];
+  const item = document.createElement('div');
+  item.className = 'contact-item';
+  item.dataset.ci = i;
+  item.innerHTML = `
+    <div class="contact-item-head">
+      <span class="contact-rol-tag otro">Sin rol</span>
+      <button type="button" class="btn-del-contact" onclick="delContactExtra(${i})" title="Eliminar contacto">✕</button>
+    </div>
+    <div class="grid-3" style="gap:8px">
+      <div class="field" style="margin:0"><label style="font-size:11px">Nombre</label><input type="text" class="ci-field" data-ci="${i}" data-key="nombre" value="" placeholder="Nombre" /></div>
+      <div class="field" style="margin:0"><label style="font-size:11px">Puesto</label><input type="text" class="ci-field" data-ci="${i}" data-key="puesto" value="" placeholder="Puesto" /></div>
+      <div class="field" style="margin:0"><label style="font-size:11px">Rol</label><select class="ci-field" data-ci="${i}" data-key="rol">${roles.map(r=>`<option value="${r}"${r==='Seguimiento'?'selected':''}>${r}</option>`).join('')}</select></div>
+      <div class="field" style="margin:0"><label style="font-size:11px">Email</label><input type="email" class="ci-field" data-ci="${i}" data-key="email" value="" placeholder="email@..." /></div>
+      <div class="field" style="margin:0"><label style="font-size:11px">Teléfono</label><input type="text" class="ci-field" data-ci="${i}" data-key="tel" value="" placeholder="Teléfono" /></div>
+      <div class="field" style="margin:0"><label style="font-size:11px">Notas</label><input type="text" class="ci-field" data-ci="${i}" data-key="notas" value="" placeholder="Notas" /></div>
+    </div>`;
+  if (list) list.appendChild(item);
+}
+function delContactExtra(idx) {
+  const contacts = _getContactosExtra();
+  contacts.splice(idx, 1);
+  const h = document.getElementById('contactosExtraHidden');
+  if (h) h.value = JSON.stringify(contacts);
+  // Re-render full contacts section
+  _reRenderContactsSection(contacts);
+}
+function _reRenderContactsSection(contacts) {
+  const section = document.getElementById('contactsExtraList');
+  if (!section) return;
+  const roles = ['Decisor','Seguimiento','Técnico','Financiero','Legal','Otro'];
+  const roleClass = r => normalizeText(r)==='decisor'?'decisor':normalizeText(r)==='seguimiento'?'seguimiento':normalizeText(r)==='técnico'||normalizeText(r)==='tecnico'?'tecnico':'otro';
+  section.innerHTML = contacts.map((c,i) => `
+    <div class="contact-item" data-ci="${i}">
+      <div class="contact-item-head">
+        <span class="contact-rol-tag ${roleClass(c.rol||'')}">${escapeHtml(c.rol||'Sin rol')}</span>
+        <button type="button" class="btn-del-contact" onclick="delContactExtra(${i})" title="Eliminar contacto">✕</button>
+      </div>
+      <div class="grid-3" style="gap:8px">
+        <div class="field" style="margin:0"><label style="font-size:11px">Nombre</label><input type="text" class="ci-field" data-ci="${i}" data-key="nombre" value="${escapeAttr(c.nombre||'')}" placeholder="Nombre" /></div>
+        <div class="field" style="margin:0"><label style="font-size:11px">Puesto</label><input type="text" class="ci-field" data-ci="${i}" data-key="puesto" value="${escapeAttr(c.puesto||'')}" placeholder="Puesto" /></div>
+        <div class="field" style="margin:0"><label style="font-size:11px">Rol</label><select class="ci-field" data-ci="${i}" data-key="rol">${roles.map(r=>`<option value="${r}"${(c.rol||'')==r?'selected':''}>${r}</option>`).join('')}</select></div>
+        <div class="field" style="margin:0"><label style="font-size:11px">Email</label><input type="email" class="ci-field" data-ci="${i}" data-key="email" value="${escapeAttr(c.email||'')}" placeholder="email@..." /></div>
+        <div class="field" style="margin:0"><label style="font-size:11px">Teléfono</label><input type="text" class="ci-field" data-ci="${i}" data-key="tel" value="${escapeAttr(c.tel||'')}" placeholder="Teléfono" /></div>
+        <div class="field" style="margin:0"><label style="font-size:11px">Notas</label><input type="text" class="ci-field" data-ci="${i}" data-key="notas" value="${escapeAttr(c.notas||'')}" placeholder="Notas" /></div>
+      </div>
+    </div>`).join('');
+  const h = document.getElementById('contactosExtraHidden');
+  if (h) h.value = JSON.stringify(contacts);
+}
+
+/* ===== DRIVE LINKS (MC-11) ===== */
+const DRIVE_LABELS_JS = ['Contrato','Propuesta','Presentación NetPay','KYC','Identificación','Estado de cuenta','NDA','Otro'];
+function _getDriveLinks() {
+  const h = document.getElementById('driveLinksHidden');
+  if (!h) return [];
+  try { return JSON.parse(h.value||'[]'); } catch(e){ return []; }
+}
+function syncDriveLinks() {
+  const h = document.getElementById('driveLinksHidden');
+  if (!h) return;
+  const links = _getDriveLinks();
+  [...el.drawerBody.querySelectorAll('.dli-field')].forEach(inp => {
+    const i = parseInt(inp.dataset.dli);
+    const key = inp.dataset.key;
+    if (!links[i]) links[i] = {};
+    links[i][key] = inp.value;
+  });
+  h.value = JSON.stringify(links);
+  // Update open buttons inline
+  [...el.drawerBody.querySelectorAll('.drive-link-item')].forEach((item,i) => {
+    const urlInput = item.querySelector('input.dli-field[data-key="url"]');
+    const openBtn = item.querySelector('.btn-drive-open');
+    if (urlInput && openBtn) {
+      if (urlInput.value) { openBtn.href = urlInput.value; openBtn.style.opacity=''; }
+      else { openBtn.removeAttribute('href'); openBtn.style.opacity='.3'; }
+    }
+  });
+}
+function addDriveLink() {
+  const links = _getDriveLinks();
+  links.push({label:'Propuesta',url:''});
+  const h = document.getElementById('driveLinksHidden');
+  if (h) h.value = JSON.stringify(links);
+  _reRenderDriveLinksSection(links);
+}
+function delDriveLink(idx) {
+  const links = _getDriveLinks();
+  links.splice(idx, 1);
+  _reRenderDriveLinksSection(links);
+}
+function _reRenderDriveLinksSection(links) {
+  const list = document.getElementById('driveLinksExtraList');
+  if (!list) return;
+  list.innerHTML = links.map((lk,i) => `
+    <div class="drive-link-item" data-dli="${i}">
+      <div class="drive-link-label">
+        <select class="dli-field" data-dli="${i}" data-key="label" style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:12px;color:var(--text)">
+          ${DRIVE_LABELS_JS.map(l=>`<option value="${l}"${(lk.label||'')==l?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </div>
+      <div class="drive-link-url">
+        <input type="url" class="dli-field" data-dli="${i}" data-key="url" value="${escapeAttr(lk.url||'')}" placeholder="https://drive.google.com/..." />
+      </div>
+      ${lk.url ? `<a class="btn-drive-open" href="${escapeAttr(lk.url)}" target="_blank" rel="noopener">↗ Abrir</a>` : `<a class="btn-drive-open" style="opacity:.3;cursor:default">↗</a>`}
+      <button type="button" class="btn-del-drive" onclick="delDriveLink(${i})" title="Eliminar">✕</button>
+    </div>`).join('');
+  const h = document.getElementById('driveLinksHidden');
+  if (h) h.value = JSON.stringify(links);
 }
 
 function closeSenderPicker() {
