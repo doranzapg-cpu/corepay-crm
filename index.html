@@ -21,6 +21,7 @@
 <meta name="msapplication-TileImage" content="icons/icon-144.png" />
 <!-- ===== /PWA META TAGS ===== -->
 <style>
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 :root {
   --bg:#060a12; --panel:#0f1726; --panel2:#121d31; --line:rgba(120,147,193,.18); --line2:rgba(0,240,255,.22);
   --cyan:#00f0ff; --text:#e7edf7; --muted:#8fa3c7; --green:#22c55e; --amber:#f59e0b; --red:#ef4444;
@@ -250,12 +251,14 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 .tpv-subsection-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:600}
 .tpv-table{width:100%;max-width:100%;border-collapse:collapse;margin-bottom:6px;table-layout:fixed;overflow:hidden;min-width:0}
 .tpv-table th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 10px;text-align:left;border-bottom:1px solid var(--line);font-weight:600}
-.tpv-table th:last-child{width:80px;text-align:center}
+.tpv-table th:last-child{text-align:center}
 .tpv-table td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;vertical-align:middle}
 .tpv-table td:first-child{color:var(--text);font-weight:500}
-.tpv-table td:last-child{text-align:center;width:80px}
-.tpv-qty-input{width:56px;max-width:56px;min-width:0;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-align:center;font-size:13px;outline:none}
-.tpv-qty-input:focus{border-color:rgba(0,240,255,.34)}
+.tpv-table td:last-child{text-align:center}
+.tpv-desc-input{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:13px;outline:none;box-sizing:border-box;min-height:44px}
+.tpv-desc-input:focus{border-color:rgba(0,240,255,.34);box-shadow:0 0 0 3px rgba(0,240,255,.08)}
+.tpv-qty-input,.tpv-tiene-qty{width:76px;max-width:76px;min-width:0;padding:11px 8px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-align:center;font-size:13px;outline:none;min-height:44px}
+.tpv-qty-input:focus,.tpv-tiene-qty:focus{border-color:rgba(0,240,255,.34);box-shadow:0 0 0 3px rgba(0,240,255,.08)}
 /* === CONTACTOS MÚLTIPLES (MC-11) === */
 .contacts-list{display:grid;gap:10px;margin-bottom:10px}
 .contact-item{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(8,12,20,.8);position:relative}
@@ -516,12 +519,31 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
         <h2 style="margin:0;font-size:26px;font-weight:800;letter-spacing:.04em;text-transform:uppercase">Reporte Ejecutivo</h2>
         <p style="margin:5px 0 0;color:var(--muted);font-size:12px;letter-spacing:.04em" id="reportDateRange">—</p>
       </div>
-      <div style="display:flex;gap:10px;align-items:center">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn" id="btnGrokAnalysis" onclick="triggerGrokAnalysis()" style="font-size:12px;padding:9px 16px;border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.1);color:#c4b5fd">✦ Análisis IA</button>
         <button class="btn primary" onclick="printReport()" style="font-size:12px;padding:9px 16px">🖨 Imprimir</button>
         <button class="btn ghost" onclick="closeReport()" style="font-size:12px;padding:9px 14px">✕ Cerrar</button>
       </div>
     </div>
     <div id="reportContent"></div>
+
+    <!-- AI ANALYSIS PANEL -->
+    <div id="grokPanel" style="display:none;margin-top:24px;border:1px solid rgba(139,92,246,.3);border-radius:18px;background:linear-gradient(135deg,rgba(139,92,246,.07),rgba(59,130,246,.04));overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(139,92,246,.15)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;background:rgba(139,92,246,.18);color:#c4b5fd;border:1px solid rgba(139,92,246,.3);border-radius:999px;padding:3px 10px;font-weight:700">✦ Gemini · Google</span>
+          <span style="font-size:13px;font-weight:700;color:var(--text)">Interpretación ejecutiva del pipeline</span>
+        </div>
+      </div>
+      <div id="grokOutput" style="padding:20px;min-height:80px;font-size:13px;line-height:1.7;color:var(--text)">
+        <div id="grokPlaceholder" style="text-align:center;color:var(--muted);padding:20px 0">
+          <div style="font-size:22px;margin-bottom:8px">✦</div>
+          <div style="font-weight:700;color:#c4b5fd;margin-bottom:4px">Análisis ejecutivo por IA</div>
+          <div style="font-size:12px">Presiona "✦ Análisis IA" para que Gemini interprete el pipeline, identifique riesgos y proponga acciones prioritarias.</div>
+        </div>
+        <div id="grokResult" style="display:none"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1083,7 +1105,7 @@ function blankLeadTemplate() {
     adquirente_actual:'', servicios_actuales:'', servicios_de_interes:'', status:'PENDIENTE', status_2:'', probabilidad_cierre:'10%', prioridad:'MEDIA',
     razon_perdida:'', proxima_accion:'', fecha_seguimiento:'',
     nombre_contacto:'', puesto:'', email:'', telefono:'',
-    tipo_tpvs_tiene:'', tipo_tpvs_necesita:'{}',
+    tipo_tpvs_tiene:'{}', tipo_tpvs_necesita:'{}',
     contactos_extra:'[]', drive_links:'[]',
     calle:'', num_ext:'', int:'', colonia:'', cp:'', estado:'', municipio:'', comentarios:'',
     owner_otro:'', servicio_potencial_otro:'', concepto_otro:'', principal_problematica_otro:'', adquirente_actual_otro:'', servicios_actuales_otro:'', servicios_de_interes_otro:'',
@@ -1311,10 +1333,45 @@ function sectionSetupActual(lead) {
   } catch(e){ tpvNecesitaMap = {}; }
 
   const necesitaRows = necesitaOpts.map(tipo => {
-    const qty = tpvNecesitaMap[tipo] || 0;
+    const isOtroN = /otro/i.test(tipo);
+    const valN = tpvNecesitaMap[tipo];
+    const qty = isOtroN ? (valN && valN.qty ? valN.qty : (typeof valN==='number' ? valN : 0)) : (valN || 0);
+    const descN = isOtroN && valN && valN.desc ? valN.desc : '';
+    const descCellN = isOtroN
+      ? `<td><input type="text" class="tpv-necesita-desc tpv-desc-input" data-tpv-tipo="${escapeAttr(tipo)}" value="${escapeAttr(descN)}" placeholder="Especificar..." /></td>`
+      : '<td></td>';
     return `<tr>
       <td>${escapeHtml(tipo)}</td>
-      <td><input type="number" class="tpv-qty-input" data-tpv-tipo="${escapeAttr(tipo)}" value="${qty > 0 ? qty : ''}" min="0" max="999" placeholder="0" /></td>
+      ${descCellN}
+      <td style="text-align:center"><input type="number" class="tpv-qty-input" data-tpv-tipo="${escapeAttr(tipo)}" value="${qty > 0 ? qty : ''}" min="0" max="999" placeholder="0" /></td>
+    </tr>`;
+  }).join('');
+
+  // MC-14: Tiene map — stored as JSON {tipo: qty} or {tipo: {qty,desc}} for Otro
+  let tpvTieneMap = {};
+  try {
+    const rawT = lead.tipo_tpvs_tiene || '{}';
+    // support legacy pipe-string: "WiFi | Gprs" → convert to map with qty=1
+    if (rawT.trim().startsWith('{')) {
+      tpvTieneMap = JSON.parse(rawT);
+      if (typeof tpvTieneMap !== 'object' || Array.isArray(tpvTieneMap)) tpvTieneMap = {};
+    } else if (rawT.trim()) {
+      rawT.split('|').map(s=>s.trim()).filter(Boolean).forEach(t => { tpvTieneMap[t] = 1; });
+    }
+  } catch(e){ tpvTieneMap = {}; }
+
+  const tieneRows = tieneTpvOpts.map(tipo => {
+    const isOtro = /otro/i.test(tipo);
+    const val = tpvTieneMap[tipo];
+    const qty = isOtro ? (val && val.qty ? val.qty : (typeof val==='number' ? val : 0)) : (val || 0);
+    const desc = isOtro && val && val.desc ? val.desc : '';
+    const descCell = isOtro
+      ? `<td><input type="text" class="tpv-tiene-desc tpv-desc-input" data-tpv-tipo="${escapeAttr(tipo)}" value="${escapeAttr(desc)}" placeholder="Especificar..." /></td>`
+      : '<td></td>';
+    return `<tr>
+      <td>${escapeHtml(tipo)}</td>
+      ${descCell}
+      <td style="text-align:center"><input type="number" class="tpv-tiene-qty" data-tpv-tipo="${escapeAttr(tipo)}" value="${qty > 0 ? qty : ''}" min="0" max="999" placeholder="0" /></td>
     </tr>`;
   }).join('');
 
@@ -1329,15 +1386,21 @@ function sectionSetupActual(lead) {
   <section class="section"><h3>TPVs</h3>
     <div class="tpv-section-grid">
 
-      <div style="overflow:visible;position:relative">
+      <div>
         <div class="tpv-subsection-label">🖥 Equipo actual (tiene)</div>
-        ${multiSelectField('tipo_tpvs_tiene','Tipo de equipo actual',lead.tipo_tpvs_tiene,tieneTpvOpts)}
+        <table class="tpv-table" id="tpvTieneTable">
+          <colgroup><col style="width:auto"/><col style="width:220px"/><col style="width:100px"/></colgroup>
+          <thead><tr><th>Tipo</th><th>Especificación</th><th style="text-align:center">Cantidad</th></tr></thead>
+          <tbody>${tieneRows}</tbody>
+        </table>
+        <input type="hidden" data-field="tipo_tpvs_tiene" id="tpvTieneHidden" value="${escapeAttr(JSON.stringify(tpvTieneMap))}" />
       </div>
 
       <div>
         <div class="tpv-subsection-label">📦 Equipo requerido (necesita)</div>
         <table class="tpv-table">
-          <thead><tr><th>Tipo</th><th>Cantidad</th></tr></thead>
+          <colgroup><col style="width:auto"/><col style="width:220px"/><col style="width:100px"/></colgroup>
+          <thead><tr><th>Tipo</th><th>Especificación</th><th style="text-align:center">Cantidad</th></tr></thead>
           <tbody>${necesitaRows}</tbody>
         </table>
         <input type="hidden" data-field="tipo_tpvs_necesita" id="tpvNecesitaHidden" value="${escapeAttr(JSON.stringify(tpvNecesitaMap))}" />
@@ -1433,6 +1496,12 @@ function wireDrawerInteractions() {
     if (dliInput) syncDriveLinks();
     const tpvInput = e.target.closest('.tpv-qty-input');
     if (tpvInput) syncTpvNecesita();
+    const tieneQty = e.target.closest('.tpv-tiene-qty');
+    if (tieneQty) syncTpvTiene();
+    const tieneDesc = e.target.closest('.tpv-tiene-desc');
+    if (tieneDesc) syncTpvTiene();
+    const necesitaDesc = e.target.closest('.tpv-necesita-desc');
+    if (necesitaDesc) syncTpvNecesita();
   });
   el.drawerBody.addEventListener('change', e => {
     const ciInput = e.target.closest('.ci-field');
@@ -1441,6 +1510,12 @@ function wireDrawerInteractions() {
     if (dliInput) syncDriveLinks();
     const tpvInput = e.target.closest('.tpv-qty-input');
     if (tpvInput) syncTpvNecesita();
+    const tieneQty = e.target.closest('.tpv-tiene-qty');
+    if (tieneQty) syncTpvTiene();
+    const tieneDesc = e.target.closest('.tpv-tiene-desc');
+    if (tieneDesc) syncTpvTiene();
+    const necesitaDesc = e.target.closest('.tpv-necesita-desc');
+    if (necesitaDesc) syncTpvNecesita();
   });
 }
 
@@ -1683,74 +1758,195 @@ function openReport() {
   buildReport();
 }
 function closeReport() { document.getElementById('reportBackdrop').style.display='none'; }
+
+// ── fix13: IA vía Apps Script proxy (Gemini) ──
+async function triggerGrokAnalysis() {
+  const proxyUrl = CONFIG.API_BASE_URL;
+  if (!proxyUrl) {
+    showToast('⚠ Configura la URL del Apps Script en ⚙ Config');
+    return;
+  }
+  document.getElementById('grokPanel').style.display = 'block';
+  document.getElementById('grokPlaceholder').style.display = 'none';
+  const resultEl = document.getElementById('grokResult');
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = '<div style="color:var(--muted);display:flex;align-items:center;gap:8px"><span style="animation:spin 1s linear infinite;display:inline-block">◌</span> Analizando pipeline con Gemini...</div>';
+
+  const btn = document.getElementById('btnGrokAnalysis');
+  btn.disabled = true;
+  btn.textContent = '◌ Analizando...';
+
+  const leads = state.filteredLeads;
+  const now = new Date();
+  const total = leads.length;
+  const prob = n => { const v=parseNumeric(n); return v<=1&&v>0?v*100:v; };
+  const conv = countByStatus(leads, CONFIG.KPI_STATUS_MAP.transaccionando);
+  const firmados = countByStatus(leads, CONFIG.KPI_STATUS_MAP.firmados);
+  const propuestas = countByStatus(leads, CONFIG.KPI_STATUS_MAP.propuestas);
+  const contactados = countByStatus(leads, CONFIG.KPI_STATUS_MAP.contactados);
+  const pendientes = countByStatus(leads, CONFIG.KPI_STATUS_MAP.pendientes);
+  const convRate = total>0?((conv/total)*100).toFixed(1):0;
+  const withFact = leads.filter(l=>parseNumeric(l.facturacion_promedio)>0);
+  const totalFact = withFact.reduce((s,l)=>s+parseNumeric(l.facturacion_promedio),0);
+  const pipeVal = leads.reduce((s,l)=>{ const p=prob(l.probabilidad_cierre)/100; return s+parseNumeric(l.facturacion_promedio)*p; },0);
+  const sinMov = leads.filter(l=>{ if(!l.ultima_actualizacion) return true; const d=Math.floor((now-new Date(l.ultima_actualizacion))/86400000); return d>=7&&!['TRANSACCIONANDO','NO INTERESADO','CANCELADO','PAUSADO'].includes((l.status||'').toUpperCase()); }).length;
+  const vencidos = leads.filter(l=>l.fecha_seguimiento&&new Date(l.fecha_seguimiento)<now&&!['TRANSACCIONANDO','NO INTERESADO','CANCELADO'].includes((l.status||'').toUpperCase())).length;
+  const calientes = leads.filter(l=>prob(l.probabilidad_cierre)>=50&&!['TRANSACCIONANDO','NO INTERESADO','CANCELADO'].includes((l.status||'').toUpperCase())).length;
+
+  const ownerMap = {};
+  leads.forEach(l=>{
+    const o=l.owner||'Sin asignar';
+    if(!ownerMap[o]) ownerMap[o]={activos:0,cerrados:0,sinMov:0};
+    if(!['NO INTERESADO','CANCELADO','PAUSADO'].includes((l.status||'').toUpperCase())) ownerMap[o].activos++;
+    if(CONFIG.KPI_STATUS_MAP.transaccionando.includes(l.status)||CONFIG.KPI_STATUS_MAP.firmados.includes(l.status)) ownerMap[o].cerrados++;
+    if(l.ultima_actualizacion){const d=Math.floor((now-new Date(l.ultima_actualizacion))/86400000);if(d>=7) ownerMap[o].sinMov++;}
+  });
+
+  const topCal = [...leads].filter(l=>prob(l.probabilidad_cierre)>=50&&!['TRANSACCIONANDO','NO INTERESADO','CANCELADO'].includes((l.status||'').toUpperCase()))
+    .sort((a,b)=>prob(b.probabilidad_cierre)-prob(a.probabilidad_cierre)).slice(0,5)
+    .map(l=>({nombre:l.nombre_comercial,owner:l.owner,status:l.status,prob:prob(l.probabilidad_cierre).toFixed(0)+'%',fact:formatMoney(l.facturacion_promedio),accion:l.proxima_accion||'—'}));
+
+  const snapshot = {
+    empresa: 'Core Pay — MB Electronic Payments (procesadora de pagos)',
+    fecha: new Date().toLocaleDateString('es-MX'),
+    pipeline: { total, pendientes, contactados, propuestas, firmados, transaccionando: conv, tasa_conversion: convRate+'%' },
+    financiero: { facturacion_bruta: formatMoney(totalFact), pipeline_ponderado: formatMoney(pipeVal) },
+    riesgo: { sin_movimiento_7d: sinMov, seguimientos_vencidos: vencidos, oportunidades_calientes_50pct: calientes },
+    ejecutivos: ownerMap,
+    top_oportunidades: topCal
+  };
+
+  const systemPrompt = `Eres un asesor comercial senior especializado en fintechs de pagos y adquirencia en México.\nRecibes datos del CRM de Core Pay (procesadora de pagos electrónicos, competidora de NetPay, Clip, Conekta).\nResponde SIEMPRE en español. Sé directo, ejecutivo y accionable. Sin introducciones largas.\nEstructura tu respuesta exactamente así:\n## Diagnóstico del pipeline (3-4 líneas)\n## Top 3 acciones esta semana\n## Riesgo principal a mitigar\n## Oportunidad que no se debe perder`;
+
+  const userPrompt = `Analiza este snapshot del CRM de Core Pay y genera una interpretación ejecutiva:\n\n${JSON.stringify(snapshot, null, 2)}`;
+
+  try {
+    // GET evita bloqueo CORS desde file:// origin (sin preflight)
+    const url = proxyUrl
+      + '?action=gemini'
+      + '&sp=' + encodeURIComponent(systemPrompt)
+      + '&up=' + encodeURIComponent(JSON.stringify(snapshot));
+    const resp = await fetch(url, { method: 'GET', redirect: 'follow' });
+    if (!resp.ok) {
+      const errTxt = await resp.text().catch(()=>'');
+      throw new Error('HTTP ' + resp.status + (errTxt ? ': ' + errTxt.slice(0,120) : ''));
+    }
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    const text = data.text || data.result || data.content || '(Sin respuesta)';
+    const html = text
+      .replace(/## (.+)/g, '<h4 style="margin:14px 0 6px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#c4b5fd;border-bottom:1px solid rgba(139,92,246,.2);padding-bottom:4px">$1</h4>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^(\d+\. .+)$/gm, '<div style="margin:4px 0;padding-left:8px">$1</div>')
+      .replace(/\n\n/g, '<br/>')
+      .replace(/\n/g, '<br/>');
+    resultEl.innerHTML = html;
+  } catch(err) {
+    resultEl.innerHTML = `<div style="color:var(--red);font-size:13px">❌ Error: ${escapeHtml(err.message)}<br/><span style="color:var(--muted);font-size:11px">Verifica que el Apps Script v4 esté publicado y la key Gemini guardada en el CRM.</span></div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✦ Análisis IA';
+  }
+}
 function printReport() { window.print(); }
 
 function buildReport() {
   const leads = state.filteredLeads;
   const total = leads.length;
-  const conv = countByStatus(leads, CONFIG.KPI_STATUS_MAP.transaccionando);
-  const firmados = countByStatus(leads, CONFIG.KPI_STATUS_MAP.firmados);
+  const now = new Date();
+
+  // ── STATUS COUNTS ──
+  const conv       = countByStatus(leads, CONFIG.KPI_STATUS_MAP.transaccionando);
+  const firmados   = countByStatus(leads, CONFIG.KPI_STATUS_MAP.firmados);
   const pendientes = countByStatus(leads, CONFIG.KPI_STATUS_MAP.pendientes);
   const propuestas = countByStatus(leads, CONFIG.KPI_STATUS_MAP.propuestas);
-  const contactados = countByStatus(leads, CONFIG.KPI_STATUS_MAP.contactados);
-  const withProb = leads.filter(l=>parseNumeric(l.probabilidad_cierre)>0);
-  const avgProb = withProb.length ? (withProb.reduce((s,l)=>{const n=parseNumeric(l.probabilidad_cierre);return s+(n<=1&&n>0?n*100:n);},0)/withProb.length).toFixed(0) : '—';
-  const convRate = total>0 ? ((conv/total)*100).toFixed(1)+'%' : '—';
-  const withFact = leads.filter(l=>parseNumeric(l.facturacion_promedio)>0);
+  const contactados= countByStatus(leads, CONFIG.KPI_STATUS_MAP.contactados);
+  const activos    = leads.filter(l=>!['NO INTERESADO','CANCELADO','PAUSADO'].includes((l.status||'').toUpperCase())).length;
+
+  // ── FINANCIERO ──
+  const withFact  = leads.filter(l=>parseNumeric(l.facturacion_promedio)>0);
   const totalFact = withFact.reduce((s,l)=>s+parseNumeric(l.facturacion_promedio),0);
-  const now = new Date();
-  const vencidos = leads.filter(l=>l.fecha_seguimiento&&new Date(l.fecha_seguimiento)<now).length;
-  const sinContacto = leads.filter(l=>{
-    if(!l.ultima_actualizacion) return false;
-    const d = Math.floor((now-new Date(l.ultima_actualizacion))/86400000);
-    return d>=7 && !['TRANSACCIONANDO','NO INTERESADO','CANCELADO','PAUSADO'].includes(l.status);
+  const avgTicket = withFact.length ? totalFact/withFact.length : 0;
+
+  // ── PROBABILIDAD ──
+  const prob = n => { const v=parseNumeric(n); return v<=1&&v>0?v*100:v; };
+  const withProb = leads.filter(l=>prob(l.probabilidad_cierre)>0);
+  const avgProb  = withProb.length ? (withProb.reduce((s,l)=>s+prob(l.probabilidad_cierre),0)/withProb.length).toFixed(0) : 0;
+  // Weighted pipeline value = Σ(facturacion × prob)
+  const pipelineVal = leads.reduce((s,l)=>{ const p=prob(l.probabilidad_cierre)/100; return s+parseNumeric(l.facturacion_promedio)*p; },0);
+
+  // ── RIESGO ──
+  const convRate   = total>0 ? ((conv/total)*100).toFixed(1) : '0.0';
+  const vencidos   = leads.filter(l=>l.fecha_seguimiento&&new Date(l.fecha_seguimiento)<now&&!['TRANSACCIONANDO','NO INTERESADO','CANCELADO'].includes((l.status||'').toUpperCase())).length;
+  const sinContacto= leads.filter(l=>{
+    if(!l.ultima_actualizacion) return true;
+    const d=Math.floor((now-new Date(l.ultima_actualizacion))/86400000);
+    return d>=7 && !['TRANSACCIONANDO','NO INTERESADO','CANCELADO','PAUSADO'].includes((l.status||'').toUpperCase());
   }).length;
+  const altaPrio   = leads.filter(l=>(l.prioridad||'').toLowerCase()==='alta' && !['TRANSACCIONANDO','FIRMADO'].includes((l.status||'').toUpperCase())).length;
 
   document.getElementById('reportDateRange').textContent = new Date().toLocaleDateString('es-MX',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 
-  // === SECCIÓN 1: KPIs PIPELINE ===
+  // ═══════════════════════════════════════════════════════════
+  // SECCIÓN 1 — ESTADO EJECUTIVO DEL PIPELINE
+  // ═══════════════════════════════════════════════════════════
   const kpis = `
   <div class="report-section">
-    <div class="report-section-title"><span>Pipeline general</span></div>
-    <div class="report-kpi-grid">
-      <div class="report-kpi"><div class="rk-val">${total}</div><div class="rk-label">Total leads</div></div>
-      <div class="report-kpi"><div class="rk-val">${pendientes}</div><div class="rk-label">Pendientes</div></div>
-      <div class="report-kpi"><div class="rk-val">${contactados}</div><div class="rk-label">Contactados</div></div>
-      <div class="report-kpi"><div class="rk-val">${propuestas}</div><div class="rk-label">Propuesta / NDA</div></div>
-      <div class="report-kpi accent"><div class="rk-val">${firmados}</div><div class="rk-label">Firmados</div></div>
-      <div class="report-kpi accent"><div class="rk-val">${conv}</div><div class="rk-label">Transaccionando</div></div>
-      <div class="report-kpi"><div class="rk-val">${convRate}</div><div class="rk-label">Tasa conversión</div></div>
-      <div class="report-kpi money"><div class="rk-val">${formatMoney(totalFact)}</div><div class="rk-label">Facturación pipeline</div></div>
+    <div class="report-section-title"><span>Estado ejecutivo del pipeline</span></div>
+    <div class="report-kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="report-kpi"><div class="rk-val">${total}</div><div class="rk-label">Leads totales</div></div>
+      <div class="report-kpi"><div class="rk-val">${activos}</div><div class="rk-label">Leads activos</div></div>
+      <div class="report-kpi money"><div class="rk-val" style="font-size:16px">${formatMoney(totalFact)}</div><div class="rk-label">Facturación bruta pipeline</div></div>
+      <div class="report-kpi money"><div class="rk-val" style="font-size:16px">${formatMoney(pipelineVal)}</div><div class="rk-label">Pipeline ponderado (prob.)</div></div>
     </div>
-    <div class="report-alert-row">
-      <div class="report-alert red">🚨 <span><strong>${sinContacto}</strong> leads sin contacto 7+ días — acción requerida</span></div>
-      <div class="report-alert amber">📅 <span><strong>${vencidos}</strong> seguimientos vencidos — reagendar hoy</span></div>
+    <div class="report-kpi-grid" style="grid-template-columns:repeat(6,1fr);margin-top:10px">
+      <div class="report-kpi" style="padding:10px 8px"><div class="rk-val" style="font-size:20px">${pendientes}</div><div class="rk-label">Pendientes</div></div>
+      <div class="report-kpi" style="padding:10px 8px"><div class="rk-val" style="font-size:20px">${contactados}</div><div class="rk-label">Contactados</div></div>
+      <div class="report-kpi" style="padding:10px 8px"><div class="rk-val" style="font-size:20px">${propuestas}</div><div class="rk-label">Propuesta/NDA</div></div>
+      <div class="report-kpi accent" style="padding:10px 8px"><div class="rk-val" style="font-size:20px">${firmados}</div><div class="rk-label">Firmados</div></div>
+      <div class="report-kpi accent" style="padding:10px 8px"><div class="rk-val" style="font-size:20px">${conv}</div><div class="rk-label">Transaccionando</div></div>
+      <div class="report-kpi" style="padding:10px 8px"><div class="rk-val" style="font-size:20px;color:var(--cyan)">${convRate}%</div><div class="rk-label">Tasa conversión</div></div>
+    </div>
+    <div class="report-alert-row" style="margin-top:10px">
+      <div class="report-alert ${sinContacto>0?'red':'amber'}">🚨 <span><strong>${sinContacto}</strong> lead${sinContacto!==1?'s':''} sin contacto 7+ días${sinContacto===0?' — pipeline al día':' — acción requerida'}</span></div>
+      <div class="report-alert ${vencidos>0?'red':'amber'}">📅 <span><strong>${vencidos}</strong> seguimiento${vencidos!==1?'s':''} vencido${vencidos!==1?'s':''}${vencidos===0?' — agenda al día':' — reagendar hoy'}</span></div>
     </div>
   </div>
   <div class="report-divider"></div>`;
 
-  // === SECCIÓN 2: DESEMPEÑO POR EJECUTIVO ===
+  // ═══════════════════════════════════════════════════════════
+  // SECCIÓN 2 — DESEMPEÑO POR EJECUTIVO
+  // ═══════════════════════════════════════════════════════════
   const ownerMap = new Map();
   leads.forEach(l => {
     const o = l.owner||'Sin asignar';
-    if(!ownerMap.has(o)) ownerMap.set(o,{total:0,transac:0,firmados:0,propuestas:0,probSum:0,probCount:0,factSum:0});
+    if(!ownerMap.has(o)) ownerMap.set(o,{total:0,activos:0,transac:0,firmados:0,propuestas:0,probSum:0,probCount:0,factSum:0,vencidos:0,sinMov:0});
     const r = ownerMap.get(o);
     r.total++;
+    if(!['NO INTERESADO','CANCELADO','PAUSADO'].includes((l.status||'').toUpperCase())) r.activos++;
     if(CONFIG.KPI_STATUS_MAP.transaccionando.includes(l.status)) r.transac++;
     if(CONFIG.KPI_STATUS_MAP.firmados.includes(l.status)) r.firmados++;
     if(CONFIG.KPI_STATUS_MAP.propuestas.includes(l.status)) r.propuestas++;
-    const p=parseNumeric(l.probabilidad_cierre);
-    if(p>0){r.probSum+=p;r.probCount++;}
+    const p=prob(l.probabilidad_cierre); if(p>0){r.probSum+=p;r.probCount++;}
     r.factSum+=parseNumeric(l.facturacion_promedio);
+    if(l.fecha_seguimiento&&new Date(l.fecha_seguimiento)<now&&!['TRANSACCIONANDO','NO INTERESADO','CANCELADO'].includes((l.status||'').toUpperCase())) r.vencidos++;
+    if(l.ultima_actualizacion){const d=Math.floor((now-new Date(l.ultima_actualizacion))/86400000);if(d>=7&&!['TRANSACCIONANDO','NO INTERESADO','CANCELADO','PAUSADO'].includes((l.status||'').toUpperCase())) r.sinMov++;}
   });
-  const ownerRows = [...ownerMap.entries()].sort((a,b)=>b[1].total-a[1].total).map(([o,d])=>{
-    const prob = d.probCount ? (d.probSum/d.probCount<=1 ? Math.round(d.probSum/d.probCount*100) : Math.round(d.probSum/d.probCount)) : 0;
+  const ownerRows = [...ownerMap.entries()].sort((a,b)=>b[1].activos-a[1].activos).map(([o,d])=>{
+    const avgP = d.probCount ? (d.probSum/d.probCount<=1?Math.round(d.probSum/d.probCount*100):Math.round(d.probSum/d.probCount)) : 0;
+    const convR = d.activos>0?((d.transac/d.activos)*100).toFixed(0):0;
+    const riskCell = (d.vencidos>0||d.sinMov>0)
+      ? `<td style="color:var(--red);font-weight:700">${d.vencidos>0?'📅'+d.vencidos:''}${d.sinMov>0?' 🔇'+d.sinMov:''}</td>`
+      : `<td style="color:#4ade80">✓</td>`;
     return `<tr>
       <td style="font-weight:700;color:var(--text)">${escapeHtml(o)}</td>
-      <td>${d.total}</td><td>${d.propuestas}</td><td>${d.firmados}</td>
-      <td style="color:#4ade80;font-weight:700">${d.transac}</td>
-      <td style="color:var(--cyan)">${prob}%</td>
+      <td>${d.activos}</td>
+      <td>${d.propuestas}</td>
+      <td style="color:#4ade80;font-weight:700">${d.firmados + d.transac}</td>
+      <td style="color:var(--cyan)">${avgP}%</td>
       <td style="color:#fbbf24;font-weight:600">${formatMoney(d.factSum)}</td>
+      <td style="color:var(--cyan);font-weight:600">${convR}%</td>
+      ${riskCell}
     </tr>`;
   }).join('');
 
@@ -1759,84 +1955,113 @@ function buildReport() {
     <div class="report-section-title"><span>Desempeño por ejecutivo</span></div>
     <div class="report-table-wrap"><table class="report-table">
       <thead><tr>
-        <th>Ejecutivo</th><th>Total</th><th>Propuesta</th><th>Firmados</th><th>Transac.</th><th>Prob.</th><th>Facturación</th>
+        <th>Ejecutivo</th><th>Activos</th><th>Propuesta</th><th>Cerrados</th><th>Prob. prom.</th><th>Facturación</th><th>Conv.%</th><th>Alertas</th>
       </tr></thead>
       <tbody>${ownerRows}</tbody>
     </table></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">📅 = seguimientos vencidos &nbsp;·&nbsp; 🔇 = sin movimiento 7+ días</div>
   </div>
   <div class="report-divider"></div>`;
 
-  // === SECCIÓN 3: ATENCIÓN URGENTE ===
-  const urgentes = leads.filter(l=>{
-    const d = l.ultima_actualizacion ? Math.floor((now-new Date(l.ultima_actualizacion))/86400000) : 999;
-    return d>=7 && !['TRANSACCIONANDO','NO INTERESADO','CANCELADO','PAUSADO'].includes(l.status);
-  }).sort((a,b)=>{
-    const da = a.ultima_actualizacion ? new Date(a.ultima_actualizacion).getTime() : 0;
-    const db = b.ultima_actualizacion ? new Date(b.ultima_actualizacion).getTime() : 0;
-    return da-db;
-  }).slice(0,8);
+  // ═══════════════════════════════════════════════════════════
+  // SECCIÓN 3 — OPORTUNIDADES CALIENTES (cerrar esta semana)
+  // ═══════════════════════════════════════════════════════════
+  const calientes = [...leads]
+    .filter(l=>prob(l.probabilidad_cierre)>=50 && !['TRANSACCIONANDO','NO INTERESADO','CANCELADO'].includes((l.status||'').toUpperCase()))
+    .sort((a,b)=>prob(b.probabilidad_cierre)-prob(a.probabilidad_cierre))
+    .slice(0,10);
+  const calRows = calientes.map(l=>{
+    const diasSig = l.fecha_seguimiento ? Math.ceil((new Date(l.fecha_seguimiento)-now)/86400000) : null;
+    const sigLabel = diasSig===null ? '<span style="color:var(--muted)">Sin fecha</span>'
+      : diasSig<0 ? `<span style="color:var(--red);font-weight:700">Vencido ${Math.abs(diasSig)}d</span>`
+      : diasSig===0 ? `<span style="color:var(--amber);font-weight:700">Hoy</span>`
+      : `<span style="color:#4ade80">En ${diasSig}d</span>`;
+    return `<tr>
+      <td style="font-weight:700">${escapeHtml(l.nombre_comercial||'—')}</td>
+      <td>${escapeHtml(l.owner||'—')}</td>
+      <td>${renderStatusTag(l.status)}</td>
+      <td style="color:var(--cyan);font-weight:800">${prob(l.probabilidad_cierre).toFixed(0)}%</td>
+      <td style="color:#fbbf24;font-weight:600">${formatMoney(l.facturacion_promedio)}</td>
+      <td>${sigLabel}</td>
+      <td style="color:var(--muted);font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis">${escapeHtml(l.proxima_accion||'—')}</td>
+    </tr>`;
+  }).join('');
 
-  const urgentRows = urgentes.map(l=>{
+  const calTable = calientes.length ? `
+  <div class="report-section">
+    <div class="report-section-title"><span>🔥 Oportunidades calientes — prob. ≥50%</span></div>
+    <div class="report-table-wrap"><table class="report-table">
+      <thead><tr><th>Lead</th><th>Owner</th><th>Status</th><th>Prob.</th><th>Facturación</th><th>Próx. acción</th><th>Acción pendiente</th></tr></thead>
+      <tbody>${calRows}</tbody>
+    </table></div>
+  </div>
+  <div class="report-divider"></div>` : '';
+
+  // ═══════════════════════════════════════════════════════════
+  // SECCIÓN 4 — RIESGO: SIN MOVIMIENTO
+  // ═══════════════════════════════════════════════════════════
+  const enRiesgo = leads.filter(l=>{
+    const d = l.ultima_actualizacion ? Math.floor((now-new Date(l.ultima_actualizacion))/86400000) : 999;
+    return d>=7 && !['TRANSACCIONANDO','NO INTERESADO','CANCELADO','PAUSADO'].includes((l.status||'').toUpperCase());
+  }).sort((a,b)=>{
+    const da=a.ultima_actualizacion?new Date(a.ultima_actualizacion).getTime():0;
+    const db=b.ultima_actualizacion?new Date(b.ultima_actualizacion).getTime():0;
+    return da-db;
+  }).slice(0,10);
+
+  const riesgoRows = enRiesgo.map(l=>{
     const d = l.ultima_actualizacion ? Math.floor((now-new Date(l.ultima_actualizacion))/86400000) : '—';
     const dColor = typeof d==='number' && d>=14 ? 'var(--red)' : 'var(--amber)';
+    const venc = l.fecha_seguimiento && new Date(l.fecha_seguimiento)<now;
     return `<tr>
       <td style="font-weight:600">${escapeHtml(l.nombre_comercial||'—')}</td>
       <td>${escapeHtml(l.owner||'—')}</td>
       <td>${renderStatusTag(l.status)}</td>
       <td>${renderPriorityTag(l.prioridad)}</td>
       <td style="color:${dColor};font-weight:700">${d} días</td>
+      <td>${venc?'<span style="color:var(--red)">📅 Vencido</span>':'<span style="color:var(--muted)">—</span>'}</td>
     </tr>`;
   }).join('');
 
-  const urgentTable = urgentes.length ? `
+  const riesgoTable = enRiesgo.length ? `
   <div class="report-section">
-    <div class="report-section-title"><span>⚠️ Acción inmediata — sin movimiento 7+ días</span></div>
+    <div class="report-section-title"><span>⚠️ En riesgo — sin movimiento 7+ días</span></div>
     <div class="report-table-wrap"><table class="report-table">
-      <thead><tr><th>Lead</th><th>Owner</th><th>Status</th><th>Prioridad</th><th>Sin contacto</th></tr></thead>
-      <tbody>${urgentRows}</tbody>
+      <thead><tr><th>Lead</th><th>Owner</th><th>Status</th><th>Prioridad</th><th>Sin contacto</th><th>Seguimiento</th></tr></thead>
+      <tbody>${riesgoRows}</tbody>
     </table></div>
   </div>
   <div class="report-divider"></div>` : '';
 
-  // === SECCIÓN 4: TOP LEADS ===
-  const topLeads = [...leads].filter(l=>parseNumeric(l.probabilidad_cierre)>0)
-    .sort((a,b)=>parseNumeric(b.probabilidad_cierre)-parseNumeric(a.probabilidad_cierre)).slice(0,8);
-  const topRows = topLeads.map(l=>
-    `<tr>
-      <td style="font-weight:600">${escapeHtml(l.nombre_comercial||'—')}</td>
-      <td>${escapeHtml(l.owner||'—')}</td>
-      <td>${renderStatusTag(l.status)}</td>
-      <td style="color:var(--cyan);font-weight:700">${formatProb(l.probabilidad_cierre)}</td>
-      <td style="color:#fbbf24;font-weight:600">${formatMoney(l.facturacion_promedio)}</td>
-    </tr>`
-  ).join('');
+  // ═══════════════════════════════════════════════════════════
+  // SECCIÓN 5 — DISTRIBUCIÓN POR GIRO (top 8)
+  // ═══════════════════════════════════════════════════════════
+  const giroMap = new Map();
+  leads.forEach(l=>{
+    const g = l.giro_preliminar||'Sin giro';
+    if(!giroMap.has(g)) giroMap.set(g,{total:0,factSum:0,cerrados:0});
+    const r=giroMap.get(g); r.total++;
+    r.factSum+=parseNumeric(l.facturacion_promedio);
+    if(['TRANSACCIONANDO','FIRMADO'].some(s=>CONFIG.KPI_STATUS_MAP[s==='TRANSACCIONANDO'?'transaccionando':'firmados']?.includes(l.status))) r.cerrados++;
+  });
+  const giroRows = [...giroMap.entries()].sort((a,b)=>b[1].total-a[1].total).slice(0,8).map(([g,d])=>`
+    <tr>
+      <td style="font-weight:600">${escapeHtml(g)}</td>
+      <td>${d.total}</td>
+      <td style="color:#fbbf24">${formatMoney(d.factSum)}</td>
+      <td style="color:var(--muted);font-size:11px">${total>0?((d.total/total)*100).toFixed(0)+'%':'—'}</td>
+    </tr>`).join('');
 
-  const topTable = topLeads.length ? `
+  const giroTable = `
   <div class="report-section">
-    <div class="report-section-title"><span>🎯 Top leads por probabilidad de cierre</span></div>
+    <div class="report-section-title"><span>📊 Distribución por giro (top 8)</span></div>
     <div class="report-table-wrap"><table class="report-table">
-      <thead><tr><th>Lead</th><th>Owner</th><th>Status</th><th>Prob.</th><th>Facturación</th></tr></thead>
-      <tbody>${topRows}</tbody>
+      <thead><tr><th>Giro</th><th>Leads</th><th>Facturación</th><th>% del total</th></tr></thead>
+      <tbody>${giroRows}</tbody>
     </table></div>
-  </div>
-  <div class="report-divider"></div>` : '';
-
-  // === SECCIÓN 5: AI PLACEHOLDER ===
-  const aiPanel = `
-  <div class="ai-panel">
-    <div class="ai-panel-head">
-      <h3>Análisis estratégico</h3>
-      <span class="ai-badge">✦ IA · Próximamente</span>
-    </div>
-    <div class="ai-panel-body">
-      <div class="ai-placeholder">
-        <strong>Inteligencia de negocio en tiempo real</strong>
-        En la siguiente versión, Core Pay AI analizará este pipeline y generará recomendaciones ejecutivas, alertas de riesgo y estrategias de cierre personalizadas por lead.
-      </div>
-    </div>
   </div>`;
 
-  document.getElementById('reportContent').innerHTML = kpis + ownerTable + urgentTable + topTable + aiPanel;
+  document.getElementById('reportContent').innerHTML = kpis + ownerTable + calTable + riesgoTable + giroTable;
 }
 
 
@@ -2164,7 +2389,36 @@ function syncTpvNecesita() {
   [...el.drawerBody.querySelectorAll('.tpv-qty-input')].forEach(inp => {
     const tipo = inp.dataset.tpvTipo;
     const qty = parseInt(inp.value) || 0;
-    if (tipo && qty > 0) map[tipo] = qty;
+    if (!tipo || qty <= 0) return;
+    const isOtro = /otro/i.test(tipo);
+    if (isOtro) {
+      const descInp = el.drawerBody.querySelector(`.tpv-necesita-desc[data-tpv-tipo="${CSS.escape(tipo)}"]`);
+      const desc = descInp ? descInp.value.trim() : '';
+      map[tipo] = { qty, desc };
+    } else {
+      map[tipo] = qty;
+    }
+  });
+  h.value = JSON.stringify(map);
+}
+
+// MC-14: sync Tiene table (qty + Otro desc)
+function syncTpvTiene() {
+  const h = document.getElementById('tpvTieneHidden');
+  if (!h) return;
+  const map = {};
+  [...el.drawerBody.querySelectorAll('.tpv-tiene-qty')].forEach(inp => {
+    const tipo = inp.dataset.tpvTipo;
+    const qty = parseInt(inp.value) || 0;
+    if (!tipo || qty <= 0) return;
+    const isOtro = /otro/i.test(tipo);
+    if (isOtro) {
+      const descInp = el.drawerBody.querySelector(`.tpv-tiene-desc[data-tpv-tipo="${CSS.escape(tipo)}"]`);
+      const desc = descInp ? descInp.value.trim() : '';
+      map[tipo] = { qty, desc };
+    } else {
+      map[tipo] = qty;
+    }
   });
   h.value = JSON.stringify(map);
 }
