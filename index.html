@@ -28,7 +28,7 @@
   --radius:18px; --shadow:0 20px 50px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;background:radial-gradient(circle at top left, #0f1c31, var(--bg) 45%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden}
+html,body{margin:0;padding:0;background:radial-gradient(circle at top left, #0f1c31, var(--bg) 45%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 body{min-height:100vh}
 button,input,select,textarea{font:inherit}
 .app{max-width:1720px;margin:0 auto;padding:18px}
@@ -289,19 +289,19 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 /* === DRAWER === */
 .drawer-backdrop{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:.22s}
 .drawer-backdrop.open{opacity:1;pointer-events:all}
-.lead-drawer{position:fixed;top:0;right:0;bottom:0;z-index:500;width:min(780px,100vw);background:var(--panel);border-left:1px solid var(--line2);overflow-y:auto;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:-20px 0 60px rgba(0,0,0,.4)}
+.lead-drawer{position:fixed;top:0;right:0;bottom:0;z-index:500;width:min(780px,100vw);background:var(--panel);border-left:1px solid var(--line2);overflow:visible;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:-20px 0 60px rgba(0,0,0,.4)}
 .lead-drawer.open{transform:translateX(0)}
-.drawer-head{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;padding:20px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;background:var(--panel)}
+.drawer-head{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;padding:20px 22px;border-bottom:1px solid var(--line);background:var(--panel);flex-shrink:0}
 .drawer-head h2{margin:0;font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .drawer-meta{color:var(--muted);font-size:12px;margin-top:4px}
-.drawer-tabs{display:flex;gap:4px;padding:12px 22px 0;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:72px;z-index:9}
+.drawer-tabs{display:flex;gap:4px;padding:12px 22px 0;border-bottom:1px solid var(--line);background:var(--panel);flex-shrink:0}
 .dtab{padding:10px 16px;border-radius:12px 12px 0 0;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border:1px solid transparent;border-bottom:none;transition:.15s;background:transparent}
 .dtab:hover{color:var(--text)}
 .dtab.active{background:rgba(0,240,255,.08);border-color:var(--line2);color:var(--cyan)}
-.drawer-body{padding:20px 22px}
+.drawer-body{padding:20px 22px;overflow-y:auto;flex:1;min-height:0}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
-.drawer-foot{padding:16px 22px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:sticky;bottom:0;background:var(--panel);z-index:9}
+.drawer-foot{padding:16px 22px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--panel);flex-shrink:0}
 .save-feedback{font-size:13px;color:var(--muted);flex:1;min-width:0}
 
 /* === DRAWER FORM === */
@@ -1403,29 +1403,12 @@ function wireDrawerInteractions() {
   [...el.drawerBody.querySelectorAll('.multi-select')].forEach(container => {
     const head = container.querySelector('.multi-head');
     const body = container.querySelector('.multi-body');
-    // MC-14 fix: position body as fixed to escape overflow-y:auto clipping on .lead-drawer
-    function openMultiFixed() {
-      const rect = head.getBoundingClientRect();
-      const vw = window.innerWidth;
-      let left = rect.left;
-      // MC-14: prevent overflow past right edge of viewport
-      if (left + rect.width > vw) left = vw - rect.width - 4;
-      if (left < 0) left = 4;
-      body.style.position = 'fixed';
-      body.style.top = rect.bottom + 'px';
-      body.style.left = left + 'px';
-      body.style.width = rect.width + 'px';
-      body.style.zIndex = '9999';
-      body.style.display = 'block';
-      container.classList.add('open');
-    }
-    function closeMultiFixed() {
-      body.style.display = '';
-      container.classList.remove('open');
-    }
+    // MC-14 fix: simple toggle — works now that .lead-drawer has overflow:visible
     head.addEventListener('click', e => {
       e.stopPropagation();
-      if (container.classList.contains('open')) { closeMultiFixed(); } else { openMultiFixed(); }
+      const isOpen = container.classList.contains('open');
+      el.drawerBody.querySelectorAll('.multi-select.open').forEach(c => c.classList.remove('open'));
+      if (!isOpen) container.classList.add('open');
     });
     const checks = [...container.querySelectorAll('input[type="checkbox"]')];
     checks.forEach(check => check.addEventListener('change', () => {
@@ -1435,12 +1418,10 @@ function wireDrawerInteractions() {
     }));
     refreshMultiSummary(container);
   });
-  // Close any open multi-select when clicking outside
-  document.addEventListener('click', () => {
-    el.drawerBody.querySelectorAll('.multi-select.open').forEach(c => {
-      c.querySelector('.multi-body').style.display = '';
-      c.classList.remove('open');
-    });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.multi-select')) {
+      el.drawerBody.querySelectorAll('.multi-select.open').forEach(c => c.classList.remove('open'));
+    }
   });
   [...el.drawerBody.querySelectorAll('input[data-format="money"]')].forEach(bindMoneyInput);
   [...el.drawerBody.querySelectorAll('input[data-format="percent"]')].forEach(bindPercentInput);
