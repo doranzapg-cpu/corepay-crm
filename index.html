@@ -593,7 +593,7 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 
 const SAVED_URL = localStorage.getItem('COREPAY_API_BASE_URL') || '';
 const CONFIG = {
-  API_BASE_URL: SAVED_URL || 'https://script.google.com/macros/s/AKfycbxMUc8sM-Hf_aZREwHwptKrcBiMBfC3i599gsFd8UbtuO0XPe9Jte0hyRec50Fuvz-Q/exec',
+  API_BASE_URL: SAVED_URL || 'https://script.google.com/macros/s/AKfycbz8eHKqD7TYuOfOlzqybbhi59H4w3nGUr3i5NePT6YaNm0k-l5L_ManjYjphzvJPB3M/exec',
   TABLE_COLUMNS: ['id_lead','origen','owner','nombre_comercial','servicio_potencial','num_sucursales','facturacion_promedio','status','prioridad','probabilidad_cierre','nombre_contacto','telefono','fecha_seguimiento'],
   EXPORT_COLUMNS: ['id_lead','origen','owner','nombre_comercial','razon_social','giro_preliminar','servicio_potencial','num_sucursales','facturacion_promedio','ticket_promedio','tasa_debito','tasa_credito','tasa_amex','tasa_internacional','plazos_msi','tasa_msi','penalizaciones_cuotas','concepto','monto_penalizacion','principal_problematica','adquirente_actual','servicios_actuales','servicios_de_interes','tipo_tpvs_tiene','tipo_tpvs_necesita','contactos_extra','drive_links','status','status_2','probabilidad_cierre','prioridad','razon_perdida','proxima_accion','fecha_seguimiento','nombre_contacto','puesto','email','telefono','calle','num_ext','int','colonia','cp','estado','municipio','comentarios','owner_otro','servicio_potencial_otro','concepto_otro','principal_problematica_otro','adquirente_actual_otro','servicios_actuales_otro','servicios_de_interes_otro','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag'],
   KPI_STATUS_MAP: {
@@ -1833,7 +1833,7 @@ async function triggerGrokAnalysis() {
     }
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
-    const text = data.text || data.result || data.content || '(Sin respuesta)';
+    const text = (data.data && data.data.text) || data.text || data.result || data.content || '(Sin respuesta)';
     const html = text
       .replace(/## (.+)/g, '<h4 style="margin:14px 0 6px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#c4b5fd;border-bottom:1px solid rgba(139,92,246,.2);padding-bottom:4px">$1</h4>')
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
