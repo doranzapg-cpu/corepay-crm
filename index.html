@@ -1672,7 +1672,7 @@ function formatDate(v) {
 }
 function formatDateInput(v) { if(!v)return''; try{ const d=new Date(v); if(isNaN(d.getTime()))return''; return d.toISOString().substring(0,10); }catch{return'';} }
 function normalizeText(v) { return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
-function isOtherSelected(v) { return CONFIG.OTHER_LABELS.includes(String(v||'').trim()); }
+function isOtherSelected(v) { const s=String(v||'').trim().toLowerCase(); return CONFIG.OTHER_LABELS.some(l=>s===l.toLowerCase()||s.startsWith('otro')); }
 function containsOther(v) { return splitMultiValue(v).some(isOtherSelected); }
 function splitMultiValue(v) { return String(v||'').split('|').map(x=>x.trim()).filter(Boolean); }
 function parseNumeric(v) { const n=Number(String(v||'').replace(/[^\d.-]/g,'')); return isNaN(n)?0:n; }
