@@ -316,9 +316,9 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 .readonly{padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:13px;color:var(--muted);min-height:44px}
 .mono{font-family:ui-monospace,'SF Mono',Monaco,monospace;font-size:12px}
 .field.hidden{display:none}
-.multi-select{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--panel2);z-index:10}
+.multi-select{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--panel2);z-index:10}.multi-select.open{z-index:200}
 .multi-head{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;cursor:pointer;font-size:13px;min-height:44px}
-.multi-body{display:none;padding:8px 0;max-height:200px;overflow-y:auto;position:fixed;background:var(--panel2);border:1px solid var(--line2);border-radius:12px;z-index:99990;box-shadow:0 8px 32px rgba(0,0,0,.7);min-width:200px}
+.multi-body{display:none;padding:8px 0;max-height:200px;overflow-y:auto;position:absolute;left:0;right:0;top:100%;background:var(--panel2);border:1px solid var(--line2);border-radius:0 0 12px 12px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .multi-select.open .multi-body{display:block}
 .check{display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;font-size:13px;transition:background .1s}
 .check:hover{background:rgba(0,240,255,.05)}
@@ -1470,20 +1470,14 @@ function wireDrawerInteractions() {
     head.addEventListener('click', e => {
       e.stopPropagation();
       const isOpen = container.classList.contains('open');
+      // Close all open dropdowns and restore overflow
       el.drawerBody.querySelectorAll('.multi-select.open').forEach(c => c.classList.remove('open'));
+      el.drawerBody.style.overflow = '';
       if (!isOpen) {
         container.classList.add('open');
-        // Position fixed dropdown relative to head
-        const rect = head.getBoundingClientRect();
-        const body = container.querySelector('.multi-body');
-        body.style.top    = (rect.bottom + 4) + 'px';
-        body.style.left   = rect.left + 'px';
-        body.style.width  = rect.width + 'px';
-        // Flip up if would overflow viewport
-        const spaceBelow = window.innerHeight - rect.bottom;
-        if (spaceBelow < 210) {
-          body.style.top    = (rect.top - 210) + 'px';
-        }
+        // Temporarily allow overflow so dropdown escapes scroll container
+        el.drawerBody.style.overflowY = 'visible';
+        el.drawerBody.style.overflowX = 'visible';
       }
     });
     const checks = [...container.querySelectorAll('input[type="checkbox"]')];
@@ -1497,20 +1491,9 @@ function wireDrawerInteractions() {
   document.addEventListener('click', e => {
     if (!e.target.closest('.multi-select')) {
       el.drawerBody.querySelectorAll('.multi-select.open').forEach(c => c.classList.remove('open'));
+      el.drawerBody.style.overflow = '';
     }
   });
-  // Reposition fixed dropdowns on drawer scroll
-  el.drawerBody.addEventListener('scroll', () => {
-    el.drawerBody.querySelectorAll('.multi-select.open').forEach(container => {
-      const head = container.querySelector('.multi-head');
-      const body = container.querySelector('.multi-body');
-      const rect = head.getBoundingClientRect();
-      body.style.top  = (rect.bottom + 4) + 'px';
-      body.style.left = rect.left + 'px';
-      const spaceBelow = window.innerHeight - rect.bottom;
-      if (spaceBelow < 210) body.style.top = (rect.top - 210) + 'px';
-    });
-  }, { passive: true });
   [...el.drawerBody.querySelectorAll('input[data-format="money"]')].forEach(bindMoneyInput);
   [...el.drawerBody.querySelectorAll('input[data-format="percent"]')].forEach(bindPercentInput);
   // MC15-fix2 + MC15b-fix: initialize "Otro" field visibility on render
