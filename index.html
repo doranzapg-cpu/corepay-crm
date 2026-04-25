@@ -595,7 +595,7 @@ const SAVED_URL = localStorage.getItem('COREPAY_API_BASE_URL') || '';
 const CONFIG = {
   API_BASE_URL: SAVED_URL || 'https://script.google.com/macros/s/AKfycbz8eHKqD7TYuOfOlzqybbhi59H4w3nGUr3i5NePT6YaNm0k-l5L_ManjYjphzvJPB3M/exec',
   TABLE_COLUMNS: ['id_lead','origen','owner','nombre_comercial','servicio_potencial','num_sucursales','facturacion_promedio','status','prioridad','probabilidad_cierre','nombre_contacto','telefono','fecha_seguimiento'],
-  EXPORT_COLUMNS: ['id_lead','origen','owner','nombre_comercial','razon_social','giro_preliminar','servicio_potencial','num_sucursales','facturacion_promedio','ticket_promedio','tasa_debito','tasa_credito','tasa_amex','tasa_internacional','plazos_msi','tasa_msi','penalizaciones_cuotas','concepto','monto_penalizacion','principal_problematica','adquirente_actual','servicios_actuales','servicios_de_interes','tipo_tpvs_tiene','tipo_tpvs_necesita','contactos_extra','drive_links','status','status_2','probabilidad_cierre','prioridad','razon_perdida','proxima_accion','fecha_seguimiento','nombre_contacto','puesto','email','telefono','calle','num_ext','int','colonia','cp','estado','municipio','comentarios','owner_otro','servicio_potencial_otro','concepto_otro','principal_problematica_otro','adquirente_actual_otro','servicios_actuales_otro','servicios_de_interes_otro','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag'],
+  EXPORT_COLUMNS: ['id_lead','origen','owner','nombre_comercial','razon_social','giro_preliminar','servicio_potencial','num_sucursales','facturacion_promedio','ticket_promedio','tasa_debito','tasa_credito','tasa_amex','tasa_internacional','plazos_msi','tasa_msi','penalizaciones_cuotas','concepto','monto_penalizacion','principal_problematica','adquirente_actual','servicios_actuales','servicios_de_interes','tipo_tpvs_tiene','tipo_tpvs_necesita','contactos_extra','drive_links','status','status_2','probabilidad_cierre','prioridad','razon_perdida','proxima_accion','fecha_seguimiento','nombre_contacto','puesto','email','telefono','calle','num_ext','int','colonia','cp','estado','municipio','comentarios','owner_otro','servicio_potencial_otro','concepto_otro','principal_problematica_otro','adquirente_actual_otro','servicios_actuales_otro','servicios_de_interes_otro','razon_perdida_otro','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag'],
   KPI_STATUS_MAP: {
     pendientes:['PENDIENTE'],
     contactados:['CONTACTADO','WHATSAPP ENVIADO','MAIL ENVIADO','VISITA/LLAMADA PROGRAMADA','PRESENTACIÓN ENVIADA'],
@@ -1103,7 +1103,7 @@ function blankLeadTemplate() {
     id_lead:'', origen:'MANUAL', owner:'', nombre_comercial:'', razon_social:'', giro_preliminar:'', servicio_potencial:'', num_sucursales:'', facturacion_promedio:'', ticket_promedio:'',
     tasa_debito:'', tasa_credito:'', tasa_amex:'', tasa_internacional:'', plazos_msi:'', tasa_msi:'', penalizaciones_cuotas:'', concepto:'', monto_penalizacion:'', principal_problematica:'',
     adquirente_actual:'', servicios_actuales:'', servicios_de_interes:'', status:'PENDIENTE', status_2:'', probabilidad_cierre:'10%', prioridad:'MEDIA',
-    razon_perdida:'', proxima_accion:'', fecha_seguimiento:'',
+    razon_perdida:'', razon_perdida_otro:'', proxima_accion:'', fecha_seguimiento:'',
     nombre_contacto:'', puesto:'', email:'', telefono:'',
     tipo_tpvs_tiene:'{}', tipo_tpvs_necesita:'{}',
     contactos_extra:'[]', drive_links:'[]',
@@ -1440,7 +1440,8 @@ function sectionSeguimiento(lead) {
   </div>
   ${sectionDrivePresentaciones()}
   <div class="grid-3">
-    ${selectField('razon_perdida','Razón de pérdida',lead.razon_perdida,RAZON_PERDIDA_OPTS)}
+    ${selectField('razon_perdida','Razón de pérdida',lead.razon_perdida,RAZON_PERDIDA_OPTS,true,'razon_perdida_otro')}
+    ${textField('razon_perdida_otro','Razón otro',lead.razon_perdida_otro||'','text',isOtherSelected(lead.razon_perdida)?'':'hidden')}
     ${textField('proxima_accion','Próxima acción',lead.proxima_accion)}
     <div class="field"><label>Fecha de seguimiento</label><input data-field="fecha_seguimiento" type="date" value="${escapeAttr(formatDateInput(lead.fecha_seguimiento))}" /></div>
   </div></section>`;
@@ -1682,7 +1683,7 @@ function normalizeMoneyPayload(v) { const n=parseNumeric(v); return v===''?'':`$
 function normalizePercentPayload(v) { const n=parseNumeric(v); return v===''?'':`${n.toFixed(2)}%`; }
 
 function readonlyField(label,val) { return `<div class="field"><label>${escapeHtml(label)}</label><div class="readonly mono">${escapeHtml(val||'—')}</div></div>`; }
-function textField(name,label,value,type='text',extraClass='') { return `<div class="field ${extraClass}" data-field-wrap="${name}"><label>${escapeHtml(label)}</label><input data-field="${name}" type="${type}" value="${escapeAttr(value||'')}" /></div>`; }
+function textField(name,label,value,type='text',extraClass='') { return `<div class="field ${extraClass}" data-field-wrap="${name}"><label>${escapeHtml(label)}</label><input data-field="${name}" type="${type}" value="${escapeAttr(value||'')}" style="border:1px solid var(--line2)" /></div>`; }
 function numericField(name,label,value) { return `<div class="field" data-field-wrap="${name}"><label>${escapeHtml(label)}</label><input data-field="${name}" type="text" inputmode="numeric" value="${escapeAttr(value||'')}" /></div>`; }
 function moneyField(name,label,value) { return `<div class="field" data-field-wrap="${name}"><label>${escapeHtml(label)}</label><input data-field="${name}" data-format="money" type="text" inputmode="decimal" value="${escapeAttr(formatMoney(value))}" /></div>`; }
 function percentField(name,label,value) { return `<div class="field" data-field-wrap="${name}"><label>${escapeHtml(label)}</label><input data-field="${name}" data-format="percent" type="text" inputmode="decimal" value="${escapeAttr(formatPercent(value))}" /></div>`; }
