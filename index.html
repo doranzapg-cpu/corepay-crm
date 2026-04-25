@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>CORE PAY | CRM</title>
 <!-- ===== PWA META TAGS (MC-8) ===== -->
 <link rel="manifest" href="manifest.json" />
@@ -32,7 +32,7 @@
 html,body{margin:0;padding:0;background:radial-gradient(circle at top left, #0f1c31, var(--bg) 45%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 body{min-height:100vh}
 button,input,select,textarea{font:inherit}
-.app{max-width:1720px;margin:0 auto;padding:18px}
+.app{max-width:1720px;margin:0 auto;padding:18px;box-sizing:border-box;width:100%}
 
 /* === TOPBAR === */
 .topbar{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;margin-bottom:16px;padding:18px;border:1px solid var(--line2);border-radius:22px;background:linear-gradient(135deg, rgba(0,240,255,.06), rgba(18,29,49,.95));box-shadow:var(--shadow)}
@@ -145,14 +145,14 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 .status-propuesta{background:rgba(245,158,11,.12);color:#fcd34d;border:1px solid rgba(245,158,11,.2)}
 .status-firmado{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.2)}
 /* === QUICK ACTIONS BAR (MC-9) === */
-.quick-actions-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.quick-actions-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;width:100%;box-sizing:border-box}
 .btn-qa{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid var(--line);background:rgba(9,13,22,.95);color:var(--text);cursor:pointer;transition:.18s ease}
 .btn-qa:hover{border-color:var(--line2);transform:translateY(-1px);color:var(--cyan)}
 .btn-qa:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .btn-meet{border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.08);color:#93c5fd}
 .btn-meet:hover{border-color:rgba(59,130,246,.6);color:#bfdbfe}
 /* === GOOGLE OAUTH (MC-OAuth) === */
-.oauth-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(9,13,22,.8);margin-bottom:10px;flex-wrap:wrap}
+.oauth-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(9,13,22,.8);margin-bottom:10px;flex-wrap:wrap;width:100%;box-sizing:border-box}
 .oauth-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
 .oauth-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0}
 .oauth-dot.connected{background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.5)}
@@ -164,7 +164,7 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 /* === SENDER PICKER (MC-9b) === */
 .sender-picker{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(4px)}
 .sender-picker.hidden{display:none}
-.sender-card{background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:22px 24px;width:min(340px,92vw);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.sender-card{background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:22px 24px;width:min(340px,92vw);box-shadow:0 24px 60px rgba(0,0,0,.5);max-height:80vh;overflow-y:auto}
 .sender-card h4{margin:0 0 4px;font-size:15px;font-weight:700;color:var(--text)}
 .sender-card p{margin:0 0 16px;font-size:12px;color:var(--muted)}
 .sender-option{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:.15s ease;background:rgba(9,13,22,.8);overflow:hidden}
@@ -318,7 +318,7 @@ tbody tr:hover{background:rgba(0,240,255,.04)}
 .field.hidden{display:none}
 .multi-select{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--panel2);z-index:10}
 .multi-head{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;cursor:pointer;font-size:13px;min-height:44px}
-.multi-body{display:none;padding:8px 0;border-top:1px solid var(--line);max-height:200px;overflow-y:auto;position:absolute;left:0;right:0;top:100%;background:var(--panel2);border:1px solid var(--line2);border-top:none;border-radius:0 0 12px 12px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.multi-body{display:none;padding:8px 0;max-height:200px;overflow-y:auto;position:fixed;background:var(--panel2);border:1px solid var(--line2);border-radius:12px;z-index:99990;box-shadow:0 8px 32px rgba(0,0,0,.7);min-width:200px}
 .multi-select.open .multi-body{display:block}
 .check{display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;font-size:13px;transition:background .1s}
 .check:hover{background:rgba(0,240,255,.05)}
@@ -1434,9 +1434,9 @@ function sectionSeguimiento(lead) {
   return `<section class="section"><h3>Seguimiento y cierre</h3>
   <div id="oauthBarInDrawer"></div>
   <div class="quick-actions-bar">
-    <button class="btn btn-qa" onclick="qaOpenMailPicker()" title="Elegir cuenta y abrir Gmail">✉ Enviar correo</button>
-    <button class="btn btn-qa" onclick="qaOpenCalPicker('cal')" title="Crear evento en Google Calendar">📅 Agendar</button>
-    <button class="btn btn-qa btn-meet" onclick="qaOpenCalPicker('meet')" title="Crear reunión con Google Meet">🎥 Meet</button>
+    <button class="btn btn-qa" onclick="qaOpenMailPicker()" title="Elegir cuenta y abrir Gmail" style="flex:1;min-width:100px;justify-content:center">✉ Correo</button>
+    <button class="btn btn-qa" onclick="qaOpenCalPicker('cal')" title="Crear evento en Google Calendar" style="flex:1;min-width:100px;justify-content:center">📅 Agendar</button>
+    <button class="btn btn-qa btn-meet" onclick="qaOpenCalPicker('meet')" title="Crear reunión con Google Meet" style="flex:1;min-width:100px;justify-content:center">🎥 Meet</button>
   </div>
   ${sectionDrivePresentaciones()}
   <div class="grid-3">
@@ -1471,7 +1471,20 @@ function wireDrawerInteractions() {
       e.stopPropagation();
       const isOpen = container.classList.contains('open');
       el.drawerBody.querySelectorAll('.multi-select.open').forEach(c => c.classList.remove('open'));
-      if (!isOpen) container.classList.add('open');
+      if (!isOpen) {
+        container.classList.add('open');
+        // Position fixed dropdown relative to head
+        const rect = head.getBoundingClientRect();
+        const body = container.querySelector('.multi-body');
+        body.style.top    = (rect.bottom + 4) + 'px';
+        body.style.left   = rect.left + 'px';
+        body.style.width  = rect.width + 'px';
+        // Flip up if would overflow viewport
+        const spaceBelow = window.innerHeight - rect.bottom;
+        if (spaceBelow < 210) {
+          body.style.top    = (rect.top - 210) + 'px';
+        }
+      }
     });
     const checks = [...container.querySelectorAll('input[type="checkbox"]')];
     checks.forEach(check => check.addEventListener('change', () => {
@@ -1486,8 +1499,35 @@ function wireDrawerInteractions() {
       el.drawerBody.querySelectorAll('.multi-select.open').forEach(c => c.classList.remove('open'));
     }
   });
+  // Reposition fixed dropdowns on drawer scroll
+  el.drawerBody.addEventListener('scroll', () => {
+    el.drawerBody.querySelectorAll('.multi-select.open').forEach(container => {
+      const head = container.querySelector('.multi-head');
+      const body = container.querySelector('.multi-body');
+      const rect = head.getBoundingClientRect();
+      body.style.top  = (rect.bottom + 4) + 'px';
+      body.style.left = rect.left + 'px';
+      const spaceBelow = window.innerHeight - rect.bottom;
+      if (spaceBelow < 210) body.style.top = (rect.top - 210) + 'px';
+    });
+  }, { passive: true });
   [...el.drawerBody.querySelectorAll('input[data-format="money"]')].forEach(bindMoneyInput);
   [...el.drawerBody.querySelectorAll('input[data-format="percent"]')].forEach(bindPercentInput);
+  // MC15-fix2 + MC15b-fix: initialize "Otro" field visibility on render
+  [...el.drawerBody.querySelectorAll('[data-toggle-other]')].forEach(select => {
+    toggleOtherField(select.dataset.toggleOther, isOtherSelected(select.value));
+  });
+  [...el.drawerBody.querySelectorAll('.multi-select')].forEach(container => {
+    const ot = container.dataset.otherTarget;
+    if (ot) {
+      const checks = [...container.querySelectorAll('input[type="checkbox"]')];
+      const hasOther = checks.some(c => c.checked && isOtherSelected(c.value));
+      toggleOtherField(ot, hasOther);
+      // Also force show if the summary already contains "Otro"
+      const summary = container.querySelector('[data-multi-summary]');
+      if (summary && isOtherSelected(summary.textContent)) toggleOtherField(ot, true);
+    }
+  });
   // Sync contactos extra inputs → hidden field
   el.drawerBody.addEventListener('input', e => {
     const ciInput = e.target.closest('.ci-field');
