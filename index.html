@@ -1589,8 +1589,8 @@ async function saveLead() {
       }
       el.saveFeedback.textContent = '✅ Cambios guardados.';
     }
-    closeDrawer();
     await loadAll();
+    closeDrawer();
   } catch(err) {
     console.error(err);
     el.saveFeedback.textContent = `❌ Error: ${err.message||'sin detalle'}`;
@@ -1606,8 +1606,8 @@ async function deleteLead() {
     el.saveFeedback.textContent = 'Archivando...';
     await apiPost('updateLead', {id_lead:state.selectedLead.id_lead, activo:'NO', ultima_actualizacion:new Date().toISOString()});
     el.saveFeedback.textContent = '✅ Lead archivado.';
-    closeDrawer();
     await loadAll();
+    closeDrawer();
   } catch(err) {
     console.error(err);
     el.saveFeedback.textContent = `❌ Error: ${err.message||'sin detalle'}`;
