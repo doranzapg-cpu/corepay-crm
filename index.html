@@ -1581,6 +1581,12 @@ async function saveLead() {
       payload.id_lead = state.selectedLead.id_lead;
       payload.ultima_actualizacion = new Date().toISOString();
       await apiPost('updateLead', payload);
+      // MC23-fix2: update local state so CRM reflects saved data immediately
+      const localIdx = state.leads.findIndex(l => String(l.id_lead) === String(state.selectedLead.id_lead));
+      if (localIdx !== -1) {
+        state.leads[localIdx] = { ...state.leads[localIdx], ...payload };
+        state.selectedLead = state.leads[localIdx];
+      }
       el.saveFeedback.textContent = '✅ Cambios guardados.';
     }
     closeDrawer();
@@ -2481,23 +2487,29 @@ function syncTpvTiene() {
 function _getContactosExtra() {
   const h = document.getElementById('contactosExtraHidden');
   if (!h) return [];
+  // MC23-fix1: prefer data-json (full object) over h.value (human text)
+  try { return JSON.parse(h.dataset.json||'[]'); } catch(e) {}
   try { return JSON.parse(h.value||'[]'); } catch(e){ return []; }
 }
 function syncContactosExtra() {
   const h = document.getElementById('contactosExtraHidden');
   if (!h) return;
-  const contacts = _getContactosExtra();
-  [...el.drawerBody.querySelectorAll('.ci-field')].forEach(inp => {
-    const i = parseInt(inp.dataset.ci);
-    const key = inp.dataset.key;
-    if (!contacts[i]) contacts[i] = {};
-    contacts[i][key] = inp.value;
+  // MC23-fix1: rebuild array fresh from DOM — avoids index mismatch
+  const rows = [...el.drawerBody.querySelectorAll('.contact-item')];
+  const contacts = rows.map((row, i) => {
+    const obj = {};
+    [...row.querySelectorAll('.ci-field')].forEach(inp => {
+      obj[inp.dataset.key] = inp.value;
+    });
+    return obj;
   });
-  // MC17: human-readable
+  // MC17: human-readable for Sheet
   const cParts = contacts.map(c => {
     return [c.nombre, c.puesto, c.email, c.tel].filter(Boolean).join(' · ');
   }).filter(Boolean);
   h.value = cParts.length ? cParts.join(' | ') : '';
+  // Keep internal JSON in a data attribute for re-render
+  h.dataset.json = JSON.stringify(contacts);
 }
 function addContactExtra() {
   const contacts = _getContactosExtra();
