@@ -595,7 +595,7 @@ const SAVED_URL = localStorage.getItem('COREPAY_API_BASE_URL') || '';
 const CONFIG = {
   API_BASE_URL: SAVED_URL || 'https://script.google.com/macros/s/AKfycbz8eHKqD7TYuOfOlzqybbhi59H4w3nGUr3i5NePT6YaNm0k-l5L_ManjYjphzvJPB3M/exec',
   TABLE_COLUMNS: ['id_lead','origen','owner','nombre_comercial','servicio_potencial','num_sucursales','facturacion_promedio','status','prioridad','probabilidad_cierre','nombre_contacto','telefono','fecha_seguimiento'],
-  EXPORT_COLUMNS: ['id_lead','origen','owner','nombre_comercial','razon_social','rfc','actividad_sat','direccion_fiscal','giro_preliminar','servicio_potencial','num_sucursales','facturacion_promedio','ticket_promedio','tasa_debito','tasa_credito','tasa_amex','tasa_internacional','plazos_msi','tasa_msi','penalizaciones_cuotas','concepto','monto_penalizacion','principal_problematica','adquirente_actual','servicios_actuales','servicios_de_interes','tipo_tpvs_tiene','tipo_tpvs_necesita','contactos_extra','drive_links','status','status_2','probabilidad_cierre','prioridad','razon_perdida','proxima_accion','fecha_seguimiento','nombre_contacto','puesto','email','telefono','calle','num_ext','int','colonia','cp','estado','municipio','comentarios','owner_otro','servicio_potencial_otro','concepto_otro','principal_problematica_otro','adquirente_actual_otro','servicios_actuales_otro','servicios_de_interes_otro','razon_perdida_otro','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag'],
+  EXPORT_COLUMNS: ['id_lead','origen','owner','nombre_comercial','tipo_persona','razon_social','rfc','actividad_sat','direccion_fiscal','giro_preliminar','servicio_potencial','num_sucursales','facturacion_promedio','ticket_promedio','tasa_debito','tasa_credito','tasa_amex','tasa_internacional','plazos_msi','tasa_msi','penalizaciones_cuotas','concepto','monto_penalizacion','principal_problematica','adquirente_actual','servicios_actuales','servicios_de_interes','tipo_tpvs_tiene','tipo_tpvs_necesita','contactos_extra','drive_links','status','status_2','probabilidad_cierre','prioridad','razon_perdida','proxima_accion','fecha_seguimiento','nombre_contacto','puesto','email','telefono','calle','num_ext','int','colonia','cp','estado','municipio','comentarios','owner_otro','servicio_potencial_otro','concepto_otro','principal_problematica_otro','adquirente_actual_otro','servicios_actuales_otro','servicios_de_interes_otro','razon_perdida_otro','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag'],
   KPI_STATUS_MAP: {
     pendientes:['PENDIENTE'],
     contactados:['CONTACTADO','WHATSAPP ENVIADO','MAIL ENVIADO','VISITA/LLAMADA PROGRAMADA','PRESENTACIÓN ENVIADA'],
@@ -1111,7 +1111,7 @@ function buildSuggestions(lead) {
 function blankLeadTemplate() {
   const now = new Date().toISOString();
   return {
-    id_lead:'', origen:'MANUAL', owner:'', nombre_comercial:'', razon_social:'', rfc:'', actividad_sat:'', direccion_fiscal:'', giro_preliminar:'', servicio_potencial:'', num_sucursales:'', facturacion_promedio:'', ticket_promedio:'',
+    id_lead:'', origen:'MANUAL', owner:'', nombre_comercial:'', tipo_persona:'', razon_social:'', rfc:'', actividad_sat:'', direccion_fiscal:'', giro_preliminar:'', servicio_potencial:'', num_sucursales:'', facturacion_promedio:'', ticket_promedio:'',
     tasa_debito:'', tasa_credito:'', tasa_amex:'', tasa_internacional:'', plazos_msi:'', tasa_msi:'', penalizaciones_cuotas:'', concepto:'', monto_penalizacion:'', principal_problematica:'',
     adquirente_actual:'', servicios_actuales:'', servicios_de_interes:'', status:'PENDIENTE', status_2:'', probabilidad_cierre:'10%', prioridad:'MEDIA',
     razon_perdida:'', razon_perdida_otro:'', proxima_accion:'', fecha_seguimiento:'',
@@ -1238,6 +1238,7 @@ function sectionGeneral(lead) {
     ${selectField('owner','Owner',lead.owner,state.catalogs.owner,true,'owner_otro')}
     ${textField('owner_otro','Owner otro',lead.owner_otro,'text',isOtherSelected(lead.owner)?'':'hidden')}
     ${textField('nombre_comercial','Nombre comercial',lead.nombre_comercial)}
+    ${selectField('tipo_persona','Tipo de persona',lead.tipo_persona||'',cat('tipo_persona',['Física','Moral']))}
     ${textField('razon_social','Razón social',lead.razon_social)}
     ${textField('rfc','RFC',lead.rfc||'')}
     ${textField('actividad_sat','Actividad preponderante SAT',lead.actividad_sat||'')}
@@ -1608,6 +1609,11 @@ async function deleteLead() {
 }
 
 function collectDrawerPayload() {
+  // MC16: sync all special sections before reading hidden inputs
+  if (typeof syncContactosExtra === 'function') syncContactosExtra();
+  if (typeof syncDriveLinks    === 'function') syncDriveLinks();
+  if (typeof syncTpvTiene      === 'function') syncTpvTiene();
+  if (typeof syncTpvNecesita   === 'function') syncTpvNecesita();
   const payload = {};
   [...el.drawerBody.querySelectorAll('[data-field]')].forEach(input => {
     let value = input.value;
