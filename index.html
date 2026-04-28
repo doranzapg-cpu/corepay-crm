@@ -1581,13 +1581,17 @@ async function saveLead() {
       payload.id_lead = state.selectedLead.id_lead;
       payload.ultima_actualizacion = new Date().toISOString();
       await apiPost('updateLead', payload);
-      // MC23-fix2: update local state so CRM reflects saved data immediately
+      // MC25: update local state immediately — skip loadAll to avoid Sheets latency overwrite
       const localIdx = state.leads.findIndex(l => String(l.id_lead) === String(state.selectedLead.id_lead));
       if (localIdx !== -1) {
         state.leads[localIdx] = { ...state.leads[localIdx], ...payload };
         state.selectedLead = state.leads[localIdx];
+        state.filteredLeads = [...state.leads];
       }
       el.saveFeedback.textContent = '✅ Cambios guardados.';
+      closeDrawer();
+      renderTable(); renderCards(); renderKpis();
+      return;
     }
     await loadAll();
     closeDrawer();
