@@ -2443,7 +2443,12 @@ function syncTpvNecesita() {
       map[tipo] = qty;
     }
   });
-  h.value = JSON.stringify(map);
+  // MC17: human-readable
+  const necParts = Object.entries(map).map(([tipo, val]) => {
+    if (typeof val === 'object') return val.qty > 0 ? `${val.desc||tipo} x${val.qty}` : null;
+    return val > 0 ? `${tipo} x${val}` : null;
+  }).filter(Boolean);
+  h.value = necParts.length ? necParts.join(' | ') : '';
 }
 
 // MC-14: sync Tiene table (qty + Otro desc)
@@ -2464,7 +2469,12 @@ function syncTpvTiene() {
       map[tipo] = qty;
     }
   });
-  h.value = JSON.stringify(map);
+  // MC17: human-readable format for Sheet
+  const parts = Object.entries(map).map(([tipo, val]) => {
+    if (typeof val === 'object') return val.qty > 0 ? `${val.desc||tipo} x${val.qty}` : null;
+    return val > 0 ? `${tipo} x${val}` : null;
+  }).filter(Boolean);
+  h.value = parts.length ? parts.join(' | ') : '';
 }
 
 /* ===== CONTACTOS EXTRA (MC-11) ===== */
@@ -2483,7 +2493,11 @@ function syncContactosExtra() {
     if (!contacts[i]) contacts[i] = {};
     contacts[i][key] = inp.value;
   });
-  h.value = JSON.stringify(contacts);
+  // MC17: human-readable
+  const cParts = contacts.map(c => {
+    return [c.nombre, c.puesto, c.email, c.tel].filter(Boolean).join(' · ');
+  }).filter(Boolean);
+  h.value = cParts.length ? cParts.join(' | ') : '';
 }
 function addContactExtra() {
   const contacts = _getContactosExtra();
@@ -2564,7 +2578,9 @@ function syncDriveLinks() {
     if (!links[i]) links[i] = {};
     links[i][key] = inp.value;
   });
-  h.value = JSON.stringify(links);
+  // MC17: human-readable format for Sheet
+  const dParts = links.map(l => l.label && l.url ? `${l.label}: ${l.url}` : (l.url || l.label)).filter(Boolean);
+  h.value = dParts.length ? dParts.join(' | ') : '';
   // Update open buttons inline
   [...el.drawerBody.querySelectorAll('.drive-link-item')].forEach((item,i) => {
     const urlInput = item.querySelector('input.dli-field[data-key="url"]');
