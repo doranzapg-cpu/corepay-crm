@@ -1,5 +1,5 @@
 /**
- * CorePay CRM — Service Worker (MC-8)
+ * CorePay CRM — Service Worker (MC-8 + fix24)
  * Estrategia:
  *   - Shell del app (HTML/assets estáticos): Cache-First
  *   - Google Sheets API (backend): Network-First con fallback a cache
@@ -23,8 +23,6 @@ self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_SHELL)
       .then(function(cache) {
-        // addAll falla silenciosamente si algún icono no existe aún —
-        // usamos Promise.allSettled vía add individual para no bloquear.
         return Promise.allSettled(
           SHELL_ASSETS.map(function(url) {
             return cache.add(url).catch(function(err) {
@@ -35,7 +33,7 @@ self.addEventListener('install', function(event) {
       })
       .then(function() {
         console.log('[CorePay SW] Shell cacheado.');
-        return self.skipWaiting(); // activar inmediatamente
+        return self.skipWaiting();
       })
   );
 });
@@ -64,6 +62,12 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('fetch', function(event) {
   const url = event.request.url;
 
+  // fix24: nunca interceptar POST — dejar pasar directo a la red
+  if (event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   // 1) Google Sheets API → Network-First (datos en tiempo real)
   if (url.includes('script.google.com') || url.includes('sheets.googleapis.com')) {
     event.respondWith(networkFirst(event.request, CACHE_NAME));
@@ -71,7 +75,7 @@ self.addEventListener('fetch', function(event) {
   }
 
   // 2) Shell del app (HTML propio) → Cache-First
-  if (url.includes('corepay_crm') || url.includes('manifest.json')) {
+  if (url.includes('corepay_crm') || url.includes('manifest.json') || url.includes('corepay-crm')) {
     event.respondWith(cacheFirst(event.request, CACHE_SHELL));
     return;
   }
@@ -82,7 +86,7 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
-  // 4) Todo lo demás → Network-First sin fallback (CDN fonts, analytics, etc.)
+  // 4) Todo lo demás → Network-First sin fallback
   event.respondWith(fetch(event.request).catch(function() {
     return caches.match(event.request);
   }));
@@ -90,20 +94,17 @@ self.addEventListener('fetch', function(event) {
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 
-/**
- * Cache-First: sirve desde cache; si no hay, va a red y cachea.
- */
 function cacheFirst(request, cacheName) {
   return caches.open(cacheName).then(function(cache) {
     return cache.match(request).then(function(cached) {
       if (cached) return cached;
       return fetch(request).then(function(response) {
-        if (response && response.status === 200) {
+        // fix24: solo cachear GET con respuesta válida
+        if (response && response.status === 200 && request.method === 'GET') {
           cache.put(request, response.clone());
         }
         return response;
       }).catch(function() {
-        // Sin red y sin cache: devolver página offline mínima
         return new Response(
           '<html><body style="font-family:sans-serif;background:#060a12;color:#00f0ff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center">' +
           '<div><h2>CorePay CRM</h2><p style="color:#8fa3c7">Sin conexión. Reconecta para continuar.</p></div></body></html>',
@@ -114,13 +115,11 @@ function cacheFirst(request, cacheName) {
   });
 }
 
-/**
- * Network-First: va a red; si falla, sirve desde cache.
- */
 function networkFirst(request, cacheName) {
   return caches.open(cacheName).then(function(cache) {
     return fetch(request).then(function(response) {
-      if (response && response.status === 200) {
+      // fix24: solo cachear GET con respuesta válida
+      if (response && response.status === 200 && request.method === 'GET') {
         cache.put(request, response.clone());
       }
       return response;
