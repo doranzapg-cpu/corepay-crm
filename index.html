@@ -1366,15 +1366,14 @@ ${userQuestion}`;
     if (!data.ok) throw new Error(data.error || 'Error Gemini');
     const text = data.data && data.data.text ? data.data.text : '(Sin respuesta)';
     resultEl.className = 'ai-lead-result';
-    resultEl.innerHTML = text
-      .replace(/## (.+)/g, '<strong style="display:block;margin:10px 0 4px;color:var(--cyan)">$1</strong>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/^[•\-] (.+)/gm, '<div style="padding:2px 0 2px 12px;border-left:2px solid rgba(0,240,255,.3);margin:3px 0">$1</div>')
-      .replace(/
-
-/g, '<br><br>')
-      .replace(/
-/g, '<br>');
+    let html = text;
+    html = html.split('\n').map(function(line) {
+      if (line.startsWith('## ')) return '<strong style="display:block;margin:10px 0 4px;color:var(--cyan)">' + escapeHtml(line.slice(3)) + '</strong>';
+      if (line.startsWith('- ') || line.startsWith('\u2022 ')) return '<div style="padding:2px 0 2px 12px;border-left:2px solid rgba(0,240,255,.3);margin:3px 0">' + escapeHtml(line.slice(2)) + '</div>';
+      if (line.trim() === '') return '<br>';
+      return escapeHtml(line);
+    }).join('\n');
+    resultEl.innerHTML = html;
     if (tipo === 'libre') { const inp = document.getElementById('aiLeadFreeInput'); if(inp) inp.value=''; }
   } catch(err) {
     resultEl.className = 'ai-lead-result';
