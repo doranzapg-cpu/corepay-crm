@@ -1873,7 +1873,8 @@ function wireDrawerInteractions() {
   [...el.drawerBody.querySelectorAll('.multi-select')].forEach(container => {
     const head = container.querySelector('.multi-head');
     const body = container.querySelector('.multi-body');
-    // MC-14 fix: simple toggle — works now that .lead-drawer has overflow:visible
+    // fix33b: guard — MSI plazos use ms-trigger, not multi-head
+    if (!head) return;
     head.addEventListener('click', e => {
       e.stopPropagation();
       const isOpen = container.classList.contains('open');
