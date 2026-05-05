@@ -1008,7 +1008,7 @@ function startApp(){
 <div class="step-pill-label">Value Tool</div>
 </div><div class="step-pill" data-step-pill="7">
 <div class="step-pill-index">7</div>
-<div class="step-pill-label">Blueprint</div>
+<div class="step-pill-label">Sprint</div>
 </div></div>
 <div class="stepper-meta" style="display:none;">
 <div id="stepper-label"></div>
@@ -2953,10 +2953,32 @@ function bind(){
 <section class="step-panel" data-step="7" id="step7">
   <div class="section-header">
     <div>
-      <div class="section-title">7. Blueprint</div>
+      <div class="section-title">7. Sprint · Resumen del Diagnóstico</div>
     </div>
   </div>
   <div class="grid-2"></div>
+
+  <!-- Resumen Sprint -->
+  <div style="margin-top:24px;padding:20px;background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.15);border-radius:12px;">
+    <div style="font-size:13px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;">✦ Diagnóstico Completado</div>
+    <p style="color:var(--text-main);font-size:15px;line-height:1.6;margin:0 0 12px;">
+      El Checklist Light ha capturado la situación actual del comercio. Los datos quedan disponibles para el Value Tool y, en su caso, para el Blueprint completo.
+    </p>
+    <p style="color:var(--text-soft);font-size:13px;margin:0;">
+      Usa el botón de abajo para continuar al siguiente nivel de análisis.
+    </p>
+  </div>
+
+  <!-- Botón → Blueprint -->
+  <div style="margin-top:32px;display:flex;justify-content:flex-end;">
+    <button type="button" id="btnLaunchBlueprint"
+      style="padding:14px 32px;background:linear-gradient(135deg,rgba(157,78,221,.25),rgba(0,240,255,.15));border:1px solid rgba(157,78,221,.5);border-radius:10px;color:var(--core-cyan);font-size:15px;font-weight:600;cursor:pointer;letter-spacing:.04em;transition:all .2s;"
+      onmouseover="this.style.background='linear-gradient(135deg,rgba(157,78,221,.4),rgba(0,240,255,.25))'"
+      onmouseout="this.style.background='linear-gradient(135deg,rgba(157,78,221,.25),rgba(0,240,255,.15))'"
+      onclick="launchBlueprint()">
+      Ir a Blueprint ⟶
+    </button>
+  </div>
 </section>
 
 </div>
@@ -3044,9 +3066,7 @@ function bind(){
       btnNext.addEventListener("click", () => {
         const totalSteps = steps.length;
         if (window.currentStep === totalSteps - 1) {
-          alert(
-            "Checklist Light completado.\n\nEn la versión conectada, aquí guardaríamos en el CRM y mandaríamos la data al Value Tool."
-          );
+          launchBlueprint();
         } else {
           goStep(1);
         }
@@ -10132,10 +10152,46 @@ window.__cp_mc125_moveProdSumRight = function(){
   } catch(e){}
 })();
 
-// ═══════════════════════════════════════════════
-// MC21 — Core Pay CRM Pre-fill
+// ═══════════════════════════════════════════════════════════════════════
 // fix53: Lee datos del CRM desde URL param ?data=BASE64 (no localStorage)
 // ═══════════════════════════════════════════════════════════════════════
+
+// fix54-b: Lanzar Blueprint con datos del Sprint serializados en URL params Base64
+function launchBlueprint() {
+  var BLUEPRINT_URL = 'https://doranzapg-cpu.github.io/corepay-crm/blueprint.html';
+  try {
+    var form = document.getElementById('checklistForm');
+    var payload = {};
+    if (form) {
+      var elements = form.elements;
+      for (var i = 0; i < elements.length; i++) {
+        var el = elements[i];
+        if (!el.name) continue;
+        if (el.type === 'checkbox') {
+          if (!payload[el.name]) payload[el.name] = [];
+          if (el.checked) payload[el.name].push(el.value);
+        } else if (el.type === 'radio') {
+          if (el.checked) payload[el.name] = el.value;
+        } else {
+          payload[el.name] = el.value;
+        }
+      }
+    }
+    try {
+      var crmId = localStorage.getItem('corepay_sprint_crm_id');
+      var crmOwner = localStorage.getItem('corepay_sprint_crm_owner');
+      if (crmId) payload._crm_id_lead = crmId;
+      if (crmOwner) payload._crm_owner = crmOwner;
+    } catch(e) {}
+    payload._sprint_ts = Date.now();
+    payload._mode = 'blueprint';
+    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    window.open(BLUEPRINT_URL + '?data=' + b64, '_blank');
+  } catch(e) {
+    alert('Error preparando datos para Blueprint: ' + e.message);
+  }
+}
+
 (function corepayPrefill() {
   try {
     var b64 = new URLSearchParams(location.search).get('data');
