@@ -10372,40 +10372,55 @@ function launchBlueprint() {
     if (!b64) return;
     var data = JSON.parse(decodeURIComponent(escape(atob(b64))));
 
-    // Mapeo: campo_sprint → valor
+    // fix57 — Mapeo completo: campo_sprint → valor del CRM
     var map = {
+      // Generales
       'nombre_comercial':     data.nombre_comercial,
       'razon_social':         data.razon_social,
       'rfc':                  data.rfc,
       'num_sucursales':       data.num_sucursales,
       'industria':            data.industria,
       'venta_mensual_total':  data.venta_mensual_total,
+      'ticket_presencial':    data.ticket_presencial,
+      // Contacto
       'contacto_nombre':      data.contacto_nombre,
       'contacto_correo':      data.contacto_correo,
       'contacto_tel':         data.contacto_tel,
+      // Tasas TP
       'mdr_tp_debito':        data.mdr_tp_debito,
       'mdr_tp_credito':       data.mdr_tp_credito,
       'mdr_tp_amex':          data.mdr_tp_amex,
       'mdr_tp_internacional': data.mdr_tp_internacional,
       'mdr_tp_vales':         data.mdr_tp_vales,
+      // Tasas CNP
       'mdr_cnp_debito':       data.mdr_cnp_debito,
       'mdr_cnp_credito':      data.mdr_cnp_credito,
       'mdr_cnp_amex':         data.mdr_cnp_amex,
       'mdr_cnp_internacional':data.mdr_cnp_internacional,
       'mdr_cnp_vales':        data.mdr_cnp_vales,
+      // Equipos AS IS
+      'eq_tpv_wifi':          data.eq_tpv_wifi,
+      'eq_tpv_gprs':          data.eq_tpv_gprs,
+      'eq_tpv_ethernet':      data.eq_tpv_ethernet,
+      'eq_pinpads':           data.eq_pinpads,
+      'eq_lector':            data.eq_lector,
+      'eq_kiosko':            data.eq_kiosko,
+      // Integración
+      'soft_erp':             data.soft_erp,
     };
 
     // Aplicar al formulario cuando esté listo
     function applyPrefill() {
       var applied = 0;
+
+      // 1. Campos texto / select genéricos
       Object.keys(map).forEach(function(name) {
         var val = map[name];
         if (!val) return;
         var el = document.querySelector('[name="' + name + '"]');
         if (!el) return;
         if (el.tagName === 'SELECT') {
-          // Buscar opción que coincida
-          var opts = [...el.options];
+          var opts = Array.prototype.slice.call(el.options);
           var match = opts.find(function(o) {
             return o.value.toLowerCase() === String(val).toLowerCase() ||
                    o.text.toLowerCase().indexOf(String(val).toLowerCase()) !== -1;
@@ -10419,11 +10434,11 @@ function launchBlueprint() {
         }
       });
 
-      // Adquirente — campo select especial
+      // 2. Adquirente — select especial por id
       if (data.adquirente_principal) {
         var adqEl = document.getElementById('adquirente_principal');
         if (adqEl) {
-          var opts = [...adqEl.options];
+          var opts = Array.prototype.slice.call(adqEl.options);
           var match = opts.find(function(o) {
             return o.text.toLowerCase().indexOf(data.adquirente_principal.toLowerCase()) !== -1;
           });
@@ -10431,15 +10446,57 @@ function launchBlueprint() {
         }
       }
 
-      // Guardar meta en localStorage del Sprint para referencia
+      // 3. fix57 — Régimen fiscal (select por value)
+      if (data.regimen) {
+        var regEl = document.querySelector('select[name="regimen"]');
+        if (regEl) {
+          var opts = Array.prototype.slice.call(regEl.options);
+          var match = opts.find(function(o) {
+            return o.value.toLowerCase() === String(data.regimen).toLowerCase();
+          });
+          if (match) { regEl.value = match.value; regEl.dispatchEvent(new Event('change')); applied++; }
+        }
+      }
+
+      // 4. fix57 — Penalizaciones (select)
+      if (data.penalizaciones_aplica) {
+        var penEl = document.querySelector('select[name="penalizaciones_aplica"]');
+        if (penEl) {
+          var opts = Array.prototype.slice.call(penEl.options);
+          var match = opts.find(function(o) {
+            return o.value.toLowerCase() === String(data.penalizaciones_aplica).toLowerCase() ||
+                   o.text.toLowerCase().indexOf(String(data.penalizaciones_aplica).toLowerCase()) !== -1;
+          });
+          if (match) { penEl.value = match.value; penEl.dispatchEvent(new Event('change')); applied++; }
+        }
+      }
+
+      // 5. fix57 — Dolores (checkboxes individuales)
+      var dolorMap = {
+        'dolor_fees':         data._dolor_fees,
+        'dolor_caidas':       data._dolor_caidas,
+        'dolor_conciliacion': data._dolor_conciliacion,
+        'dolor_contracargos': data._dolor_contracargos,
+        'dolor_retencion':    data._dolor_retencion,
+        'dolor_experiencia':  data._dolor_experiencia,
+      };
+      Object.keys(dolorMap).forEach(function(name) {
+        if (!dolorMap[name]) return;
+        var el = document.querySelector('input[name="' + name + '"]');
+        if (el && el.type === 'checkbox' && !el.checked) {
+          el.checked = true;
+          el.dispatchEvent(new Event('change'));
+          applied++;
+        }
+      });
+
+      // Guardar meta CRM en localStorage del Sprint
       if (data._crm_id_lead) {
         localStorage.setItem('corepay_sprint_crm_id', data._crm_id_lead);
         localStorage.setItem('corepay_sprint_crm_owner', data._crm_owner || '');
       }
 
-      if (applied > 0) {
-        console.log('[CorePay Sprint] Pre-fill aplicado: ' + applied + ' campos desde CRM lead ' + (data._crm_id_lead || ''));
-      }
+      console.log('[CorePay Sprint fix57] Pre-fill aplicado: ' + applied + ' campos — lead ' + (data._crm_id_lead || 'standalone'));
     }
 
     // Esperar a que el DOM esté listo

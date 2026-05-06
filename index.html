@@ -1956,53 +1956,103 @@ function launchSprint() {
   var lead = state.selectedLead;
   if (!lead) return;
 
+  // fix57: Normalizar tasas CRM (pueden venir como 0.035 o 3.5) → siempre porcentaje para Sprint
+  function normTasa(v) {
+    var n = parseFloat(String(v).replace(/[^0-9.\-]/g,''));
+    if (isNaN(n) || n === 0) return '';
+    // Si viene como decimal puro (< 1) → multiplicar x100
+    return (n < 1 ? (n * 100) : n).toFixed(2);
+  }
+
+  // fix57: Parsear tipo_tpvs_tiene JSON → campos eq_* del Sprint
+  // CRM guarda {"WiFi":2,"Gprs":3} → Sprint tiene eq_tpv_wifi, eq_tpv_gprs, etc.
+  var tpvMap = {};
+  try {
+    var rawTpv = String(lead.tipo_tpvs_tiene || '').trim();
+    if (rawTpv && rawTpv !== '{}') {
+      tpvMap = JSON.parse(rawTpv);
+      if (typeof tpvMap !== 'object' || Array.isArray(tpvMap)) tpvMap = {};
+    }
+  } catch(e) { tpvMap = {}; }
+
+  // fix57: Parsear dolor/problematica (campo multi pipe-separated) → checkboxes Sprint
+  var dolores = String(lead.principal_problematica || '').toLowerCase();
+
   // Mapeo CRM → Sprint
   var prefill = {
-    // Datos generales
-    nombre_comercial:    lead.nombre_comercial || '',
-    razon_social:        lead.razon_social || '',
-    rfc:                 lead.rfc || '',
-    num_sucursales:      lead.num_sucursales || '',
-    industria:           lead.giro_preliminar || '',
-    venta_mensual_total: lead.facturacion_promedio || '',
-    // Contacto principal
-    contacto_nombre:     lead.nombre_contacto || '',
-    contacto_correo:     lead.email || '',
-    contacto_tel:        lead.telefono || '',
-    contacto_puesto:     lead.puesto || '',
-    // Adquirente
+    // ── Datos generales ───────────────────────────────────────────────
+    nombre_comercial:     lead.nombre_comercial || '',
+    razon_social:         lead.razon_social || '',
+    rfc:                  lead.rfc || '',
+    num_sucursales:       lead.num_sucursales || '',
+    industria:            lead.giro_preliminar || '',
+    venta_mensual_total:  lead.facturacion_promedio || '',
+    ticket_presencial:    lead.ticket_promedio || '',
+    // ── Régimen fiscal (tipo_persona CRM → regimen Sprint) ────────────
+    // CRM: "Física" / "Moral" → Sprint select: "fisica","moral","resico","rif"
+    regimen:              (function(){
+      var tp = String(lead.tipo_persona || '').toLowerCase();
+      if (tp.indexOf('moral') !== -1) return 'moral';
+      if (tp.indexOf('sica') !== -1)  return 'fisica';
+      return '';
+    })(),
+    // ── Contacto principal ────────────────────────────────────────────
+    contacto_nombre:      lead.nombre_contacto || '',
+    contacto_correo:      lead.email || '',
+    contacto_tel:         lead.telefono || '',
+    contacto_puesto:      lead.puesto || '',
+    // ── Adquirente ────────────────────────────────────────────────────
     adquirente_principal: lead.adquirente_actual || '',
-    // Tasas actuales (AS IS)
-    mdr_tp_debito:        lead.tasa_debito || '',
-    mdr_tp_credito:       lead.tasa_credito || '',
-    mdr_tp_amex:          lead.tasa_amex || '',
-    mdr_tp_internacional: lead.tasa_internacional || '',
-    mdr_tp_vales:         lead.tasa_vales || '',
-    // MDR CNP (ecommerce)
-    mdr_cnp_debito:       lead.asis_ecomm_debito || '',
-    mdr_cnp_credito:      lead.asis_ecomm_credito || '',
-    mdr_cnp_amex:         lead.asis_ecomm_amex || '',
-    mdr_cnp_internacional:lead.asis_ecomm_intl || '',
-    mdr_cnp_vales:        lead.asis_ecomm_vales || '',
-    // Problemática
-    principal_problematica: lead.principal_problematica || '',
-    // Meta
-    _crm_id_lead:        lead.id_lead || '',
-    _crm_owner:          lead.owner || '',
-    _crm_prefill_ts:     Date.now()
+    // ── Tasas TP normalizadas (decimal → porcentaje) ──────────────────
+    mdr_tp_debito:        normTasa(lead.tasa_debito),
+    mdr_tp_credito:       normTasa(lead.tasa_credito),
+    mdr_tp_amex:          normTasa(lead.tasa_amex),
+    mdr_tp_internacional: normTasa(lead.tasa_internacional),
+    mdr_tp_vales:         normTasa(lead.tasa_vales),
+    // ── Tasas CNP (ecommerce) normalizadas ────────────────────────────
+    mdr_cnp_debito:       normTasa(lead.asis_ecomm_debito),
+    mdr_cnp_credito:      normTasa(lead.asis_ecomm_credito),
+    mdr_cnp_amex:         normTasa(lead.asis_ecomm_amex),
+    mdr_cnp_internacional:normTasa(lead.asis_ecomm_intl),
+    mdr_cnp_vales:        normTasa(lead.asis_ecomm_vales),
+    // ── Penalizaciones ────────────────────────────────────────────────
+    penalizaciones_aplica: lead.penalizaciones_cuotas || '',
+    // ── Problemática → dolores (checkboxes Sprint) ────────────────────
+    _dolor_fees:          /fee|costo|comisi/i.test(dolores)        ? '1' : '',
+    _dolor_caidas:        /ca[ií]da|indisp|falla/i.test(dolores)   ? '1' : '',
+    _dolor_conciliacion:  /concilia/i.test(dolores)                ? '1' : '',
+    _dolor_contracargos:  /contracargo|chargeback/i.test(dolores)  ? '1' : '',
+    _dolor_retencion:     /retenci/i.test(dolores)                 ? '1' : '',
+    _dolor_experiencia:   /experiencia|cliente|ux/i.test(dolores)  ? '1' : '',
+    // ── Equipos AS IS (tipo_tpvs_tiene JSON → eq_*) ───────────────────
+    eq_tpv_wifi:          String(tpvMap['WiFi']  || tpvMap['wifi']  || ''),
+    eq_tpv_gprs:          String(tpvMap['Gprs']  || tpvMap['gprs']  || tpvMap['GPRS'] || ''),
+    eq_tpv_ethernet:      String(tpvMap['Ethernet'] || tpvMap['ethernet'] || ''),
+    eq_pinpads:           String(tpvMap['PinPad'] || tpvMap['pinpad'] || tpvMap['Pinpad'] || ''),
+    eq_lector:            String(tpvMap['Lector'] || tpvMap['lector'] || ''),
+    eq_kiosko:            String(tpvMap['Kiosko'] || tpvMap['kiosko'] || ''),
+    // ── Integración AS IS ─────────────────────────────────────────────
+    soft_erp:             lead.asis_integ_software || '',
+    // ── Meta ──────────────────────────────────────────────────────────
+    _crm_id_lead:         lead.id_lead || '',
+    _crm_owner:           lead.owner || '',
+    _crm_prefill_ts:      Date.now()
   };
 
-  // fix53: Serializar prefill a Base64 URL param (no localStorage — funciona en móvil y multi-device)
-  var b64;
+  // Guardar en localStorage para que el Sprint lo lea al cargar
   try {
-    b64 = btoa(unescape(encodeURIComponent(JSON.stringify(prefill))));
+    localStorage.setItem('corepay_sprint_prefill', JSON.stringify(prefill));
   } catch(e) {
     showToast('⚠ Error preparando datos para Sprint');
     return;
   }
 
-  // Abrir Sprint con datos embebidos en URL
-  window.open(SPRINT_URL + '?data=' + b64, '_blank');
+  // Estado del botón según servicios de interés
+  var servicios = String(lead.servicios_de_interes || '').toLowerCase();
+  var hasConsult = /sprint|blueprint|consultor/i.test(servicios);
+
+  // Abrir Sprint en nueva pestaña
+  window.open(SPRINT_URL, '_blank');
   showToast('🚀 Abriendo Sprint con datos de ' + (lead.nombre_comercial || lead.id_lead));
 }
 
