@@ -10225,13 +10225,140 @@ function launchBlueprint() {
       });
     }
 
-    // 4. Serializar para Blueprint
-    formData._crm_id_lead = crmId;
-    formData._crm_owner   = crmOwner;
-    formData._sprint_ts   = Date.now();
-    formData._mode        = 'blueprint';
+    // 4. fix56 — Payload normalizado: nombres CRM + campos exclusivos Sprint
+    // Diccionario de traducción Sprint interno → nombre canónico CRM
+    var payload = {
+      // ── Meta ──────────────────────────────────────────────────────────
+      _crm_id_lead:           crmId,
+      _crm_owner:             crmOwner,
+      _sprint_ts:             Date.now(),
+      _mode:                  'blueprint',
 
-    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(formData))));
+      // ── Identidad (ya idénticos) ───────────────────────────────────────
+      nombre_comercial:       formData.nombre_comercial        || '',
+      razon_social:           formData.razon_social            || '',
+      rfc:                    formData.rfc                     || '',
+      num_sucursales:         formData.num_sucursales          || '',
+      web:                    formData.web                     || '',
+      mcc_actual:             formData.mcc_actual              || '',
+      principal_problematica: formData.principal_problematica  || '',
+
+      // ── Campos renombrados (Sprint interno → CRM canónico) ─────────────
+      giro_preliminar:        formData.industria               || '',
+      giro_preliminar_otro:   formData.industria_otro          || '',
+      facturacion_promedio:   formData.venta_mensual_total     || '',
+      ticket_promedio:        formData.ticket_presencial       || '',
+      adquirente_actual:      formData.adquirente_principal    || '',
+      adquirente_actual_otro: formData.adquirente_principal_otro || '',
+      nombre_contacto:        formData.contacto_nombre         || '',
+      email:                  formData.contacto_correo         || '',
+      telefono:               formData.contacto_tel            || '',
+      puesto:                 formData.contacto_puesto         || '',
+      // Tasas TP
+      tasa_debito:            formData.mdr_tp_debito           || '',
+      tasa_credito:           formData.mdr_tp_credito          || '',
+      tasa_amex:              formData.mdr_tp_amex             || '',
+      tasa_internacional:     formData.mdr_tp_internacional    || '',
+      tasa_vales:             formData.mdr_tp_vales            || '',
+      // Tasas CNP (ecommerce) → schema asis_ecomm_*
+      asis_ecomm_debito:      formData.mdr_cnp_debito          || '',
+      asis_ecomm_credito:     formData.mdr_cnp_credito         || '',
+      asis_ecomm_amex:        formData.mdr_cnp_amex            || '',
+      asis_ecomm_intl:        formData.mdr_cnp_internacional   || '',
+      asis_ecomm_vales:       formData.mdr_cnp_vales           || '',
+      asis_ecomm_links:       formData.mdr_cnp_links           || '',
+      // Renta
+      tobe_renta_mensual:     formData.renta_tpv_mxn           || '',
+
+      // ── Contactos adicionales (exclusivos Sprint) ──────────────────────
+      contacto_admin_nombre:  formData.contacto_admin_nombre   || '',
+      contacto_admin_puesto:  formData.contacto_admin_puesto   || '',
+      contacto_admin_correo:  formData.contacto_admin_correo   || '',
+      contacto_admin_tel:     formData.contacto_admin_tel      || '',
+      contacto_ti_nombre:     formData.contacto_ti_nombre      || '',
+      contacto_ti_puesto:     formData.contacto_ti_puesto      || '',
+      contacto_ti_correo:     formData.contacto_ti_correo      || '',
+      contacto_ti_tel:        formData.contacto_ti_tel         || '',
+
+      // ── Volumetría (exclusivo Sprint) ──────────────────────────────────
+      mix_debito:             formData.mix_debito              || '',
+      mix_credito_nal:        formData.mix_credito_nal         || '',
+      mix_credito_int:        formData.mix_credito_int         || '',
+      mix_amex:               formData.mix_amex                || '',
+      mix_vales:              formData.mix_vales               || '',
+      mix_msi:                formData.mix_msi                 || '',
+      mix_efectivo:           formData.mix_efectivo            || '',
+      mix_spei_qr:            formData.mix_spei_qr             || '',
+      split_tp_pct:           formData.split_tp_pct            || '',
+      split_cnp_pct:          formData.split_cnp_pct           || '',
+      ticket_digital:         formData.ticket_digital          || '',
+
+      // ── MSI TP (exclusivo Sprint) ──────────────────────────────────────
+      msi_3:                  formData.msi_3                   || '',
+      msi_6:                  formData.msi_6                   || '',
+      msi_9:                  formData.msi_9                   || '',
+      msi_12:                 formData.msi_12                  || '',
+      msi_18:                 formData.msi_18                  || '',
+      msi_24:                 formData.msi_24                  || '',
+
+      // ── MSI CNP (exclusivo Sprint) ─────────────────────────────────────
+      cnp_msi_3:              formData.cnp_msi_3               || '',
+      cnp_msi_6:              formData.cnp_msi_6               || '',
+      cnp_msi_9:              formData.cnp_msi_9               || '',
+      cnp_msi_12:             formData.cnp_msi_12              || '',
+      cnp_msi_18:             formData.cnp_msi_18              || '',
+      cnp_msi_24:             formData.cnp_msi_24              || '',
+
+      // ── Equipamiento (exclusivo Sprint) ───────────────────────────────
+      eq_tpv_ethernet:        formData.eq_tpv_ethernet         || '',
+      eq_tpv_wifi:            formData.eq_tpv_wifi             || '',
+      eq_tpv_gprs:            formData.eq_tpv_gprs             || '',
+      eq_pinpads:             formData.eq_pinpads              || '',
+      eq_kiosko:              formData.eq_kiosko               || '',
+      eq_lector:              formData.eq_lector               || '',
+      eq_otro_desc:           formData.eq_otro_desc            || '',
+      eq_otro_qty:            formData.eq_otro_qty             || '',
+
+      // ── Software / integración (exclusivo Sprint) ──────────────────────
+      soft_erp:               formData.soft_erp                || '',
+      soft_facturacion:       formData.soft_facturacion        || '',
+      soft_pos_retail:        formData.soft_pos_retail         || '',
+      soft_pos_rest:          formData.soft_pos_rest           || '',
+      soft_caja_propio:       formData.soft_caja_propio        || '',
+      soft_otro:              formData.soft_otro               || '',
+
+      // ── Riesgo y dolor (exclusivo Sprint) ─────────────────────────────
+      dolor_fees:             formData.dolor_fees              || '',
+      dolor_caidas:           formData.dolor_caidas            || '',
+      dolor_conciliacion:     formData.dolor_conciliacion      || '',
+      dolor_contracargos:     formData.dolor_contracargos      || '',
+      dolor_experiencia:      formData.dolor_experiencia       || '',
+      dolor_retencion:        formData.dolor_retencion         || '',
+      dolor_otro:             formData.dolor_otro              || '',
+
+      // ── Configuración técnica (exclusivo Sprint) ───────────────────────
+      banco_liquidador:       formData.banco_liquidador        || '',
+      tipo_cuenta:            formData.tipo_cuenta             || '',
+      regimen:                formData.regimen                 || '',
+      cfg_spei:               formData.cfg_spei                || '',
+      cfg_pago_concentrado:   formData.cfg_pago_concentrado    || '',
+      cfg_aceleracion_pago:   formData.cfg_aceleracion_pago    || '',
+      cnp_cfg_spei:           formData.cnp_cfg_spei            || '',
+      cnp_cfg_referenciador:  formData.cnp_cfg_referenciador   || '',
+
+      // ── Estacionalidad (exclusivo Sprint) ─────────────────────────────
+      estacionalidad:         formData.estacionalidad          || '',
+      estacionalidad_meses:   formData.estacionalidad_meses    || '',
+
+      // ── Costos adicionales (exclusivo Sprint) ──────────────────────────
+      cuotas_anuales_monto_mxn: formData.cuotas_anuales_monto_mxn || '',
+      membresias_monto_mxn:   formData.membresias_monto_mxn   || '',
+      rollos_costo_mxn:       formData.rollos_costo_mxn        || '',
+      otros_costos_monto_mxn: formData.otros_costos_monto_mxn || '',
+      cuota_tx_ecom_mxn:      formData.cuota_tx_ecom_mxn       || ''
+    };
+
+    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
     window.open(BLUEPRINT_URL + '?data=' + b64, '_blank');
 
   } catch(e) {
