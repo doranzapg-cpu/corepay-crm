@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CORE PAY | Blueprint · Diagnóstico Profundo</title>
+<style>
+:root {
+  --bg:        #060d18;
+  --bg2:       #0c1628;
+  --bg3:       #111e35;
+  --line:      rgba(0,240,255,.10);
+  --line2:     rgba(0,240,255,.22);
+  --cyan:      #00f0ff;
+  --purple:    #9d4edd;
+  --gold:      #f5c842;
+  --amber:     #f59e0b;
+  --danger:    #ef4444;
+  --success:   #10b981;
+  --text:      #e8f0fe;
+  --muted:     #6b7fa3;
+  --soft:      #94a3b8;
+  --core-cyan: #00f0ff;
+  --core-purple:#9d4edd;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px}
+
+/* ── HEADER ── */
+header{
+  background:rgba(6,13,24,.97);
+  border-bottom:1px solid var(--line2);
+  padding:0 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:64px;position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(12px);
+}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-logo{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,rgba(0,240,255,.2),rgba(157,78,221,.2));border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--cyan);letter-spacing:-.5px}
+.brand-text h1{font-size:13px;font-weight:700;color:var(--text);letter-spacing:.08em;text-transform:uppercase}
+.brand-text p{font-size:11px;color:var(--muted)}
+.header-right{display:flex;align-items:center;gap:10px}
+.version-tag{font-size:11px;color:var(--muted);padding:3px 10px;border:1px solid var(--line);border-radius:20px}
+.btn-header{padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--line2);background:rgba(0,240,255,.06);color:var(--cyan);transition:.15s}
+.btn-header:hover{background:rgba(0,240,255,.12)}
+.btn-header.gold{border-color:rgba(245,200,66,.3);background:rgba(245,200,66,.08);color:var(--gold)}
+.btn-header.gold:hover{background:rgba(245,200,66,.15)}
+
+/* ── STEPPER ── */
+.stepper{
+  background:rgba(6,13,24,.9);
+  border-bottom:1px solid var(--line);
+  padding:12px 28px;
+  display:flex;align-items:center;gap:0;
+  overflow-x:auto;scrollbar-width:none;
+}
+.stepper::-webkit-scrollbar{display:none}
+.step-pill{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 14px;border-radius:20px;
+  font-size:12px;font-weight:500;color:var(--muted);
+  border:1px solid transparent;cursor:pointer;
+  white-space:nowrap;transition:.15s;flex-shrink:0;
+}
+.step-pill:hover{color:var(--text);border-color:var(--line)}
+.step-pill.active{color:var(--cyan);border-color:rgba(0,240,255,.3);background:rgba(0,240,255,.07)}
+.step-pill.done{color:var(--success);border-color:rgba(16,185,129,.2)}
+.pill-idx{width:20px;height:20px;border-radius:50%;background:var(--bg3);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-pill.active .pill-idx{background:rgba(0,240,255,.15);color:var(--cyan)}
+.step-pill.done .pill-idx{background:rgba(16,185,129,.15);color:var(--success)}
+
+/* ── MAIN ── */
+main{max-width:960px;margin:0 auto;padding:28px 24px 80px}
+
+/* ── SECTIONS ── */
+.step-panel{display:none}
+.step-panel.active{display:block}
+.section-header{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.section-title{font-size:18px;font-weight:700;color:var(--cyan);letter-spacing:.04em;text-transform:uppercase}
+.section-sub{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:16px}
+.card-title{font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title::before{content:'';display:block;width:3px;height:14px;background:var(--cyan);border-radius:2px}
+.card-title.purple::before{background:var(--purple)}
+.card-title.gold::before{background:var(--gold)}
+.card-title.amber::before{background:var(--amber)}
+.card-title.danger::before{background:var(--danger)}
+.card-title.success::before{background:var(--success)}
+
+/* ── GRID ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:700px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* ── FORM ELEMENTS ── */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-weight:600;color:var(--soft);text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select,.field textarea{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line2);
+  border-radius:8px;color:var(--text);
+  padding:9px 12px;font-size:13px;
+  transition:.15s;outline:none;width:100%;
+  font-family:inherit;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(0,240,255,.5);background:rgba(0,240,255,.03)}
+.field select option{background:var(--bg2)}
+.field textarea{resize:vertical;min-height:72px}
+.field input[type="number"]{-moz-appearance:textfield}
+.field input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none}
+.suffix{position:relative}
+.suffix input{padding-right:36px}
+.suffix-label{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none}
+
+/* ── CHECKBOX GROUP ── */
+.check-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.check-item{display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:.15s;font-size:12px;color:var(--soft)}
+.check-item:hover{border-color:var(--line2);color:var(--text)}
+.check-item input{width:14px;height:14px;accent-color:var(--cyan)}
+.check-item.checked{border-color:rgba(0,240,255,.3);background:rgba(0,240,255,.06);color:var(--cyan)}
+
+/* ── MATRIX TABLE ── */
+.matrix{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.matrix th{text-align:left;color:var(--muted);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:6px 10px;border-bottom:1px solid var(--line)}
+.matrix td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+.matrix td input,.matrix td select{background:transparent;border:none;border-bottom:1px solid var(--line);border-radius:0;padding:4px 6px;color:var(--text);font-size:12px;width:100%;outline:none}
+.matrix td input:focus,.matrix td select:focus{border-bottom-color:var(--cyan)}
+.matrix td select option{background:var(--bg2)}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-cyan{background:rgba(0,240,255,.1);color:var(--cyan);border:1px solid rgba(0,240,255,.2)}
+.badge-purple{background:rgba(157,78,221,.1);color:var(--purple);border:1px solid rgba(157,78,221,.2)}
+.badge-gold{background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.2)}
+.badge-danger{background:rgba(239,68,68,.1);color:var(--danger);border:1px solid rgba(239,68,68,.2)}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--line);margin:20px 0}
+
+/* ── PREFILL BANNER ── */
+.prefill-banner{background:rgba(0,240,255,.06);border:1px solid rgba(0,240,255,.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--cyan);display:none}
+.prefill-banner.show{display:flex}
+
+/* ── FOOTER NAV ── */
+.footer-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(6,13,24,.97);border-top:1px solid var(--line2);
+  padding:12px 28px;display:flex;align-items:center;justify-content:space-between;
+  backdrop-filter:blur(12px);z-index:100;
+}
+.nav-left,.nav-right{display:flex;align-items:center;gap:10px}
+.btn{padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--line2);transition:.15s;font-family:inherit}
+.btn-primary{background:rgba(0,240,255,.12);color:var(--cyan);border-color:rgba(0,240,255,.3)}
+.btn-primary:hover{background:rgba(0,240,255,.2)}
+.btn-secondary{background:transparent;color:var(--soft);border-color:var(--line)}
+.btn-secondary:hover{color:var(--text);border-color:var(--line2)}
+.btn-ghost{background:transparent;color:var(--muted);border-color:transparent;font-size:12px}
+.btn-ghost:hover{color:var(--soft)}
+.btn-value{background:linear-gradient(135deg,rgba(245,200,66,.15),rgba(157,78,221,.15));color:var(--gold);border-color:rgba(245,200,66,.3);padding:9px 24px}
+.btn-value:hover{background:linear-gradient(135deg,rgba(245,200,66,.25),rgba(157,78,221,.25))}
+.step-counter{font-size:12px;color:var(--muted)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--line2);border-radius:10px;padding:10px 20px;font-size:13px;color:var(--text);opacity:0;transition:.3s;pointer-events:none;z-index:200;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="brand">
+    <div class="brand-logo">B</div>
+    <div class="brand-text">
+      <h1>Core Pay · Blueprint</h1>
+      <p>MB Electronic Payments · v1.0 · Diagnóstico Profundo</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="version-tag">blueprint · v1.0</span>
+    <button class="btn-header" onclick="exportJSON()">↓ JSON</button>
+    <button class="btn-header gold" onclick="launchValueTool()">✦ Value Tool ⟶</button>
+  </div>
+</header>
+
+<!-- STEPPER -->
+<div class="stepper" id="stepper">
+  <div class="step-pill active" data-step="0"><span class="pill-idx">0</span>Identidad</div>
+  <div class="step-pill" data-step="1"><span class="pill-idx">1</span>Adquirencia Física</div>
+  <div class="step-pill" data-step="2"><span class="pill-idx">2</span>Ecosistema Digital</div>
+  <div class="step-pill" data-step="3"><span class="pill-idx">3</span>Hardware & Red</div>
+  <div class="step-pill" data-step="4"><span class="pill-idx">4</span>Software POS</div>
+  <div class="step-pill" data-step="5"><span class="pill-idx">5</span>Integradores</div>
+  <div class="step-pill" data-step="6"><span class="pill-idx">6</span>Consola & Desarrollo</div>
+  <div class="step-pill" data-step="7"><span class="pill-idx">7</span>Costos Ocultos</div>
+  <div class="step-pill" data-step="8"><span class="pill-idx">8</span>Growth & Estrategia</div>
+</div>
+
+<main>
+<div id="prefill-banner" class="prefill-banner">
+  ✦ Datos pre-llenados desde Sprint — revisa y complementa
+</div>
+<form id="blueprintForm" autocomplete="off">
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- STEP 0: IDENTIDAD -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="step-panel active" data-step="0">
+  <div class="section-header">
+    <div class="section-title">0 · Identidad & Contacto</div>
+    <div class="section-sub">Datos generales del comercio — pre-llenados desde Sprint</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Datos del Comercio</div>
+    <div class="grid-2">
+      <div class="field"><label>Nombre Comercial</label><input name="nombre_comercial" type="text" placeholder="Nombre del negocio"/></div>
+      <div class="field"><label>Razón Social</label><input name="razon_social" type="text"/></div>
+      <div class="field"><label>RFC</label><input name="rfc" type="text"/></div>
+      <div class="field"><label>Régimen Fiscal</label>
+        <select name="regimen">
+          <option value="">-- Selecciona --</option>
+          <option value="moral">Persona Moral</option>
+          <option value="fisica">Persona Física</option>
+          <option value="pfae">PFAE</option>
+          <option value="resico">RESICO</option>
+          <option value="rif">RIF</option>
+        </select>
+      </div>
+      <div class="field"><label>Segmento</label>
+        <select name="segmento">
+          <option value="">-- Selecciona --</option>
+          <option value="top">TOP ACCOUNT</option>
+          <option value="middle">MIDDLE ACCOUNT</option>
+          <option value="small">SMALL BUSINESS</option>
+        </select>
+      </div>
+      <div class="field"><label>Sucursales</label><input name="num_sucursales" type="number" min="1" placeholder="0"/></div>
+      <div class="field"><label>Giro (Base NetPay)</label>
+        <select name="giro_preliminar">
+          <option value="">-- Selecciona --</option>
+          <option>Agregador</option><option>Agencias de Viajes</option><option>Aseguradoras</option>
+          <option>Beneficencia</option><option>Colegios y Universidades</option><option>Comida Rápida</option>
+          <option>Educación básica</option><option>Entretenimiento</option><option>Estacionamientos</option>
+          <option>Farmacias</option><option>Gasolineras</option><option>Gobierno</option>
+          <option>Guarderías</option><option>Hospitales</option><option>Hoteles</option>
+          <option>Médicos y dentistas</option><option>Miscelánea</option><option>Peaje</option>
+          <option>Refacciones y ferreterías</option><option>Renta de Autos</option><option>Restaurantes</option>
+          <option>Salones de belleza</option><option>Supermercados</option><option>Telecomunicaciones</option>
+          <option>Transporte Aéreo</option><option>Transporte Terrestre de Pasajeros</option>
+          <option>Ventas al detalle (Retail)</option><option>Otros</option>
+        </select>
+      </div>
+      <div class="field"><label>MCC</label><input name="mcc_actual" type="text" placeholder="Auto-asignado por giro"/></div>
+    </div>
+    <div class="divider"></div>
+    <div class="grid-2">
+      <div class="field"><label>Facturación Mensual Promedio</label><input name="facturacion_promedio" type="text" placeholder="$ MXN"/></div>
+      <div class="field"><label>Ticket Promedio Presencial</label><input name="ticket_promedio" type="text" placeholder="$ MXN"/></div>
+      <div class="field"><label>Ticket Promedio Digital</label><input name="ticket_digital" type="text" placeholder="$ MXN"/></div>
+      <div class="field"><label>% Venta en Efectivo</label>
+        <div class="suffix"><input name="pct_efectivo" type="number" min="0" max="100" placeholder="0"/><span class="suffix-label">%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title purple">Contactos</div>
+    <div class="grid-2">
+      <div class="field"><label>Contacto Principal</label><input name="nombre_contacto" type="text"/></div>
+      <div class="field"><label>Puesto</label><input name="puesto" type="text"/></div>
+      <div class="field"><label>Email</label><input name="email" type="email"/></div>
+      <div class="field"><label>Teléfono</label><input name="telefono" type="tel"/></div>
+    </div>
+    <div class="divider"></div>
+    <div class="grid-2">
+      <div class="field"><label>Contacto Administrativo / Finanzas</label><input name="contacto_admin_nombre" type="text"/></div>
+      <div class="field"><label>Puesto</label><input name="contacto_admin_puesto" type="text"/></div>
+      <div class="field"><label>Email Admin</label><input name="contacto_admin_correo" type="email"/></div>
+      <div class="field"><label>Tel Admin</label><input name="contacto_admin_tel" type="tel"/></div>
+    </div>
+    <div class="divider"></div>
+    <div class="grid-2">
+      <div class="field"><label>Contacto TI / Sistemas</label><input name="contacto_ti_nombre" type="text"/></div>
+      <div class="field"><label>Puesto</label><input name="contacto_ti_puesto" type="text"/></div>
+      <div class="field"><label>Email TI</label><input name="contacto_ti_correo" type="email"/></div>
+      <div class="field"><label>Tel TI</label><input name="contacto_ti_tel" type="tel"/></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- STEP 1: ADQUIRENCIA FÍSICA -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="step-panel" data-step="1">
+  <div class="section-header">
+    <div class="section-title">1 · Ecosistema de Adquirencia Física</div>
+    <div class="section-sub">Adquirentes actuales, tasas, MSI y volumetría TP</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">A · Adquirentes</div>
+    <div class="grid-2">
+      <div class="field"><label>Adquirente Principal</label>
+        <select name="adquirente_actual">
+          <option value="">-- Selecciona --</option>
+          <optgroup label="Bancos"><option>Santander (Getnet)</option><option>BBVA</option><option>Banorte</option><option>Citibanamex</option><option>HSBC</option><option>Scotiabank</option><option>Banregio</option><option>Inbursa</option><option>Afirme</option><option>BanBajío</option><option>Banco Azteca</option><option>Banca Mifel</option><option>Banco Multiva</option></optgroup>
+          <optgroup label="Fintech / Agregadores"><option>NetPay</option><option>Clip</option><option>Mercado Pago</option><option>Kushki</option><option>Adyen</option><option>Stripe</option><option>Evo Payments</option><option>Sr. Pago</option><option>Zettle</option><option>Billpocket</option><option>Conekta</option><option>OpenPay</option><option>Nuvei</option><option>Ualá</option><option>Konfío</option></optgroup>
+          <optgroup label="Directo"><option>Amex Directo</option><option>Vales (Edenred/SiVale)</option><option>Prosa</option></optgroup>
+          <option value="otro">Otro (especificar)</option>
+        </select>
+      </div>
+      <div class="field"><label>Adquirente Secundario</label>
+        <select name="adquirente_secundario">
+          <option value="">-- Ninguno --</option>
+          <optgroup label="Bancos"><option>Santander (Getnet)</option><option>BBVA</option><option>Banorte</option><option>Citibanamex</option><option>HSBC</option><option>Scotiabank</option><option>Banregio</option><option>Afirme</option><option>BanBajío</option></optgroup>
+          <optgroup label="Fintech"><option>NetPay</option><option>Clip</option><option>Mercado Pago</option><option>Adyen</option><option>Kushki</option><option>Stripe</option></optgroup>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Banco Liquidador</label><input name="banco_liquidador" type="text" placeholder="Banco donde liquida"/></div>
+      <div class="field"><label>Tipo de Cuenta</label>
+        <select name="tipo_cuenta">
+          <option value="">-- Selecciona --</option>
+          <option>Cheques</option><option>Ahorro</option><option>Concentradora</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">B · Tasas TP (Tarjeta Presente)</div>
+    <div class="grid-3">
+      <div class="field"><label>MDR Débito</label><div class="suffix"><input name="tasa_debito" type="number" step="0.01" min="0" placeholder="0.00"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>MDR Crédito</label><div class="suffix"><input name="tasa_credito" type="number" step="0.01" min="0" placeholder="0.00"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>MDR Internacional</label><div class="suffix"><input name="tasa_internacional" type="number" step="0.01" min="0" placeholder="0.00"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>MDR Amex</label><div class="suffix"><input name="tasa_amex" type="number" step="0.01" min="0" placeholder="0.00"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>MDR Vales</label><div class="suffix"><input name="tasa_vales" type="number" step="0.01" min="0" placeholder="0.00"/><span class="suffix-label">%</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title amber">C · Mix de Ventas Físicas</div>
+    <div class="grid-3">
+      <div class="field"><label>% Débito</label><div class="suffix"><input name="mix_debito" type="number" step="1" min="0" max="100" placeholder="0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>% Crédito Nacional</label><div class="suffix"><input name="mix_credito_nal" type="number" step="1" min="0" max="100" placeholder="0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>% Crédito Internacional</label><div class="suffix"><input name="mix_credito_int" type="number" step="1" min="0" max="100" placeholder="0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>% Amex</label><div class="suffix"><input name="mix_amex" type="number" step="1" min="0" max="100" placeholder="0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>% Vales</label><div class="suffix"><input name="mix_vales" type="number" step="1" min="0" max="100" placeholder="0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>% MSI</label><div class="suffix"><input name="mix_msi" type="number" step="1" min="0" max="100" placeholder="0"/><span class="suffix-label">%</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title purple">D · Sobretasas MSI (Tarjeta Presente)</div>
+    <table class="matrix">
+      <thead><tr><th>Plazo</th><th>Tasa Prosa/eGlobal (%)</th><th>Tasa Amex (%)</th><th>Aplica</th></tr></thead>
+      <tbody>
+        <tr><td>3 meses</td><td><input name="msi_3" type="number" step="0.01" placeholder="0.00"/></td><td><input name="msi_3_amex" type="number" step="0.01" placeholder="0.00"/></td><td><select name="msi_3_aplica"><option value="">No</option><option>Sí</option></select></td></tr>
+        <tr><td>6 meses</td><td><input name="msi_6" type="number" step="0.01" placeholder="0.00"/></td><td><input name="msi_6_amex" type="number" step="0.01" placeholder="0.00"/></td><td><select name="msi_6_aplica"><option value="">No</option><option>Sí</option></select></td></tr>
+        <tr><td>9 meses</td><td><input name="msi_9" type="number" step="0.01" placeholder="0.00"/></td><td><input name="msi_9_amex" type="number" step="0.01" placeholder="0.00"/></td><td><select name="msi_9_aplica"><option value="">No</option><option>Sí</option></select></td></tr>
+        <tr><td>12 meses</td><td><input name="msi_12" type="number" step="0.01" placeholder="0.00"/></td><td><input name="msi_12_amex" type="number" step="0.01" placeholder="0.00"/></td><td><select name="msi_12_aplica"><option value="">No</option><option>Sí</option></select></td></tr>
+        <tr><td>18 meses</td><td><input name="msi_18" type="number" step="0.01" placeholder="0.00"/></td><td><input name="msi_18_amex" type="number" step="0.01" placeholder="0.00"/></td><td><select name="msi_18_aplica"><option value="">No</option><option>Sí</option></select></td></tr>
+        <tr><td>24 meses</td><td><input name="msi_24" type="number" step="0.01" placeholder="0.00"/></td><td><input name="msi_24_amex" type="number" step="0.01" placeholder="0.00"/></td><td><select name="msi_24_aplica"><option value="">No</option><option>Sí</option></select></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title danger">E · KPIs de Red Física</div>
+    <div class="grid-3">
+      <div class="field"><label>% Rechazos TP</label><div class="suffix"><input name="pct_rechazadas" type="number" step="0.1" placeholder="0.0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>% Disponibilidad</label><div class="suffix"><input name="pct_disponibilidad" type="number" step="0.1" placeholder="99.0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>Tiempo Caída (hrs/mes)</label><input name="hrs_caida_mes" type="number" step="0.5" placeholder="0"/></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">F · Penalizaciones y Costos Adicionales</div>
+    <div class="grid-2">
+      <div class="field"><label>¿Aplican penalizaciones/cuotas?</label>
+        <select name="penalizaciones_aplica">
+          <option value="">-- Selecciona --</option>
+          <option>Sí — por volumen mínimo</option>
+          <option>Sí — por terminal inactiva</option>
+          <option>Sí — por chargeback</option>
+          <option>Sí — otro concepto</option>
+          <option>No aplican</option>
+        </select>
+      </div>
+      <div class="field"><label>Descripción / Monto</label><input name="penalizacion_desc" type="text" placeholder="Concepto y monto estimado"/></div>
+      <div class="field"><label>Cuotas Anuales ($)</label><input name="cuotas_anuales_monto_mxn" type="text" placeholder="$ MXN"/></div>
+      <div class="field"><label>Membresías ($)</label><input name="membresias_monto_mxn" type="text" placeholder="$ MXN"/></div>
+      <div class="field"><label>Costo Rollos / Insumos ($/mes)</label><input name="rollos_costo_mxn" type="text" placeholder="$ MXN/mes"/></div>
+      <div class="field"><label>Otros Costos Operativos ($/mes)</label><input name="otros_costos_monto_mxn" type="text" placeholder="$ MXN/mes"/></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- STEP 2: ECOSISTEMA DIGITAL -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="step-panel" data-step="2">
+  <div class="section-header">
+    <div class="section-title">2 · Ecosistema Digital (eCommerce / CNP)</div>
+    <div class="section-sub">Canales digitales, tasas CNP, KPIs y configuración técnica</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">A · Adquirente Digital y Plataforma</div>
+    <div class="grid-2">
+      <div class="field"><label>Adquirente Digital Principal</label>
+        <select name="adquirente_digital">
+          <option value="">-- Selecciona --</option>
+          <option>NetPay</option><option>Conekta</option><option>OpenPay</option><option>Stripe</option>
+          <option>Kushki</option><option>Adyen</option><option>PayPal</option><option>Mercado Pago</option>
+          <option>Cybersource (Visa)</option><option>Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Plataforma Web / CMS</label>
+        <select name="plataforma_web">
+          <option value="">-- Selecciona --</option>
+          <option>Shopify</option><option>WooCommerce</option><option>Magento</option><option>VTEX</option>
+          <option>PrestaShop</option><option>BigCommerce</option><option>Wix</option><option>Tiendanube</option>
+          <option>Desarrollo Propio</option><option>Solo Ligas de Pago</option><option>No aplica</option>
+        </select>
+      </div>
+      <div class="field"><label>Productos Digitales Activos</label>
+        <div class="check-group" id="cnp-products">
+          <label class="check-item"><input type="checkbox" name="cnp_prod_checkout" value="1"/> Checkout</label>
+          <label class="check-item"><input type="checkbox" name="cnp_prod_link" value="1"/> Liga de Pago</label>
+          <label class="check-item"><input type="checkbox" name="cnp_prod_loop" value="1"/> Recurrentes</label>
+          <label class="check-item"><input type="checkbox" name="cnp_prod_maker" value="1"/> Maker</label>
+          <label class="check-item"><input type="checkbox" name="cnp_ids_formularios" value="1"/> Formularios</label>
+          <label class="check-item"><input type="checkbox" name="cnp_ids_efectivo" value="1"/> Efectivo (OXXO/SPEI)</label>
+        </div>
+      </div>
+      <div class="field"><label>Split Canal (% CNP del total)</label><div class="suffix"><input name="split_cnp_pct" type="number" step="1" min="0" max="100" placeholder="0"/><span class="suffix-label">%</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">B · Tasas CNP (Card Not Present)</div>
+    <div class="grid-3">
+      <div class="field"><label>MDR Débito CNP</label><div class="suffix"><input name="asis_ecomm_debito" type="number" step="0.01" placeholder="0.00"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>MDR Crédito CNP</label><div class="suffix"><input name="asis_ecomm_credito" type="number" step="0.01" placeholder="0.00"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>MDR Internacional CNP</label><div class="suffix"><input name="asis_ecomm_intl" type="number" step="0.01" placeholder="0.00"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>MDR Amex CNP</label><div class="suffix"><input name="asis_ecomm_amex" type="number" step="0.01" placeholder="0.00"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>MDR Vales CNP</label><div class="suffix"><input name="asis_ecomm_vales" type="number" step="0.01" placeholder="0.00"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>Costo por Txn Online</label><div class="suffix"><input name="cuota_tx_ecom_mxn" type="number" step="0.01" placeholder="0.00"/><span class="suffix-label">$</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title amber">C · Mix Digital</div>
+    <div class="grid-3">
+      <div class="field"><label>% Débito CNP</label><div class="suffix"><input name="cnp_mix_debito_pct" type="number" step="1" placeholder="0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>% Crédito CNP</label><div class="suffix"><input name="cnp_mix_credito_pct" type="number" step="1" placeholder="0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>% Internacional CNP</label><div class="suffix"><input name="cnp_mix_internacional_pct" type="number" step="1" placeholder="0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>% Amex CNP</label><div class="suffix"><input name="cnp_mix_amex_pct" type="number" step="1" placeholder="0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>% MSI CNP</label><div class="suffix"><input name="cnp_mix_msi_pct" type="number" step="1" placeholder="0"/><span class="suffix-label">%</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title purple">D · Sobretasas MSI Online</div>
+    <table class="matrix">
+      <thead><tr><th>Plazo</th><th>Tasa Prosa/eGlobal (%)</th><th>Tasa Amex (%)</th></tr></thead>
+      <tbody>
+        <tr><td>3 meses</td><td><input name="cnp_msi_3" type="number" step="0.01" placeholder="0.00"/></td><td><input name="cnp_msi_3_amex" type="number" step="0.01" placeholder="0.00"/></td></tr>
+        <tr><td>6 meses</td><td><input name="cnp_msi_6" type="number" step="0.01" placeholder="0.00"/></td><td><input name="cnp_msi_6_amex" type="number" step="0.01" placeholder="0.00"/></td></tr>
+        <tr><td>9 meses</td><td><input name="cnp_msi_9" type="number" step="0.01" placeholder="0.00"/></td><td><input name="cnp_msi_9_amex" type="number" step="0.01" placeholder="0.00"/></td></tr>
+        <tr><td>12 meses</td><td><input name="cnp_msi_12" type="number" step="0.01" placeholder="0.00"/></td><td><input name="cnp_msi_12_amex" type="number" step="0.01" placeholder="0.00"/></td></tr>
+        <tr><td>18 meses</td><td><input name="cnp_msi_18" type="number" step="0.01" placeholder="0.00"/></td><td><input name="cnp_msi_18_amex" type="number" step="0.01" placeholder="0.00"/></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title danger">E · KPIs Digitales</div>
+    <div class="grid-3">
+      <div class="field"><label>% Rechazo Online</label><div class="suffix"><input name="ecom_rechazadas_pct" type="number" step="0.1" placeholder="0.0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>% Uptime Gateway</label><div class="suffix"><input name="cnp_uptime_pct" type="number" step="0.1" placeholder="99.0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>Decision Manager</label><select name="cnp_decision_manager"><option value="">No</option><option>Sí</option></select></div>
+      <div class="field"><label>3D Secure</label><select name="cnp_3ds"><option value="">No</option><option>Sí</option></select></div>
+      <div class="field"><label>Referenciador CNP</label><select name="cnp_referenciador"><option value="">No</option><option>Sí</option></select></div>
+      <div class="field"><label>SPEI CNP</label><select name="cnp_cfg_spei"><option value="">No</option><option>Sí</option></select></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- STEP 3: HARDWARE & RED -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="step-panel" data-step="3">
+  <div class="section-header">
+    <div class="section-title">3 · Hardware & Red</div>
+    <div class="section-sub">Inventario de equipos, propiedad, costos y diagnóstico de red</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">A · Inventario de Equipos (AS IS)</div>
+    <table class="matrix">
+      <thead><tr><th>Tipo de Equipo</th><th>Cantidad</th><th>Modelo/Marca</th><th>Propiedad</th><th>Renta $/mes</th></tr></thead>
+      <tbody>
+        <tr><td>TPV GPRS</td><td><input name="eq_tpv_gprs" type="number" min="0" placeholder="0"/></td><td><input name="eq_tpv_gprs_modelo" type="text"/></td><td><select name="eq_tpv_gprs_prop"><option>Renta</option><option>Propia</option><option>Comodato</option></select></td><td><input name="eq_tpv_gprs_renta" type="number" min="0" placeholder="0"/></td></tr>
+        <tr><td>TPV WiFi</td><td><input name="eq_tpv_wifi" type="number" min="0" placeholder="0"/></td><td><input name="eq_tpv_wifi_modelo" type="text"/></td><td><select name="eq_tpv_wifi_prop"><option>Renta</option><option>Propia</option><option>Comodato</option></select></td><td><input name="eq_tpv_wifi_renta" type="number" min="0" placeholder="0"/></td></tr>
+        <tr><td>TPV Ethernet</td><td><input name="eq_tpv_ethernet" type="number" min="0" placeholder="0"/></td><td><input name="eq_tpv_ethernet_modelo" type="text"/></td><td><select name="eq_tpv_ethernet_prop"><option>Renta</option><option>Propia</option><option>Comodato</option></select></td><td><input name="eq_tpv_ethernet_renta" type="number" min="0" placeholder="0"/></td></tr>
+        <tr><td>PinPads</td><td><input name="eq_pinpads" type="number" min="0" placeholder="0"/></td><td><input name="eq_pinpads_modelo" type="text"/></td><td><select name="eq_pinpads_prop"><option>Renta</option><option>Propia</option><option>Comodato</option></select></td><td><input name="eq_pinpads_renta" type="number" min="0" placeholder="0"/></td></tr>
+        <tr><td>Lectores Móviles</td><td><input name="eq_lector" type="number" min="0" placeholder="0"/></td><td><input name="eq_lector_modelo" type="text"/></td><td><select name="eq_lector_prop"><option>Renta</option><option>Propia</option><option>Comodato</option></select></td><td><input name="eq_lector_renta" type="number" min="0" placeholder="0"/></td></tr>
+        <tr><td>Kioskos</td><td><input name="eq_kiosko" type="number" min="0" placeholder="0"/></td><td><input name="eq_kiosko_modelo" type="text"/></td><td><select name="eq_kiosko_prop"><option>Renta</option><option>Propia</option><option>Comodato</option></select></td><td><input name="eq_kiosko_renta" type="number" min="0" placeholder="0"/></td></tr>
+      </tbody>
+    </table>
+    <div class="grid-2" style="margin-top:14px">
+      <div class="field"><label>Renta Total Mensual TPVs</label><div class="suffix"><input name="renta_total_tpvs" type="number" placeholder="0"/><span class="suffix-label">$</span></div></div>
+      <div class="field"><label>Antigüedad promedio del parque (años)</label><input name="antiguedad_parque" type="number" step="0.5" placeholder="0"/></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title danger">B · Diagnóstico de Red y Fallas</div>
+    <div class="grid-2">
+      <div class="field"><label>Conectividad SIM / Línea dedicada</label><input name="sim_carrier" type="text" placeholder="Telcel, AT&T, etc."/></div>
+      <div class="field"><label>Costo SIM/Conectividad ($/mes)</label><input name="costo_sim_mes" type="number" placeholder="0"/></div>
+    </div>
+    <div class="divider"></div>
+    <div class="field"><label>Fallas / problemas frecuentes de red</label>
+      <div class="check-group">
+        <label class="check-item"><input type="checkbox" name="falla_caidas" value="1"/> Caídas frecuentes</label>
+        <label class="check-item"><input type="checkbox" name="falla_lentitud" value="1"/> Lentitud en transacción</label>
+        <label class="check-item"><input type="checkbox" name="falla_reinicio" value="1"/> Reinicios forzados</label>
+        <label class="check-item"><input type="checkbox" name="falla_bateria" value="1"/> Batería/hardware</label>
+        <label class="check-item"><input type="checkbox" name="falla_soporte" value="1"/> Soporte lento</label>
+        <label class="check-item"><input type="checkbox" name="falla_conciliacion" value="1"/> Conciliación manual</label>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px"><label>Descripción de la falla principal</label><textarea name="falla_desc" placeholder="Describe la falla técnica más frecuente..."></textarea></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- STEP 4: SOFTWARE POS -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="step-panel" data-step="4">
+  <div class="section-header">
+    <div class="section-title">4 · Software POS / ERP</div>
+    <div class="section-sub">Sistema de punto de venta, módulos activos, costos y fallas</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">A · Proveedor de Software</div>
+    <div class="grid-2">
+      <div class="field"><label>Software POS / ERP Principal</label>
+        <select name="soft_erp">
+          <option value="">-- Selecciona --</option>
+          <optgroup label="Gasolineras"><option>ATIO (ControlGas)</option><option>Volucontrol</option><option>Petrointelligence</option><option>Espiga</option><option>GasoManager</option></optgroup>
+          <optgroup label="Restaurantes"><option>SoftRestaurant (NationalSoft)</option><option>Micros (Oracle)</option><option>Aloha (NCR)</option><option>PixelPoint</option><option>FrontRest (ICG)</option><option>Inforest</option><option>Mr. Noow</option><option>Toteat</option><option>Sistematics</option></optgroup>
+          <optgroup label="ERP Empresarial"><option>SAP</option><option>SAP B1</option><option>Microsoft Dynamics 365</option><option>Oracle NetSuite</option><option>Intelisis</option><option>ManagementPro</option><option>MyBusiness POS</option><option>Odoo</option><option>OpenBravo</option><option>SIO</option></optgroup>
+          <optgroup label="Retail"><option>Vend</option><option>Lightspeed</option></optgroup>
+          <optgroup label="Hoteles"><option>Opera (Oracle)</option><option>Fidelio</option><option>Amadeus</option><option>Cloudbeds</option></optgroup>
+          <option value="propio">Desarrollo Propio</option>
+          <option value="sin">Sin sistema POS</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Versión / Arquitectura</label><input name="soft_version" type="text" placeholder="Ej. v12, Cloud, Legacy..."/></div>
+      <div class="field"><label>Modalidad Conexión con Pago</label>
+        <select name="soft_conexion">
+          <option value="">-- Selecciona --</option>
+          <option>Conexión Directa Bancaria/Agregador</option>
+          <option>API REST</option><option>Middleware</option>
+          <option>Manual (sin integración)</option><option>Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>¿Integrado con adquirente?</label>
+        <select name="soft_integrado"><option value="">No</option><option>Sí — nativo</option><option>Sí — middleware</option><option>Parcialmente</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title amber">B · Módulos Activos</div>
+    <div class="check-group">
+      <label class="check-item"><input type="checkbox" name="mod_facturacion" value="1"/> Facturación CFDI</label>
+      <label class="check-item"><input type="checkbox" name="mod_inventario" value="1"/> Inventario</label>
+      <label class="check-item"><input type="checkbox" name="mod_crm_pos" value="1"/> CRM / Clientes</label>
+      <label class="check-item"><input type="checkbox" name="mod_lealtad" value="1"/> Lealtad / Puntos</label>
+      <label class="check-item"><input type="checkbox" name="mod_reportes" value="1"/> Reportes / BI</label>
+      <label class="check-item"><input type="checkbox" name="mod_msi_pos" value="1"/> MSI en POS</label>
+      <label class="check-item"><input type="checkbox" name="mod_delivery" value="1"/> Delivery / pedidos</label>
+      <label class="check-item"><input type="checkbox" name="mod_multimoneda" value="1"/> Multimoneda</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title purple">C · Costos de Software POS</div>
+    <table class="matrix">
+      <thead><tr><th>Concepto</th><th>Monto ($)</th><th>Frecuencia</th></tr></thead>
+      <tbody>
+        <tr><td>Licencia / Suscripción</td><td><input name="soft_costo_licencia" type="number" placeholder="0"/></td><td><select name="soft_frec_licencia"><option>Mensual</option><option>Anual</option><option>Único</option></select></td></tr>
+        <tr><td>Soporte / Mantenimiento</td><td><input name="soft_costo_soporte" type="number" placeholder="0"/></td><td><select name="soft_frec_soporte"><option>Mensual</option><option>Anual</option></select></td></tr>
+        <tr><td>Actualizaciones</td><td><input name="soft_costo_update" type="number" placeholder="0"/></td><td><select name="soft_frec_update"><option>Anual</option><option>Por evento</option><option>Incluido</option></select></td></tr>
+        <tr><td>Capacitación</td><td><input name="soft_costo_cap" type="number" placeholder="0"/></td><td><select name="soft_frec_cap"><option>Por evento</option><option>Anual</option><option>Incluido</option></select></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title danger">D · Matriz de Fallas (Software)</div>
+    <table class="matrix">
+      <thead><tr><th>Falla</th><th>Frecuencia</th><th>Impacto</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td>Caídas del sistema</td><td><select name="falla_soft_caidas_freq"><option value="">Rara</option><option>Mensual</option><option>Semanal</option><option>Diaria</option></select></td><td><select name="falla_soft_caidas_imp"><option value="">Bajo</option><option>Medio</option><option>Alto</option></select></td><td><input name="falla_soft_caidas_desc" type="text"/></td></tr>
+        <tr><td>Errores de conciliación</td><td><select name="falla_soft_conc_freq"><option value="">Rara</option><option>Mensual</option><option>Semanal</option><option>Diaria</option></select></td><td><select name="falla_soft_conc_imp"><option value="">Bajo</option><option>Medio</option><option>Alto</option></select></td><td><input name="falla_soft_conc_desc" type="text"/></td></tr>
+        <tr><td>Lentitud en procesos</td><td><select name="falla_soft_lent_freq"><option value="">Rara</option><option>Mensual</option><option>Semanal</option><option>Diaria</option></select></td><td><select name="falla_soft_lent_imp"><option value="">Bajo</option><option>Medio</option><option>Alto</option></select></td><td><input name="falla_soft_lent_desc" type="text"/></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- STEP 5: INTEGRADORES -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="step-panel" data-step="5">
+  <div class="section-header">
+    <div class="section-title">5 · Integradores Tecnológicos</div>
+    <div class="section-sub">Proveedores de integración, costos y diagnóstico técnico</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">A · Proveedor Tecnológico</div>
+    <div class="grid-2">
+      <div class="field"><label>Integrador Actual</label>
+        <select name="integrador_actual">
+          <option value="">-- Selecciona --</option>
+          <option>Smart Payments</option><option>MIT (Center of Payments)</option>
+          <option>Hola TI</option><option>Planet (Fintrax)</option>
+          <option>Switch (Prosa/eGlobal)</option><option>Verifone (Payware)</option>
+          <option>FreedomPay</option><option>ACI Worldwide</option>
+          <option>Cybersource (Gateway Visa)</option><option>Toshiba Global Commerce</option>
+          <option>NetPay</option><option value="otro">Otro (especificar)</option>
+          <option value="ninguno">Sin integrador</option>
+        </select>
+      </div>
+      <div class="field"><label>Integrador Secundario</label>
+        <select name="integrador_secundario">
+          <option value="">-- Ninguno --</option>
+          <option>Smart Payments</option><option>MIT (Center of Payments)</option>
+          <option>Hola TI</option><option>Planet (Fintrax)</option>
+          <option>Switch (Prosa/eGlobal)</option><option>ACI Worldwide</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Calidad de Soporte</label>
+        <select name="integrador_soporte">
+          <option value="">-- Selecciona --</option>
+          <option>Estable</option><option>Lenta</option><option>Mala</option>
+        </select>
+      </div>
+      <div class="field"><label>Tipo de Servicio</label>
+        <select name="integrador_tipo">
+          <option value="">-- Selecciona --</option>
+          <option>Middleware</option><option>Host-to-Host</option>
+          <option>API REST</option><option>SDK</option><option>Otro</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title amber">B · Costos del Integrador</div>
+    <table class="matrix">
+      <thead><tr><th>Concepto</th><th>Monto ($)</th><th>Frecuencia</th></tr></thead>
+      <tbody>
+        <tr><td>Licencia / Acceso</td><td><input name="integ_costo_licencia" type="number" placeholder="0"/></td><td><select name="integ_frec_licencia"><option>Mensual</option><option>Anual</option><option>Único</option></select></td></tr>
+        <tr><td>Soporte técnico</td><td><input name="integ_costo_soporte" type="number" placeholder="0"/></td><td><select name="integ_frec_soporte"><option>Mensual</option><option>Por hora</option><option>Por evento</option></select></td></tr>
+        <tr><td>Mantenimiento</td><td><input name="integ_costo_mant" type="number" placeholder="0"/></td><td><select name="integ_frec_mant"><option>Mensual</option><option>Anual</option></select></td></tr>
+        <tr><td>Desarrollo adicional</td><td><input name="integ_costo_dev" type="number" placeholder="0"/></td><td><select name="integ_frec_dev"><option>Por evento</option><option>Por hora</option></select></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title danger">C · Matriz de Calidad y Fallas Técnicas</div>
+    <table class="matrix">
+      <thead><tr><th>Área</th><th>Calidad</th><th>Falla Detectada</th></tr></thead>
+      <tbody>
+        <tr><td>Tiempo de respuesta API</td><td><select name="integ_cal_api"><option value="">Buena</option><option>Regular</option><option>Mala</option></select></td><td><input name="integ_falla_api" type="text" placeholder="Describe la falla..."/></td></tr>
+        <tr><td>Estabilidad / Uptime</td><td><select name="integ_cal_uptime"><option value="">Buena</option><option>Regular</option><option>Mala</option></select></td><td><input name="integ_falla_uptime" type="text"/></td></tr>
+        <tr><td>Documentación</td><td><select name="integ_cal_docs"><option value="">Buena</option><option>Regular</option><option>Mala</option></select></td><td><input name="integ_falla_docs" type="text"/></td></tr>
+        <tr><td>Soporte / SLA</td><td><select name="integ_cal_sla"><option value="">Buena</option><option>Regular</option><option>Mala</option></select></td><td><input name="integ_falla_sla" type="text"/></td></tr>
+      </tbody>
+    </table>
+    <div class="field" style="margin-top:14px"><label>Riesgos y Bloqueos de Salida</label>
+      <textarea name="integ_riesgos" placeholder="Contratos vigentes, cláusulas de salida, dependencias críticas..."></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- STEP 6: CONSOLA & DESARROLLO -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="step-panel" data-step="6">
+  <div class="section-header">
+    <div class="section-title">6 · Consola de Negocios & Desarrollo</div>
+    <div class="section-sub">Portal de gestión, acceso, reportería y capacidades de desarrollo</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">A · Consola de Negocios</div>
+    <div class="grid-2">
+      <div class="field"><label>Proveedor / Dueño de la Consola</label>
+        <select name="consola_proveedor">
+          <option value="">-- Selecciona --</option>
+          <option>NetPay</option><option>BBVA</option><option>Banorte</option><option>Santander</option>
+          <option>Adyen</option><option>Cybersource</option><option>ACI Worldwide</option>
+          <option>Desarrollo Propio (In-house)</option><option value="otro">Otro</option><option value="ninguna">Sin consola</option>
+        </select>
+      </div>
+      <div class="field"><label>Acceso / Seguridad</label>
+        <select name="consola_acceso">
+          <option value="">-- Selecciona --</option>
+          <option>Jerárquico (Roles/Admin)</option>
+          <option>Multi-usuario (Básico)</option>
+          <option>Usuario único</option>
+        </select>
+      </div>
+      <div class="field"><label>Formato de Exportación</label>
+        <select name="consola_exportacion">
+          <option value="">-- Selecciona --</option>
+          <option>Excel / CSV</option><option>Host-to-Host (SFTP/API)</option>
+          <option>PDF únicamente</option><option>No permite exportar</option>
+        </select>
+      </div>
+      <div class="field"><label>Costo Mensual de la Consola</label><div class="suffix"><input name="consola_costo_mensual" type="number" placeholder="0"/><span class="suffix-label">$</span></div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="field"><label>Diagnóstico Funcional (Financiero)</label>
+      <div class="check-group">
+        <label class="check-item"><input type="checkbox" name="consola_tiene_reporte_txn" value="1"/> Reporte de transacciones</label>
+        <label class="check-item"><input type="checkbox" name="consola_tiene_conciliacion" value="1"/> Conciliación automática</label>
+        <label class="check-item"><input type="checkbox" name="consola_tiene_chargebacks" value="1"/> Gestión contracargos</label>
+        <label class="check-item"><input type="checkbox" name="consola_tiene_alertas" value="1"/> Alertas en tiempo real</label>
+        <label class="check-item"><input type="checkbox" name="consola_tiene_api" value="1"/> API disponible</label>
+        <label class="check-item"><input type="checkbox" name="consola_tiene_multimoneda" value="1"/> Multimoneda</label>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px"><label>Problemas Frecuentes con la Consola</label>
+      <textarea name="consola_problemas" placeholder="Describe los principales problemas de uso..."></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title purple">B · Desarrollo Tecnológico</div>
+    <div class="grid-2">
+      <div class="field"><label>¿Quién desarrolló la solución actual?</label>
+        <select name="dev_quien">
+          <option value="">-- Selecciona --</option>
+          <option>In-House (Equipo Interno)</option>
+          <option>Fábrica de Software (Tercero)</option>
+          <option>Proveedor POS/ERP</option>
+          <option value="otro">Otro</option>
+          <option value="ninguno">Sin desarrollo propio</option>
+        </select>
+      </div>
+      <div class="field"><label>Tipo de Desarrollo / Plataforma</label>
+        <select name="dev_tipo">
+          <option value="">-- Selecciona --</option>
+          <option>Web App</option><option>Mobile (iOS/Android)</option>
+          <option>Escritorio</option><option>Híbrido</option><option>API/Microservicios</option>
+        </select>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="field"><label>Gap Analysis — Funcionalidades Faltantes</label>
+      <textarea name="dev_gaps" placeholder="¿Qué funcionalidades necesitan pero no tienen hoy?"></textarea>
+    </div>
+    <div class="divider"></div>
+    <div class="field"><label>Costos de Ingeniería y Mantenimiento ($/mes estimado)</label><div class="suffix" style="max-width:200px"><input name="dev_costo_mensual" type="number" placeholder="0"/><span class="suffix-label">$</span></div></div>
+    <div class="field" style="margin-top:12px"><label>Riesgos y Bloqueos de Salida</label>
+      <textarea name="dev_riesgos" placeholder="Dependencias, contratos, código propietario..."></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- STEP 7: COSTOS OCULTOS -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="step-panel" data-step="7">
+  <div class="section-header">
+    <div class="section-title">7 · Costos Ocultos & Carga Administrativa</div>
+    <div class="section-sub">Ineficiencias operativas, tiempo administrativo y costos no visibles</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title danger">A · Ineficiencias Detectadas</div>
+    <table class="matrix">
+      <thead><tr><th>Área de Ineficiencia</th><th>Hrs/Mes</th><th>Costo Hora ($)</th><th>Total $/mes</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td>Conciliación manual</td><td><input name="inef_conc_hrs" type="number" placeholder="0"/></td><td><input name="inef_conc_costo_hr" type="number" placeholder="0"/></td><td><input name="inef_conc_total" type="number" placeholder="Auto" readonly/></td><td><input name="inef_conc_desc" type="text"/></td></tr>
+        <tr><td>Atención a fallas TPV</td><td><input name="inef_tpv_hrs" type="number" placeholder="0"/></td><td><input name="inef_tpv_costo_hr" type="number" placeholder="0"/></td><td><input name="inef_tpv_total" type="number" placeholder="Auto" readonly/></td><td><input name="inef_tpv_desc" type="text"/></td></tr>
+        <tr><td>Gestión de contracargos</td><td><input name="inef_cb_hrs" type="number" placeholder="0"/></td><td><input name="inef_cb_costo_hr" type="number" placeholder="0"/></td><td><input name="inef_cb_total" type="number" placeholder="Auto" readonly/></td><td><input name="inef_cb_desc" type="text"/></td></tr>
+        <tr><td>Solicitudes y reportes</td><td><input name="inef_rep_hrs" type="number" placeholder="0"/></td><td><input name="inef_rep_costo_hr" type="number" placeholder="0"/></td><td><input name="inef_rep_total" type="number" placeholder="Auto" readonly/></td><td><input name="inef_rep_desc" type="text"/></td></tr>
+        <tr><td>Otro gasto operativo</td><td><input name="inef_otro_hrs" type="number" placeholder="0"/></td><td><input name="inef_otro_costo_hr" type="number" placeholder="0"/></td><td><input name="inef_otro_total" type="number" placeholder="Auto" readonly/></td><td><input name="inef_otro_desc" type="text"/></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title amber">B · Dolores Operativos</div>
+    <div class="check-group">
+      <label class="check-item"><input type="checkbox" name="dolor_fees" value="1"/> Fees/costos elevados</label>
+      <label class="check-item"><input type="checkbox" name="dolor_caidas" value="1"/> Caídas e indisponibilidad</label>
+      <label class="check-item"><input type="checkbox" name="dolor_conciliacion" value="1"/> Conciliación manual</label>
+      <label class="check-item"><input type="checkbox" name="dolor_contracargos" value="1"/> Alto volumen de contracargos</label>
+      <label class="check-item"><input type="checkbox" name="dolor_retencion" value="1"/> Retención de fondos</label>
+      <label class="check-item"><input type="checkbox" name="dolor_experiencia" value="1"/> Mala experiencia de cliente</label>
+      <label class="check-item"><input type="checkbox" name="dolor_liquidacion" value="1"/> Liquidación tardía</label>
+      <label class="check-item"><input type="checkbox" name="dolor_reporteria" value="1"/> Reportería insuficiente</label>
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>Principal Problemática (detalle)</label>
+      <textarea name="principal_problematica" placeholder="Describe el dolor principal con el mayor impacto en el negocio..."></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- STEP 8: GROWTH & ESTRATEGIA -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="step-panel" data-step="8">
+  <div class="section-header">
+    <div class="section-title">8 · Growth Economics & Estrategia</div>
+    <div class="section-sub">Métricas de clientes, lealtad y estrategia de crecimiento / retención</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">A · Métricas de Clientes (Growth Economics)</div>
+    <div class="grid-3">
+      <div class="field"><label>Total Clientes Base (#)</label><input name="growth_clientes_total" type="number" placeholder="0"/></div>
+      <div class="field"><label>Clientes Activos Hoy (#)</label><input name="growth_clientes_activos" type="number" placeholder="0"/></div>
+      <div class="field"><label>Clientes Rentables / Top (#)</label><input name="growth_clientes_top" type="number" placeholder="0"/></div>
+      <div class="field"><label>Clientes Perdidos / Mes (#)</label><input name="growth_clientes_perdidos_mes" type="number" placeholder="0"/></div>
+      <div class="field"><label>CAC Real (Costo Adquisición)</label><div class="suffix"><input name="growth_cac" type="number" placeholder="0"/><span class="suffix-label">$</span></div></div>
+      <div class="field"><label>CPA (Costo por Recuperación)</label><div class="suffix"><input name="growth_cpa" type="number" placeholder="0"/><span class="suffix-label">$</span></div></div>
+      <div class="field"><label>Dinero Perdido Mensual (estimado)</label><div class="suffix"><input name="growth_dinero_perdido_mes" type="number" placeholder="0"/><span class="suffix-label">$</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title purple">B · Programa de Lealtad</div>
+    <div class="grid-2">
+      <div class="field"><label>Tipo de Programa</label>
+        <select name="lealtad_tipo">
+          <option value="">-- Ninguno --</option>
+          <option>Puntos / Monedero</option><option>Cashback Directo</option>
+          <option>Tarjeta Sellos (Física)</option><option>Niveles VIP</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>% Efectividad del Programa</label><div class="suffix"><input name="lealtad_efectividad_pct" type="number" step="1" placeholder="0"/><span class="suffix-label">%</span></div></div>
+      <div class="field"><label>Detalle del Programa</label><textarea name="lealtad_detalle" placeholder="Describe cómo funciona actualmente..."></textarea></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title gold">C · Estrategia de Crecimiento (Smart Coverage)</div>
+    <div class="grid-2">
+      <div class="field"><label>Meta de Crecimiento</label>
+        <select name="estrategia_meta">
+          <option value="">-- Selecciona --</option>
+          <option>Captación Masiva (Volumen)</option>
+          <option>Expansión Geográfica (Nuevas Plazas)</option>
+          <option>Cuentas Estratégicas (Marca)</option>
+          <option>Cross-Selling (Más productos)</option>
+          <option>Digital Acquisition (Leads Web)</option>
+          <option>Alianzas / Partners</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Modelo de Gestión (Hunter)</label>
+        <select name="estrategia_hunter">
+          <option value="">-- Selecciona --</option>
+          <option>Hunter Puro (100% Calle)</option>
+          <option>Digital Acquisition (Leads Web)</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">D · Estrategia de Retención (Client Management)</div>
+    <div class="grid-2">
+      <div class="field"><label>Enfoque Principal</label>
+        <select name="retencion_enfoque">
+          <option value="">-- Selecciona --</option>
+          <option>Blindaje (Evitar Churn)</option>
+          <option>Aumentar Ticket Promedio</option>
+          <option>CLM (Gestión Ciclo de Vida)</option>
+          <option>Campaña de Incentivos (Cajeros)</option>
+          <option>Cambio de Tecnología (Upgrade)</option>
+          <option>Comunicación Digital (Push/SMS)</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Modelo de Atención (Farmer)</label>
+        <select name="retencion_farmer">
+          <option value="">-- Selecciona --</option>
+          <option>Farmer (Ejecutivos de Cuenta)</option>
+          <option>Call Center (Soporte Reactivo)</option>
+          <option>Integración a Sistema (API)</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title amber">E · Win-Back (Recuperación de Clientes)</div>
+    <div class="grid-2">
+      <div class="field"><label>¿Por qué no usan el producto? (Causa raíz)</label>
+        <select name="winback_causa">
+          <option value="">-- Selecciona --</option>
+          <option>Desconocimiento de Funciones</option>
+          <option>Fallas Técnicas Recurrentes</option>
+          <option>Costo percibido alto</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Acción de Reactivación</label>
+        <select name="winback_accion">
+          <option value="">-- Selecciona --</option>
+          <option>Bonificación de Rentas</option>
+          <option>Campaña de Incentivos</option>
+          <option>Visita ejecutiva</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Filtro de Recuperación</label>
+        <select name="winback_filtro">
+          <option value="">-- Selecciona --</option>
+          <option>Key Accounts (Alto Volumen Histórico)</option>
+          <option>Pareto (20%)</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Umbral Facturación Histórica ($)</label><input name="winback_umbral" type="number" placeholder="$ Mínimo para ser candidato"/></div>
+    </div>
+    <div class="field" style="margin-top:8px"><label>Oferta de Gancho (Hook)</label>
+      <input name="winback_hook" type="text" placeholder="Ej: 3 meses sin renta, tasa preferencial, etc."/>
+    </div>
+  </div>
+
+  <!-- CTA FINAL -->
+  <div style="margin-top:32px;padding:24px;background:linear-gradient(135deg,rgba(245,200,66,.08),rgba(157,78,221,.08));border:1px solid rgba(245,200,66,.2);border-radius:14px;text-align:center">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Diagnóstico Blueprint completado</div>
+    <div style="font-size:16px;color:var(--text);font-weight:600;margin-bottom:16px">¿Listo para calcular el impacto financiero?</div>
+    <button type="button" class="btn btn-value" onclick="launchValueTool()" style="font-size:14px;padding:12px 32px">
+      ✦ Ir al Value Tool ⟶
+    </button>
+  </div>
+</div>
+
+</form>
+</main>
+
+<!-- FOOTER NAV -->
+<div class="footer-nav">
+  <div class="nav-left">
+    <button class="btn btn-secondary" id="btnPrev" type="button">⟵ Anterior</button>
+    <button class="btn btn-ghost" id="btnReset" type="button">Limpiar</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span class="step-counter" id="stepCounter">Paso 1 de 9</span>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-primary" id="btnNext" type="button">Siguiente ⟶</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CORE — Navegación
+// ═══════════════════════════════════════════════════════
+var currentStep = 0;
+var totalSteps = 9;
+
+function showStep(idx) {
+  if (idx < 0 || idx >= totalSteps) return;
+  currentStep = idx;
+  document.querySelectorAll('.step-panel').forEach(function(p, i) {
+    p.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.step-pill').forEach(function(p, i) {
+    p.classList.toggle('active', i === idx);
+  });
+  document.getElementById('stepCounter').textContent = 'Paso ' + (idx + 1) + ' de ' + totalSteps;
+  document.getElementById('btnPrev').disabled = idx === 0;
+  document.getElementById('btnNext').textContent = idx === totalSteps - 1 ? 'Finalizar ✓' : 'Siguiente ⟶';
+  window.scrollTo(0, 0);
+}
+
+document.getElementById('btnPrev').addEventListener('click', function() { showStep(currentStep - 1); });
+document.getElementById('btnNext').addEventListener('click', function() {
+  if (currentStep === totalSteps - 1) { launchValueTool(); }
+  else { showStep(currentStep + 1); }
+});
+document.getElementById('btnReset').addEventListener('click', function() {
+  if (confirm('¿Limpiar todos los campos de esta sección?')) {
+    var panel = document.querySelector('.step-panel.active');
+    if (panel) { panel.querySelectorAll('input,select,textarea').forEach(function(el) { el.type === 'checkbox' ? el.checked = false : el.value = ''; }); }
+  }
+});
+document.querySelectorAll('.step-pill').forEach(function(pill) {
+  pill.addEventListener('click', function() { showStep(parseInt(pill.dataset.step)); });
+});
+
+// ── Check items styling ──
+document.querySelectorAll('.check-item').forEach(function(item) {
+  var cb = item.querySelector('input[type="checkbox"]');
+  if (!cb) return;
+  cb.addEventListener('change', function() { item.classList.toggle('checked', cb.checked); });
+});
+
+// ── Ineficiencias auto-calc ──
+function calcInef(prefix) {
+  var hrs = parseFloat(document.querySelector('[name="' + prefix + '_hrs"]')?.value) || 0;
+  var costo = parseFloat(document.querySelector('[name="' + prefix + '_costo_hr"]')?.value) || 0;
+  var totalEl = document.querySelector('[name="' + prefix + '_total"]');
+  if (totalEl) totalEl.value = hrs && costo ? (hrs * costo).toFixed(0) : '';
+}
+['inef_conc','inef_tpv','inef_cb','inef_rep','inef_otro'].forEach(function(p) {
+  ['_hrs','_costo_hr'].forEach(function(s) {
+    var el = document.querySelector('[name="' + p + s + '"]');
+    if (el) el.addEventListener('input', function() { calcInef(p); });
+  });
+});
+
+// ── Toast ──
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2800);
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT JSON
+// ═══════════════════════════════════════════════════════
+function collectForm() {
+  var form = document.getElementById('blueprintForm');
+  var data = {};
+  var els = form.elements;
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    if (!el.name) continue;
+    if (el.type === 'checkbox') {
+      if (!data[el.name]) data[el.name] = [];
+      if (el.checked) data[el.name].push(el.value);
+    } else if (el.type === 'radio') {
+      if (el.checked) data[el.name] = el.value;
+    } else {
+      data[el.name] = el.value;
+    }
+  }
+  return data;
+}
+
+function exportJSON() {
+  var data = collectForm();
+  data._blueprint_ts = Date.now();
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'blueprint_' + (data.nombre_comercial || 'corepay').replace(/\s+/g, '_') + '_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  showToast('JSON exportado');
+}
+
+// ═══════════════════════════════════════════════════════
+// LAUNCH VALUE TOOL
+// ═══════════════════════════════════════════════════════
+function launchValueTool() {
+  var VALUE_TOOL_URL = 'https://doranzapg-cpu.github.io/corepay-crm/value-tool.html';
+  try {
+    var data = collectForm();
+    data._mode = 'blueprint';
+    data._blueprint_ts = Date.now();
+    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+    window.open(VALUE_TOOL_URL + '?data=' + b64, '_blank');
+    showToast('Abriendo Value Tool...');
+  } catch(e) {
+    alert('Error preparando datos: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// PREFILL desde Sprint (?data=BASE64)
+// ═══════════════════════════════════════════════════════
+(function blueprintPrefill() {
+  try {
+    var b64 = new URLSearchParams(location.search).get('data');
+    if (!b64) return;
+    var data = JSON.parse(decodeURIComponent(escape(atob(b64))));
+
+    // Mapa: nombre_campo_formulario → valor del payload
+    var map = {
+      'nombre_comercial':     data.nombre_comercial,
+      'razon_social':         data.razon_social,
+      'rfc':                  data.rfc,
+      'num_sucursales':       data.num_sucursales,
+      'giro_preliminar':      data.giro_preliminar,
+      'facturacion_promedio': data.facturacion_promedio,
+      'ticket_promedio':      data.ticket_promedio,
+      'ticket_digital':       data.ticket_digital,
+      'mcc_actual':           data.mcc_actual,
+      // Contacto
+      'nombre_contacto':      data.nombre_contacto,
+      'email':                data.email,
+      'telefono':             data.telefono,
+      'puesto':               data.puesto,
+      'contacto_admin_nombre':data.contacto_admin_nombre,
+      'contacto_admin_correo':data.contacto_admin_correo,
+      'contacto_admin_tel':   data.contacto_admin_tel,
+      'contacto_ti_nombre':   data.contacto_ti_nombre,
+      'contacto_ti_correo':   data.contacto_ti_correo,
+      'contacto_ti_tel':      data.contacto_ti_tel,
+      // Tasas TP
+      'tasa_debito':          data.tasa_debito,
+      'tasa_credito':         data.tasa_credito,
+      'tasa_internacional':   data.tasa_internacional,
+      'tasa_amex':            data.tasa_amex,
+      'tasa_vales':           data.tasa_vales,
+      // Tasas CNP
+      'asis_ecomm_debito':    data.asis_ecomm_debito,
+      'asis_ecomm_credito':   data.asis_ecomm_credito,
+      'asis_ecomm_intl':      data.asis_ecomm_intl,
+      'asis_ecomm_amex':      data.asis_ecomm_amex,
+      'asis_ecomm_vales':     data.asis_ecomm_vales,
+      'cuota_tx_ecom_mxn':    data.cuota_tx_ecom_mxn,
+      // Equipos
+      'eq_tpv_gprs':          data.eq_tpv_gprs,
+      'eq_tpv_wifi':          data.eq_tpv_wifi,
+      'eq_tpv_ethernet':      data.eq_tpv_ethernet,
+      'eq_pinpads':           data.eq_pinpads,
+      'eq_lector':            data.eq_lector,
+      'eq_kiosko':            data.eq_kiosko,
+      // Mix TP
+      'mix_debito':           data.mix_debito,
+      'mix_credito_nal':      data.mix_credito_nal,
+      'mix_credito_int':      data.mix_credito_int,
+      'mix_amex':             data.mix_amex,
+      'mix_vales':            data.mix_vales,
+      'mix_msi':              data.mix_msi,
+      // Mix CNP
+      'cnp_mix_debito_pct':   data.cnp_mix_debito_pct,
+      'cnp_mix_credito_pct':  data.cnp_mix_credito_pct,
+      'cnp_mix_amex_pct':     data.cnp_mix_amex_pct,
+      'split_cnp_pct':        data.split_cnp_pct,
+      // MSI TP
+      'msi_3':  data.msi_3,  'msi_6':  data.msi_6,  'msi_9':  data.msi_9,
+      'msi_12': data.msi_12, 'msi_18': data.msi_18, 'msi_24': data.msi_24,
+      // MSI CNP
+      'cnp_msi_3':  data.cnp_msi_3,  'cnp_msi_6':  data.cnp_msi_6,
+      'cnp_msi_9':  data.cnp_msi_9,  'cnp_msi_12': data.cnp_msi_12,
+      'cnp_msi_18': data.cnp_msi_18,
+      // Costos adicionales
+      'cuotas_anuales_monto_mxn': data.cuotas_anuales_monto_mxn,
+      'membresias_monto_mxn':     data.membresias_monto_mxn,
+      'rollos_costo_mxn':         data.rollos_costo_mxn,
+      'otros_costos_monto_mxn':   data.otros_costos_monto_mxn,
+      // Software
+      'soft_erp':             data.soft_erp,
+      // Banco
+      'banco_liquidador':     data.banco_liquidador,
+      'tipo_cuenta':          data.tipo_cuenta,
+      // Problemática
+      'principal_problematica': data.principal_problematica,
+    };
+
+    function applyPrefill() {
+      var applied = 0;
+      Object.keys(map).forEach(function(name) {
+        var val = map[name];
+        if (!val && val !== 0) return;
+        var el = document.querySelector('[name="' + name + '"]');
+        if (!el) return;
+        if (el.tagName === 'SELECT') {
+          var opts = Array.prototype.slice.call(el.options);
+          var match = opts.find(function(o) {
+            return o.value.toLowerCase() === String(val).toLowerCase() ||
+                   o.text.toLowerCase().indexOf(String(val).toLowerCase()) !== -1;
+          });
+          if (match) { el.value = match.value; el.dispatchEvent(new Event('change')); applied++; }
+        } else {
+          el.value = val;
+          el.dispatchEvent(new Event('input'));
+          applied++;
+        }
+      });
+
+      // Adquirente
+      if (data.adquirente_actual) {
+        var adqEl = document.querySelector('select[name="adquirente_actual"]');
+        if (adqEl) {
+          var opts = Array.prototype.slice.call(adqEl.options);
+          var match = opts.find(function(o) {
+            return o.text.toLowerCase().indexOf(data.adquirente_actual.toLowerCase()) !== -1;
+          });
+          if (match) { adqEl.value = match.value; adqEl.dispatchEvent(new Event('change')); applied++; }
+        }
+      }
+
+      // Régimen
+      if (data.regimen) {
+        var regEl = document.querySelector('select[name="regimen"]');
+        if (regEl) {
+          var opts = Array.prototype.slice.call(regEl.options);
+          var match = opts.find(function(o) { return o.value === data.regimen; });
+          if (match) { regEl.value = match.value; applied++; }
+        }
+      }
+
+      // Checkboxes dolor
+      var dolores = ['dolor_fees','dolor_caidas','dolor_conciliacion','dolor_contracargos','dolor_retencion','dolor_experiencia'];
+      dolores.forEach(function(name) {
+        if (!data[name] && !data['_' + name]) return;
+        document.querySelectorAll('[name="' + name + '"]').forEach(function(cb) {
+          if (cb.type === 'checkbox') {
+            cb.checked = true;
+            cb.closest('.check-item') && cb.closest('.check-item').classList.add('checked');
+            applied++;
+          }
+        });
+      });
+
+      // Banner
+      if (applied > 0) {
+        document.getElementById('prefill-banner').classList.add('show');
+        console.log('[Blueprint] Pre-fill: ' + applied + ' campos aplicados');
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() { setTimeout(applyPrefill, 400); });
+    } else {
+      setTimeout(applyPrefill, 400);
+    }
+
+  } catch(e) {
+    console.warn('[Blueprint] Pre-fill error:', e);
+  }
+})();
+
+// Init
+showStep(0);
+</script>
+</body>
+</html>
