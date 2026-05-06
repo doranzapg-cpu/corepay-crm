@@ -10156,37 +10156,84 @@ window.__cp_mc125_moveProdSumRight = function(){
 // fix53: Lee datos del CRM desde URL param ?data=BASE64 (no localStorage)
 // ═══════════════════════════════════════════════════════════════════════
 
-// fix54-b: Lanzar Blueprint con datos del Sprint serializados en URL params Base64
+// fix54-b / fix55: Lanzar Blueprint + POST resultados al CRM
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8eHKqD7TYuOfOlzqybbhi59H4w3nGUr3i5NePT6YaNm0k-l5L_ManjYjphzvJPB3M/exec';
+
 function launchBlueprint() {
   var BLUEPRINT_URL = 'https://doranzapg-cpu.github.io/corepay-crm/blueprint.html';
   try {
+    // 1. Recolectar todos los campos del formulario
     var form = document.getElementById('checklistForm');
-    var payload = {};
+    var formData = {};
     if (form) {
       var elements = form.elements;
       for (var i = 0; i < elements.length; i++) {
         var el = elements[i];
         if (!el.name) continue;
         if (el.type === 'checkbox') {
-          if (!payload[el.name]) payload[el.name] = [];
-          if (el.checked) payload[el.name].push(el.value);
+          if (!formData[el.name]) formData[el.name] = [];
+          if (el.checked) formData[el.name].push(el.value);
         } else if (el.type === 'radio') {
-          if (el.checked) payload[el.name] = el.value;
+          if (el.checked) formData[el.name] = el.value;
         } else {
-          payload[el.name] = el.value;
+          formData[el.name] = el.value;
         }
       }
     }
+
+    // 2. Leer meta CRM
+    var crmId = '';
+    var crmOwner = '';
     try {
-      var crmId = localStorage.getItem('corepay_sprint_crm_id');
-      var crmOwner = localStorage.getItem('corepay_sprint_crm_owner');
-      if (crmId) payload._crm_id_lead = crmId;
-      if (crmOwner) payload._crm_owner = crmOwner;
+      crmId = localStorage.getItem('corepay_sprint_crm_id') || '';
+      crmOwner = localStorage.getItem('corepay_sprint_crm_owner') || '';
     } catch(e) {}
-    payload._sprint_ts = Date.now();
-    payload._mode = 'blueprint';
-    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+
+    // 3. fix55 — POST al CRM si hay id_lead
+    if (crmId) {
+      var crmUpdate = {
+        action: 'updateLead',
+        id_lead:               crmId,
+        // Datos generales
+        nombre_comercial:      formData.nombre_comercial      || '',
+        giro_preliminar:       formData.industria             || '',
+        facturacion_promedio:  formData.venta_mensual_total   || '',
+        num_sucursales:        formData.num_sucursales         || '',
+        // Adquirente y tasas AS IS
+        adquirente_actual:     formData.adquirente_principal  || '',
+        tasa_debito:           formData.mdr_tp_debito         || '',
+        tasa_credito:          formData.mdr_tp_credito        || '',
+        tasa_amex:             formData.mdr_tp_amex           || '',
+        tasa_internacional:    formData.mdr_tp_internacional  || '',
+        tasa_vales:            formData.mdr_tp_vales          || '',
+        // Problemática
+        principal_problematica: formData.principal_problematica || '',
+        // Meta
+        ultima_actualizacion:  new Date().toISOString()
+      };
+
+      // POST silencioso — no bloquea el flujo si falla
+      fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(crmUpdate)
+      }).then(function(r) {
+        if (r.ok) console.log('[CorePay Sprint] CRM actualizado: ' + crmId);
+        else console.warn('[CorePay Sprint] CRM update HTTP error: ' + r.status);
+      }).catch(function(e) {
+        console.warn('[CorePay Sprint] CRM update failed (silencioso):', e);
+      });
+    }
+
+    // 4. Serializar para Blueprint
+    formData._crm_id_lead = crmId;
+    formData._crm_owner   = crmOwner;
+    formData._sprint_ts   = Date.now();
+    formData._mode        = 'blueprint';
+
+    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(formData))));
     window.open(BLUEPRINT_URL + '?data=' + b64, '_blank');
+
   } catch(e) {
     alert('Error preparando datos para Blueprint: ' + e.message);
   }
