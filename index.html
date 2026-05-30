@@ -2522,6 +2522,17 @@ function collectDrawerPayload() {
     } catch(e) {}
   }
 
+  // MC-F: capturar campos con data-key (actividad_sat, mcc) que no usan data-field
+  [...el.drawerBody.querySelectorAll('[data-key]')].forEach(el => {
+    const key = el.dataset.key;
+    if (!key) return;
+    const val = el.value || '';
+    const originalVal = String(base[key] || '').trim();
+    if (val !== '' || originalVal === '') {
+      payload[key] = val;
+    }
+  });
+
   // fix27: limpiar campos internos que no van al Sheet
   delete payload._rowNumber;
   return payload;
