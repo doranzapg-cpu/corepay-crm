@@ -3784,21 +3784,49 @@ function selectFieldDynamic(key,label,val,options){
   const opts=options.map(o=>`<option value="${escapeAttr(o)}"${val===o?' selected':''}>${escapeHtml(o)}</option>`).join('');
   return `<div class="field"><label>${escapeHtml(label)}</label><select data-key="${escapeAttr(key)}" onchange="onActividadSATChange(this)"><option value="">— Seleccionar —</option>${opts}</select></div>`;
 }
-function mccField(key,val,actividad){
-  const mccs=actividad&&MCC_ACT_TO_MCC[actividad]?MCC_ACT_TO_MCC[actividad]:[];
-  const opts=mccs.map(m=>`<option value="${escapeAttr(m.mcc)}"${val===m.mcc?' selected':''}>${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
-  return `<div class="field"><label>MCC</label><select id="mccSelect" data-key="${escapeAttr(key)}" data-field="${escapeAttr(key)}"><option value="">${mccs.length?'— Seleccionar MCC —':actividad?'Sin MCC asignado':'Selecciona actividad primero'}</option>${opts}</select></div>`;
+// Mapa inverso MCC → descripción para mostrar en select sin depender de actividad_sat exacta
+const MCC_TO_DESC = (function(){
+  const map = {};
+  Object.values(MCC_ACT_TO_MCC).forEach(arr => arr.forEach(m => { if(!map[m.mcc]) map[m.mcc] = m.desc; }));
+  return map;
+})();
+
+function mccField(key, val, actividad) {
+  // Construir opciones: si hay actividad exacta en el mapa usarla,
+  // si no, mostrar todos los MCCs disponibles para búsqueda
+  let mccs = actividad && MCC_ACT_TO_MCC[actividad] ? MCC_ACT_TO_MCC[actividad] : [];
+  // Si no hay match exacto de actividad pero sí hay un MCC guardado, mostrar ese MCC al menos
+  const allMccs = Object.values(MCC_ACT_TO_MCC).flat();
+  // Deduplicar por mcc
+  const seen = new Set();
+  const uniqueMccs = allMccs.filter(m => { if(seen.has(m.mcc)) return false; seen.add(m.mcc); return true; });
+  // Si hay actividad con match exacto usar esos; si no, mostrar todos
+  if (!mccs.length) mccs = uniqueMccs;
+  const opts = mccs.map(m => `<option value="${escapeAttr(m.mcc)}"${val===m.mcc?' selected':''}>${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
+  return `<div class="field"><label>MCC</label><select id="mccSelect" data-field="${escapeAttr(key)}"><option value="">— Seleccionar MCC —</option>${opts}</select></div>`;
 }
-function onActividadSATChange(sel){
-  const actividad=sel.value;
-  const mccSel=document.getElementById('mccSelect');
-  if(!mccSel)return;
-  const mccs=actividad&&MCC_ACT_TO_MCC[actividad]?MCC_ACT_TO_MCC[actividad]:[];
-  const prevMcc = mccSel.value; // fix-mcc: guardar valor previo antes de reconstruir
-  mccSel.innerHTML=`<option value="">${mccs.length?'— Seleccionar MCC —':actividad?'Sin MCC asignado':'Selecciona actividad primero'}</option>`+mccs.map(m=>`<option value="${escapeAttr(m.mcc)}">${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
-  // fix-mcc: restaurar valor previo si sigue siendo válido, si no auto-select único
-  if(prevMcc && mccs.some(m=>m.mcc===prevMcc)) mccSel.value=prevMcc;
-  else if(mccs.length===1) mccSel.value=mccs[0].mcc;
+
+function onActividadSATChange(sel) {
+  const actividad = sel.value;
+  const mccSel = document.getElementById('mccSelect');
+  if (!mccSel) return;
+  const prevMcc = mccSel.value;
+  // Buscar MCCs de esta actividad; si no hay match exacto, dejar lista completa
+  let mccs = actividad && MCC_ACT_TO_MCC[actividad] ? MCC_ACT_TO_MCC[actividad] : [];
+  if (!mccs.length) {
+    // Sin match exacto — intentar búsqueda parcial
+    const key = Object.keys(MCC_ACT_TO_MCC).find(k => k.includes(actividad.substring(0,20)));
+    if (key) mccs = MCC_ACT_TO_MCC[key];
+  }
+  if (!mccs.length) {
+    const seen = new Set();
+    mccs = Object.values(MCC_ACT_TO_MCC).flat().filter(m => { if(seen.has(m.mcc)) return false; seen.add(m.mcc); return true; });
+  }
+  mccSel.innerHTML = '<option value="">— Seleccionar MCC —</option>' +
+    mccs.map(m => `<option value="${escapeAttr(m.mcc)}">${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
+  // Restaurar MCC previo si existe en la nueva lista
+  if (prevMcc && mccs.some(m => m.mcc === prevMcc)) mccSel.value = prevMcc;
+  else if (mccs.length === 1) mccSel.value = mccs[0].mcc;
 }
 
 </script>
