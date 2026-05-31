@@ -2434,28 +2434,31 @@ function lcMergeLeads(leadsFromSheets) {
 /* ===== SAVE / DELETE ===== */
 async function saveLead() {
   if (!state.selectedLead) return;
+  // fix-nodup: bloquear botón inmediatamente — previene doble click / doble submit
+  if (el.btnSaveLead.disabled) return;
+  el.btnSaveLead.disabled = true;
+  el.btnSaveLead.style.opacity = '0.4';
   try {
     const payload = collectDrawerPayload();
     el.saveFeedback.textContent = state.mode==='create' ? 'Creando lead...' : 'Guardando...';
+
     if (state.mode==='create') {
       const resp = await apiPost('createLead', payload);
-      // fix30: siempre agregar a state.leads sin importar si resp trae id_lead
-      const newId = (resp && resp.id_lead) || (resp && resp.data && resp.data.id_lead) || payload.id_lead || ('LD-LOCAL-' + Date.now());
-      const newLead = { ...payload, id_lead: newId, _rowNumber: (resp && resp._rowNumber) || (resp && resp.data && resp.data._rowNumber) || undefined };
-      state.leads.unshift(newLead);
+      const newId = (resp && resp.id_lead) || payload.id_lead || ('LD-LOCAL-' + Date.now());
+      const newLead = { ...payload, id_lead: newId };
+      // fix-nodup: NO hacer unshift antes de loadAll — loadAll trae el lead real del Sheet
+      // Solo guardar en localStorage para que lcMergeLeads lo encuentre y no duplique
       lcSave(newId, newLead);
       el.saveFeedback.textContent = '✅ Lead creado.';
-      // Recargar leads desde Sheet para obtener _rowNumber real y permitir edición inmediata
+      closeDrawer(); // cerrar ANTES de loadAll — evita que el usuario siga editando mientras recarga
       await loadAll();
-      applyFilters();
-      closeDrawer();
       return;
+
     } else {
       payload.id_lead = state.selectedLead.id_lead;
       payload.ultima_actualizacion = new Date().toISOString();
 
-      // fix-tobe: separar campos tobe_* → van a PROPUESTAS via savePropuesta
-      // El resto → CRM_MASTER via updateLead
+      // fix-tobe: separar campos tobe_* → PROPUESTAS via savePropuesta
       const TOBE_KEYS = ['tobe_tasa_debito','tobe_tasa_credito','tobe_tasa_amex','tobe_tasa_intl',
         'tobe_tasa_vales','tobe_plazos_msi','tobe_tasa_msi_3','tobe_tasa_msi_6','tobe_tasa_msi_9',
         'tobe_tasa_msi_12','tobe_tasa_msi_18','tobe_renta_mensual','tobe_ecomm_debito',
@@ -2471,12 +2474,12 @@ async function saveLead() {
         else crmPayload[k] = payload[k];
       });
 
-      const hasTobe = TOBE_KEYS.some(k => tobePayload[k] !== undefined && tobePayload[k] !== '');
+      const hasTobe = TOBE_KEYS.some(k => tobePayload[k] !== undefined && String(tobePayload[k]).trim() !== '');
       const calls = [apiPost('updateLead', crmPayload)];
       if (hasTobe) calls.push(apiPost('savePropuesta', tobePayload));
       await Promise.all(calls);
 
-      // fix26: actualizar estado local + persistir en localStorage
+      // Actualizar estado local sin recargar Sheet — el usuario NO sale del lead
       const localIdx = state.leads.findIndex(l => String(l.id_lead) === String(state.selectedLead.id_lead));
       if (localIdx !== -1) {
         state.leads[localIdx] = { ...state.leads[localIdx], ...payload };
@@ -2485,12 +2488,17 @@ async function saveLead() {
       lcSave(payload.id_lead, payload);
       applyFilters();
       el.saveFeedback.textContent = '✅ Cambios guardados.';
-      closeDrawer();
+      // fix-nodup: NO cerrar el drawer en update — el usuario puede seguir editando
+      // fix-nodup: NO llamar loadAll en update — evita interrumpir la sesión de edición
       return;
     }
   } catch(err) {
     console.error(err);
     el.saveFeedback.textContent = `❌ Error: ${err.message||'sin detalle'}`;
+  } finally {
+    // fix-nodup: siempre rehabilitar el botón al terminar
+    el.btnSaveLead.disabled = false;
+    el.btnSaveLead.style.opacity = '';
   }
 }
 
