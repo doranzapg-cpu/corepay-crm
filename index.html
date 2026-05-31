@@ -646,7 +646,7 @@ const SAVED_URL = localStorage.getItem('COREPAY_API_BASE_URL') || _CURRENT_GS_UR
 const CONFIG = {
   API_BASE_URL: SAVED_URL,
   TABLE_COLUMNS: ['id_lead','origen','owner','nombre_comercial','servicio_potencial','num_sucursales','facturacion_promedio','status','prioridad','probabilidad_cierre','nombre_contacto','telefono','fecha_seguimiento'],
-  EXPORT_COLUMNS: ['id_lead','origen','owner','nombre_comercial','grupo_comercial','tipo_persona','razon_social','rfc','actividad_sat','mcc','direccion_fiscal','giro_preliminar','servicio_potencial','num_sucursales','facturacion_promedio','ticket_promedio','tasa_debito','tasa_credito','tasa_amex','tasa_internacional','tasa_vales','plazos_msi','tasa_msi','tasa_msi_3','tasa_msi_6','tasa_msi_9','tasa_msi_12','tasa_msi_18','penalizaciones_cuotas','concepto','monto_penalizacion','principal_problematica','adquirente_actual','servicios_actuales','servicios_de_interes','tipo_tpvs_tiene','tipo_tpvs_necesita','contactos_extra','drive_links','objecion_principal','asis_ecomm_debito','asis_ecomm_credito','asis_ecomm_amex','asis_ecomm_intl','asis_ecomm_vales','asis_ecomm_costo_txn','asis_cashback_pct','asis_otros_concepto','asis_otros_monto','asis_otros_frecuencia','asis_integ_software','asis_integ_tipo_costo','asis_integ_costo','status','status_2','probabilidad_cierre','prioridad','razon_perdida','proxima_accion','fecha_seguimiento','nombre_contacto','puesto','rol_contacto','email','telefono','calle','num_ext','int','colonia','cp','estado','municipio','comentarios','owner_otro','servicio_potencial_otro','concepto_otro','principal_problematica_otro','adquirente_actual_otro','servicios_actuales_otro','servicios_de_interes_otro','razon_perdida_otro','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag','tobe_tasa_debito','tobe_tasa_credito','tobe_tasa_amex','tobe_tasa_intl','tobe_tasa_vales','tobe_plazos_msi','tobe_tasa_msi_3','tobe_tasa_msi_6','tobe_tasa_msi_9','tobe_tasa_msi_12','tobe_tasa_msi_18','tobe_renta_mensual','tobe_ecomm_debito','tobe_ecomm_credito','tobe_ecomm_amex','tobe_ecomm_intl','tobe_ecomm_vales','tobe_ecomm_costo_txn','tobe_ecomm_otros_concepto','tobe_ecomm_otros_monto','tobe_otros_concepto','tobe_otros_monto','tobe_otros_frecuencia','tobe_integ_software','tobe_integ_tipo_costo','tobe_integ_costo','tobe_cashback_pct'],
+  EXPORT_COLUMNS: ['id_lead','origen','owner','nombre_comercial','grupo_comercial','tipo_persona','razon_social','rfc','actividad_sat','mcc','direccion_fiscal','giro_preliminar','servicio_potencial','num_sucursales','facturacion_promedio','ticket_promedio','tasa_debito','tasa_credito','tasa_amex','tasa_internacional','tasa_vales','plazos_msi','tasa_msi','tasa_msi_3','tasa_msi_6','tasa_msi_9','tasa_msi_12','tasa_msi_18','penalizaciones_cuotas','concepto','monto_penalizacion','principal_problematica','adquirente_actual','servicios_actuales','servicios_de_interes','tipo_tpvs_tiene','tipo_tpvs_necesita','contactos_extra','drive_links','objecion_principal','asis_ecomm_debito','asis_ecomm_credito','asis_ecomm_amex','asis_ecomm_intl','asis_ecomm_vales','asis_ecomm_costo_txn','asis_cashback_pct','asis_otros_concepto','asis_otros_monto','asis_otros_frecuencia','asis_integ_software','asis_integ_tipo_costo','asis_integ_costo','status','status_2','probabilidad_cierre','prioridad','razon_perdida','proxima_accion','fecha_seguimiento','nombre_contacto','puesto','email','telefono','calle','num_ext','int','colonia','cp','estado','municipio','comentarios','owner_otro','servicio_potencial_otro','concepto_otro','principal_problematica_otro','adquirente_actual_otro','servicios_actuales_otro','servicios_de_interes_otro','razon_perdida_otro','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag'],
   KPI_STATUS_MAP: {
     pendientes:['PENDIENTE'],
     contactados:['CONTACTADO','WHATSAPP ENVIADO','MAIL ENVIADO','VISITA/LLAMADA PROGRAMADA','PRESENTACIÓN ENVIADA'],
@@ -654,9 +654,12 @@ const CONFIG = {
     firmados:['FIRMADO'],
     transaccionando:['TRANSACCIONANDO']
   },
-  MONEY_FIELDS:['facturacion_promedio','ticket_promedio','monto_penalizacion'],
-  PERCENT_FIELDS:['tasa_debito','tasa_credito','tasa_amex','tasa_internacional','tasa_msi','probabilidad_cierre'],
-  MULTI_FIELDS:['servicio_potencial','plazos_msi','concepto','adquirente_actual','servicios_actuales','servicios_de_interes'],
+  MONEY_FIELDS:['facturacion_promedio','ticket_promedio','monto_penalizacion','asis_ecomm_costo_txn','asis_otros_monto','asis_integ_costo','tobe_renta_mensual','tobe_ecomm_costo_txn','tobe_otros_monto','tobe_integ_costo'],
+  // MC-133: tasas AS-IS. No dividir ni multiplicar por 100; solo formatear visualmente con %.
+  PERCENT_FIELDS:['tasa_debito','tasa_credito','tasa_amex','tasa_internacional','tasa_vales','tasa_msi','tasa_msi_3','tasa_msi_6','tasa_msi_9','tasa_msi_12','tasa_msi_18','asis_cashback_pct','asis_ecomm_debito','asis_ecomm_credito','asis_ecomm_amex','asis_ecomm_intl','asis_ecomm_vales','tobe_tasa_debito','tobe_tasa_credito','tobe_tasa_amex','tobe_tasa_intl','tobe_tasa_vales','tobe_plazos_msi','tobe_tasa_msi','tobe_tasa_msi_3','tobe_tasa_msi_6','tobe_tasa_msi_9','tobe_tasa_msi_12','tobe_tasa_msi_18','tobe_ecomm_debito','tobe_ecomm_credito','tobe_ecomm_amex','tobe_ecomm_intl','tobe_ecomm_vales','tobe_cashback_pct','probabilidad_cierre'],
+  // MC-133: campos de propuesta viven en PROPUESTAS, no en CRM_MASTER.
+  TOBE_FIELDS:['id_lead','nombre_comercial','tobe_tasa_debito','tobe_tasa_credito','tobe_tasa_amex','tobe_tasa_intl','tobe_tasa_vales','tobe_plazos_msi','tobe_tasa_msi','tobe_tasa_msi_3','tobe_tasa_msi_6','tobe_tasa_msi_9','tobe_tasa_msi_12','tobe_tasa_msi_18','tobe_renta_mensual','tobe_ecomm_debito','tobe_ecomm_credito','tobe_ecomm_amex','tobe_ecomm_intl','tobe_ecomm_vales','tobe_ecomm_costo_txn','tobe_cashback_pct','tobe_otros_concepto','tobe_otros_monto','tobe_otros_frecuencia','tobe_integ_software','tobe_integ_tipo_costo','tobe_integ_costo','ultima_actualizacion_tobe'],
+  MULTI_FIELDS:['servicio_potencial','plazos_msi','concepto','adquirente_actual','servicios_actuales','servicios_de_interes','tobe_plazos_msi'],
   OTHER_LABELS:['OTRO','Otro','otro']
 };
 
@@ -819,23 +822,18 @@ function saveApiUrl() {
 async function loadAll() {
   try {
     setApiStatus('Sincronizando...', 'ok');
-    // fix-tobe-load: cargar leads + catálogos + propuestas en paralelo
-    const [catalogsResp, leadsResp, propResp] = await Promise.all([
+    // MC-133: cargar CRM_MASTER + PROPUESTAS + CATALOGOS en el mismo ciclo.
+    const [catalogsResp, leadsResp, propsResp] = await Promise.all([
       apiGet('getCatalogs'),
       apiGet('getLeads'),
-      apiGet('getPropuestas').catch(() => ({ data: [] })) // no bloquear si falla
+      apiGet('getPropuestas')
     ]);
     state.catalogs = parseCatalogs(catalogsResp);
     const rawLeads = normalizeLeads(leadsResp.data || leadsResp.rows || leadsResp || []);
-    // fix-tobe-load: mergear datos tobe_* de PROPUESTAS en cada lead por id_lead
-    const propMap = {};
-    (propResp.data || []).forEach(p => { if (p.id_lead) propMap[String(p.id_lead).trim()] = p; });
-    rawLeads.forEach(lead => {
-      const prop = propMap[String(lead.id_lead || '').trim()];
-      if (prop) Object.assign(lead, prop); // tobe_* se inyectan en el objeto lead
-    });
-    // fix26: mergear con caché local — datos locales ganan si son más recientes
-    state.leads = lcMergeLeads(rawLeads);
+    const rawProps = normalizePropuestas(propsResp.data || propsResp.rows || propsResp || []);
+    const merged = mergePropuestasIntoLeads(rawLeads, rawProps);
+    // fix26 + MC-133: mergear con caché local — datos locales ganan si son más recientes
+    state.leads = lcMergeLeads(merged);
     state.lastSync = new Date();
     renderFilterSelects();
     applyFilters();
@@ -891,6 +889,28 @@ function normalizeLeads(rows) {
     lead._rowNumber = rowNum; // restore
     return lead;
   }).filter(lead => String(lead.activo||'SI').trim().toUpperCase() !== 'NO');
+}
+
+function normalizePropuestas(rows) {
+  return (rows || []).map(row => {
+    const prop = { ...row };
+    Object.keys(prop).forEach(k => {
+      if (prop[k] == null) prop[k] = '';
+      if (typeof prop[k] === 'string') prop[k] = prop[k].trim();
+    });
+    return prop;
+  }).filter(prop => String(prop.id_lead || '').trim() !== '');
+}
+
+function mergePropuestasIntoLeads(leads, propuestas) {
+  const byId = new Map();
+  (propuestas || []).forEach(p => byId.set(String(p.id_lead || '').trim(), p));
+  return (leads || []).map(lead => {
+    const prop = byId.get(String(lead.id_lead || '').trim());
+    if (!prop) return lead;
+    // PROPUESTAS gana solo para campos tobe_*; CRM_MASTER conserva operación comercial.
+    return { ...lead, ...prop, _rowNumber: lead._rowNumber };
+  });
 }
 
 function uniqueClean(arr) { return [...new Set((arr||[]).map(v=>String(v).trim()).filter(Boolean))]; }
@@ -2033,12 +2053,11 @@ function launchSprint() {
   var lead = state.selectedLead;
   if (!lead) return;
 
-  // fix57: Normalizar tasas CRM (pueden venir como 0.035 o 3.5) → siempre porcentaje para Sprint
+  // MC-133: tasas AS-IS. El CRM ya guarda/lee el valor visible; no escalar x100 ni /100.
   function normTasa(v) {
     var n = parseFloat(String(v).replace(/[^0-9.\-]/g,''));
     if (isNaN(n) || n === 0) return '';
-    // Si viene como decimal puro (< 1) → multiplicar x100
-    return (n < 1 ? (n * 100) : n).toFixed(2);
+    return n.toFixed(2);
   }
 
   // fix57: Parsear tipo_tpvs_tiene JSON → campos eq_* del Sprint
@@ -2332,19 +2351,15 @@ function wireDrawerInteractions() {
     closeOrphanDropdown();
   }, true);
   el.drawerBody.addEventListener('scroll', function(){ closeOrphanDropdown(); });
-  // Enter en inputs del drawer: solo normaliza el campo (blur) — NO guarda
-  // Guardar es SIEMPRE acción explícita con el botón para evitar duplicados
+  // Enter en inputs del drawer guarda el lead (excepto textarea)
   el.drawerBody.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'date') {
       e.preventDefault();
-      e.target.blur(); // normaliza percent/money sin disparar saveLead
+      saveLead();
     }
   });
   [...el.drawerBody.querySelectorAll('input[data-format="money"]')].forEach(bindMoneyInput);
   [...el.drawerBody.querySelectorAll('input[data-format="percent"]')].forEach(bindPercentInput);
-  // fix-mcc-init: si actividad_sat ya tiene valor al abrir, disparar llenado del MCC select
-  const actSel = el.drawerBody.querySelector('[data-field="actividad_sat"]');
-  if (actSel && actSel.value) onActividadSATChange(actSel);
   // Normalizar teléfonos al perder foco (contacto principal + adicionales)
   [...el.drawerBody.querySelectorAll('input[data-field="telefono"], .ci-field[data-key="tel"]')].forEach(inp => {
     inp.addEventListener('blur', () => { if(inp.value) inp.value = formatPhone(inp.value); });
@@ -2415,94 +2430,109 @@ function refreshMultiSummary(container) {
 ======================================================= */
 const LC_PREFIX = 'cp_lead_';
 
-// fix-lc-purge: limpiar caché local corrupto al iniciar — Sheets es la fuente de verdad
-(function purgeLcCache() {
-  try {
-    const keys = Object.keys(localStorage).filter(k => k.startsWith(LC_PREFIX));
-    keys.forEach(k => localStorage.removeItem(k));
-  } catch(e) {}
-})();
-
 function lcSave(id_lead, payload) {
-  // fix-lc-purge: ya no usamos localStorage para leads — Sheets es SoT
-  // Mantenemos la función por compatibilidad pero no escribe
+  if (!id_lead) return;
+  try {
+    const entry = { payload, ts: Date.now() };
+    localStorage.setItem(LC_PREFIX + String(id_lead), JSON.stringify(entry));
+  } catch(e) { /* localStorage lleno — no bloquear */ }
 }
 
-function lcGet(id_lead) { return null; }
+function lcGet(id_lead) {
+  if (!id_lead) return null;
+  try {
+    const raw = localStorage.getItem(LC_PREFIX + String(id_lead));
+    if (!raw) return null;
+    return JSON.parse(raw); // {payload, ts}
+  } catch(e) { return null; }
+}
 
 function lcMergeLeads(leadsFromSheets) {
-  // fix-lc-purge: sin merge local — devolver Sheets tal cual
-  return leadsFromSheets;
+  return leadsFromSheets.map(lead => {
+    const cached = lcGet(lead.id_lead);
+    if (!cached) return lead;
+    // Si el caché es más reciente que ultima_actualizacion de Sheets
+    const sheetTs = lead.ultima_actualizacion ? new Date(lead.ultima_actualizacion).getTime() : 0;
+    if (cached.ts > sheetTs + 2000) { // +2s margen
+      return { ...lead, ...cached.payload };
+    }
+    // Sheets ya tiene la versión fresca — limpiar caché viejo
+    localStorage.removeItem(LC_PREFIX + String(lead.id_lead));
+    return lead;
+  });
 }
 
 /* ===== SAVE / DELETE ===== */
+function splitPayloadForSave(payload) {
+  const tobeSet = new Set(CONFIG.TOBE_FIELDS || []);
+  const crmPayload = {};
+  const propuestaPayload = {};
+  Object.keys(payload || {}).forEach(k => {
+    if (tobeSet.has(k)) propuestaPayload[k] = payload[k];
+    else crmPayload[k] = payload[k];
+  });
+  // Llaves mínimas para upsert de PROPUESTAS.
+  if (payload.id_lead) propuestaPayload.id_lead = payload.id_lead;
+  if (payload.nombre_comercial) propuestaPayload.nombre_comercial = payload.nombre_comercial;
+  return { crmPayload, propuestaPayload };
+}
+
+function hasPropuestaPayloadData(payload) {
+  const ignore = new Set(['id_lead','nombre_comercial','ultima_actualizacion_tobe']);
+  return Object.keys(payload || {}).some(k => !ignore.has(k) && String(payload[k] ?? '').trim() !== '');
+}
+
 async function saveLead() {
   if (!state.selectedLead) return;
-  // fix-nodup: bloquear botón inmediatamente — previene doble click / doble submit
-  if (el.btnSaveLead.disabled) return;
-  el.btnSaveLead.disabled = true;
-  el.btnSaveLead.style.opacity = '0.4';
   try {
     const payload = collectDrawerPayload();
+    let { crmPayload, propuestaPayload } = splitPayloadForSave(payload);
     el.saveFeedback.textContent = state.mode==='create' ? 'Creando lead...' : 'Guardando...';
-
     if (state.mode==='create') {
-      const resp = await apiPost('createLead', payload);
-      const newId = (resp && resp.id_lead) || payload.id_lead || ('LD-LOCAL-' + Date.now());
-      const newLead = { ...payload, id_lead: newId };
-      // fix-nodup: NO hacer unshift antes de loadAll — loadAll trae el lead real del Sheet
-      // Solo guardar en localStorage para que lcMergeLeads lo encuentre y no duplique
+      const resp = await apiPost('createLead', crmPayload);
+      // fix30 + MC-133: siempre agregar a state.leads sin importar si resp trae id_lead
+      const newId = (resp && resp.id_lead) || (resp && resp.data && resp.data.id_lead) || crmPayload.id_lead || ('LD-LOCAL-' + Date.now());
+      crmPayload.id_lead = newId;
+      propuestaPayload.id_lead = newId;
+      propuestaPayload.nombre_comercial = crmPayload.nombre_comercial || propuestaPayload.nombre_comercial || '';
+      if (hasPropuestaPayloadData(propuestaPayload)) {
+        await apiPost('savePropuesta', propuestaPayload);
+      }
+      const newLead = { ...crmPayload, ...propuestaPayload, id_lead: newId, _rowNumber: (resp && resp._rowNumber) || (resp && resp.data && resp.data._rowNumber) || undefined };
+      state.leads.unshift(newLead);
       lcSave(newId, newLead);
       el.saveFeedback.textContent = '✅ Lead creado.';
-      closeDrawer(); // cerrar ANTES de loadAll — evita que el usuario siga editando mientras recarga
+      // Recargar leads desde Sheet para obtener _rowNumber real y propuesta TO BE persistida
       await loadAll();
+      applyFilters();
+      closeDrawer();
       return;
-
     } else {
-      payload.id_lead = state.selectedLead.id_lead;
-      payload.ultima_actualizacion = new Date().toISOString();
-
-      // fix-tobe: separar campos tobe_* → PROPUESTAS via savePropuesta
-      const TOBE_KEYS = ['tobe_tasa_debito','tobe_tasa_credito','tobe_tasa_amex','tobe_tasa_intl',
-        'tobe_tasa_vales','tobe_plazos_msi','tobe_tasa_msi_3','tobe_tasa_msi_6','tobe_tasa_msi_9',
-        'tobe_tasa_msi_12','tobe_tasa_msi_18','tobe_renta_mensual','tobe_ecomm_debito',
-        'tobe_ecomm_credito','tobe_ecomm_amex','tobe_ecomm_intl','tobe_ecomm_vales',
-        'tobe_ecomm_costo_txn','tobe_ecomm_otros_concepto','tobe_ecomm_otros_monto',
-        'tobe_otros_concepto','tobe_otros_monto','tobe_otros_frecuencia','tobe_integ_software',
-        'tobe_integ_tipo_costo','tobe_integ_costo','tobe_cashback_pct'];
-
-      const crmPayload  = {};
-      const tobePayload = { id_lead: payload.id_lead, nombre_comercial: payload.nombre_comercial };
-      Object.keys(payload).forEach(k => {
-        if (TOBE_KEYS.includes(k)) tobePayload[k] = payload[k];
-        else crmPayload[k] = payload[k];
-      });
-
-      const hasTobe = TOBE_KEYS.some(k => tobePayload[k] !== undefined && String(tobePayload[k]).trim() !== '');
-      const calls = [apiPost('updateLead', crmPayload)];
-      if (hasTobe) calls.push(apiPost('savePropuesta', tobePayload));
-      await Promise.all(calls);
-
-      // Actualizar estado local sin recargar Sheet — el usuario NO sale del lead
+      crmPayload.id_lead = state.selectedLead.id_lead;
+      crmPayload.ultima_actualizacion = new Date().toISOString();
+      propuestaPayload.id_lead = state.selectedLead.id_lead;
+      propuestaPayload.nombre_comercial = crmPayload.nombre_comercial || state.selectedLead.nombre_comercial || propuestaPayload.nombre_comercial || '';
+      await apiPost('updateLead', crmPayload);
+      if (hasPropuestaPayloadData(propuestaPayload)) {
+        await apiPost('savePropuesta', propuestaPayload);
+      }
+      // fix26 + MC-133: actualizar estado local + persistir en localStorage
+      const localPayload = { ...crmPayload, ...propuestaPayload };
       const localIdx = state.leads.findIndex(l => String(l.id_lead) === String(state.selectedLead.id_lead));
       if (localIdx !== -1) {
-        state.leads[localIdx] = { ...state.leads[localIdx], ...payload };
+        state.leads[localIdx] = { ...state.leads[localIdx], ...localPayload };
         state.selectedLead = state.leads[localIdx];
       }
-      lcSave(payload.id_lead, payload);
-      applyFilters();
+      lcSave(localPayload.id_lead, localPayload);
+      await loadAll();
+      applyFilters(); // re-renderiza conservando filtros activos
       el.saveFeedback.textContent = '✅ Cambios guardados.';
-      // fix-nodup: NO cerrar el drawer en update — el usuario puede seguir editando
-      // fix-nodup: NO llamar loadAll en update — evita interrumpir la sesión de edición
+      closeDrawer();
       return;
     }
   } catch(err) {
     console.error(err);
     el.saveFeedback.textContent = `❌ Error: ${err.message||'sin detalle'}`;
-  } finally {
-    // fix-nodup: siempre rehabilitar el botón al terminar
-    el.btnSaveLead.disabled = false;
-    el.btnSaveLead.style.opacity = '';
   }
 }
 
@@ -2549,15 +2579,10 @@ function collectDrawerPayload() {
     if (input.dataset.format==='money') value = normalizeMoneyPayload(value);
     if (input.dataset.format==='percent') value = normalizePercentPayload(value);
     const field = input.dataset.field;
-    // fix-save-b: escribir siempre para selects/text; para percent/money solo si visible o tiene valor
-    // Evita borrar campos colapsados (secciones ocultas) que llegan con value=''
-    const isHidden = input.closest('[style*="display:none"]') || input.closest('[style*="display: none"]');
+    // fix27: solo sobreescribir si el campo tiene valor, O si el original tambien estaba vacio
     const originalVal = String(base[field] || '').trim();
     const newVal = String(value || '').trim();
-    if (isHidden && newVal === '' && originalVal !== '') {
-      // campo oculto sin valor nuevo — conservar original
-      payload[field] = base[field];
-    } else {
+    if (newVal !== '' || originalVal === '') {
       payload[field] = value;
     }
   });
@@ -2565,12 +2590,10 @@ function collectDrawerPayload() {
   [...el.drawerBody.querySelectorAll('.multi-select')].forEach(container => {
     const field = container.dataset.field;
     const selected = [...container.querySelectorAll('input[type="checkbox"]:checked')].map(i=>i.value);
-    const isHidden = container.closest('[style*="display:none"]') || container.closest('[style*="display: none"]');
-    const originalVal = String(base[field] || '').trim();
     const newVal = selected.join(' | ');
-    if (isHidden && newVal === '' && originalVal !== '') {
-      payload[field] = base[field];
-    } else {
+    const originalVal = String(base[field] || '').trim();
+    // fix27: solo sobreescribir multi si hay seleccion, o si original era vacio
+    if (newVal !== '' || originalVal === '') {
       payload[field] = newVal;
     }
   });
@@ -2588,17 +2611,20 @@ function collectDrawerPayload() {
     } catch(e) {}
   }
 
-  // MC-F: capturar campos con data-key (actividad_sat) que no usan data-field
-  // fix-save: excluir mcc (ya lo captura data-field en mccField) — evitar sobreescritura con vacío
-  [...el.drawerBody.querySelectorAll('[data-key]')].forEach(elem => {
-    const key = elem.dataset.key;
-    if (!key || key === 'mcc') return; // mcc ya lo lee data-field loop — no duplicar
-    payload[key] = elem.value || '';
+  // MC-F: capturar campos con data-key (actividad_sat, mcc) que no usan data-field
+  [...el.drawerBody.querySelectorAll('[data-key]')].forEach(el => {
+    const key = el.dataset.key;
+    if (!key) return;
+    const val = el.value || '';
+    const originalVal = String(base[key] || '').trim();
+    if (val !== '' || originalVal === '') {
+      payload[key] = val;
+    }
   });
 
-  // MC-129: filtrar payload — solo campos en EXPORT_COLUMNS para evitar payload gigante
+  // MC-129 + MC-133: filtrar payload, preservando también campos TO BE que viven en PROPUESTAS.
   delete payload._rowNumber;
-  const _allowed = new Set([...(CONFIG.EXPORT_COLUMNS||[]), 'id_lead','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag']);
+  const _allowed = new Set([...(CONFIG.EXPORT_COLUMNS||[]), ...(CONFIG.TOBE_FIELDS||[]), 'id_lead','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag']);
   const _clean = {};
   Object.keys(payload).forEach(k => { if (_allowed.has(k)) _clean[k] = payload[k]; });
   return _clean;
@@ -2675,31 +2701,10 @@ function containsOther(v) { return splitMultiValue(v).some(isOtherSelected); }
 function splitMultiValue(v) { return String(v||'').split('|').map(x=>x.trim()).filter(Boolean); }
 function parseNumeric(v) { const n=Number(String(v||'').replace(/[^\d.-]/g,'')); return isNaN(n)?0:n; }
 function formatMoney(v) { if(v===''||v==null)return''; const n=parseNumeric(v); return `$${new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)}`; }
-function formatPercent(v) {
-  // Vacío siempre es vacío. Con valor: mostrar N.NN%
-  if(v===''||v==null||v===undefined) return '';
-  const s = String(v).trim();
-  if(s==='') return '';
-  // Si el string no tiene ningún dígito, es vacío
-  if(!/\d/.test(s)) return '';
-  const n = parseNumeric(s);
-  return n.toFixed(2)+'%';
-}
+function formatPercent(v) { if(v===''||v==null)return''; const n=parseNumeric(v); return `${n.toFixed(2)}%`; }
 function formatProb(v) { if(v===''||v==null)return''; const n=parseNumeric(v); const pct=(n>0&&n<=1)?n*100:n; return `${Math.round(pct)}%`; }
-function normalizeMoneyPayload(v) {
-  if(v===''||v===null||v===undefined) return '';
-  const s = String(v).trim();
-  if(s===''||!/\d/.test(s)) return '';
-  const n = parseNumeric(s);
-  return '$'+new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
-}
-function normalizePercentPayload(v) {
-  if(v===''||v===null||v===undefined) return '';
-  const s = String(v).trim();
-  if(s===''||!/\d/.test(s)) return '';
-  const n = parseNumeric(s);
-  return n.toFixed(2)+'%';
-}
+function normalizeMoneyPayload(v) { const n=parseNumeric(v); return v===''?'':`$${new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)}`; }
+function normalizePercentPayload(v) { if(v===''||v===null||v===undefined)return''; const n=parseNumeric(v); return `${n.toFixed(2)}%`; }
 
 function readonlyField(label,val) { return `<div class="field"><label>${escapeHtml(label)}</label><div class="readonly mono">${escapeHtml(val||'—')}</div></div>`; }
 function textField(name,label,value,type='text',extraClass='') { return `<div class="field ${extraClass}" data-field-wrap="${name}"><label>${escapeHtml(label)}</label><input data-field="${name}" type="${type}" value="${escapeAttr(value||'')}" style="border:1px solid var(--line2)" /></div>`; }
@@ -2725,20 +2730,17 @@ function bindMoneyInput(input) {
   input.addEventListener('blur', ()=>input.value=input.value?formatMoney(input.value):'');
 }
 function bindPercentInput(input) {
-  input.addEventListener('focus', () => {
-    // Quitar el % al enfocar para editar número limpio: "0.98%" → "0.98"
-    if (!input.value) return;
+  input.addEventListener('focus', ()=>{
+    // Al enfocar: quitar el % para que el usuario edite el número limpio
+    // 0.90% → 0.90 | 2.50% → 2.50 | vacío → vacío
+    if (input.value === '' || input.value === null) return;
     const n = parseNumeric(input.value);
-    input.value = n ? n.toFixed(2) : '';
+    input.value = (input.value !== '') ? String(n.toFixed(2)) : '';
   });
-  input.addEventListener('blur', () => {
-    // Agregar % al salir: "0.98" → "0.98%"
-    if (!input.value || !input.value.trim()) { input.value = ''; return; }
-    const n = parseNumeric(input.value);
-    input.value = n || input.value.trim() !== '' ? formatPercent(input.value) : '';
-  });
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+  input.addEventListener('blur', ()=>{
+    // Al salir: agregar % al número. 0.90 → 0.90% | 2.50 → 2.50% | vacío → vacío
+    if (input.value === '' || input.value === null) { input.value = ''; return; }
+    input.value = formatPercent(input.value);
   });
 }
 
@@ -3762,9 +3764,9 @@ if(window.google){ oauthInit(); }
 else { window.addEventListener('load', ()=>setTimeout(oauthInit, 800)); }
 
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('sw.js', { scope: './' })
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
       .then(function(reg) {
         console.log('[CorePay PWA] SW registrado. Scope:', reg.scope);
       })
@@ -3784,49 +3786,18 @@ function selectFieldDynamic(key,label,val,options){
   const opts=options.map(o=>`<option value="${escapeAttr(o)}"${val===o?' selected':''}>${escapeHtml(o)}</option>`).join('');
   return `<div class="field"><label>${escapeHtml(label)}</label><select data-key="${escapeAttr(key)}" onchange="onActividadSATChange(this)"><option value="">— Seleccionar —</option>${opts}</select></div>`;
 }
-// Mapa inverso MCC → descripción para mostrar en select sin depender de actividad_sat exacta
-const MCC_TO_DESC = (function(){
-  const map = {};
-  Object.values(MCC_ACT_TO_MCC).forEach(arr => arr.forEach(m => { if(!map[m.mcc]) map[m.mcc] = m.desc; }));
-  return map;
-})();
-
-function mccField(key, val, actividad) {
-  // Construir opciones: si hay actividad exacta en el mapa usarla,
-  // si no, mostrar todos los MCCs disponibles para búsqueda
-  let mccs = actividad && MCC_ACT_TO_MCC[actividad] ? MCC_ACT_TO_MCC[actividad] : [];
-  // Si no hay match exacto de actividad pero sí hay un MCC guardado, mostrar ese MCC al menos
-  const allMccs = Object.values(MCC_ACT_TO_MCC).flat();
-  // Deduplicar por mcc
-  const seen = new Set();
-  const uniqueMccs = allMccs.filter(m => { if(seen.has(m.mcc)) return false; seen.add(m.mcc); return true; });
-  // Si hay actividad con match exacto usar esos; si no, mostrar todos
-  if (!mccs.length) mccs = uniqueMccs;
-  const opts = mccs.map(m => `<option value="${escapeAttr(m.mcc)}"${val===m.mcc?' selected':''}>${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
-  return `<div class="field"><label>MCC</label><select id="mccSelect" data-field="${escapeAttr(key)}"><option value="">— Seleccionar MCC —</option>${opts}</select></div>`;
+function mccField(key,val,actividad){
+  const mccs=actividad&&MCC_ACT_TO_MCC[actividad]?MCC_ACT_TO_MCC[actividad]:[];
+  const opts=mccs.map(m=>`<option value="${escapeAttr(m.mcc)}"${val===m.mcc?' selected':''}>${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
+  return `<div class="field"><label>MCC</label><select id="mccSelect" data-key="${escapeAttr(key)}" data-field="${escapeAttr(key)}"><option value="">${mccs.length?'— Seleccionar MCC —':actividad?'Sin MCC asignado':'Selecciona actividad primero'}</option>${opts}</select></div>`;
 }
-
-function onActividadSATChange(sel) {
-  const actividad = sel.value;
-  const mccSel = document.getElementById('mccSelect');
-  if (!mccSel) return;
-  const prevMcc = mccSel.value;
-  // Buscar MCCs de esta actividad; si no hay match exacto, dejar lista completa
-  let mccs = actividad && MCC_ACT_TO_MCC[actividad] ? MCC_ACT_TO_MCC[actividad] : [];
-  if (!mccs.length) {
-    // Sin match exacto — intentar búsqueda parcial
-    const key = Object.keys(MCC_ACT_TO_MCC).find(k => k.includes(actividad.substring(0,20)));
-    if (key) mccs = MCC_ACT_TO_MCC[key];
-  }
-  if (!mccs.length) {
-    const seen = new Set();
-    mccs = Object.values(MCC_ACT_TO_MCC).flat().filter(m => { if(seen.has(m.mcc)) return false; seen.add(m.mcc); return true; });
-  }
-  mccSel.innerHTML = '<option value="">— Seleccionar MCC —</option>' +
-    mccs.map(m => `<option value="${escapeAttr(m.mcc)}">${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
-  // Restaurar MCC previo si existe en la nueva lista
-  if (prevMcc && mccs.some(m => m.mcc === prevMcc)) mccSel.value = prevMcc;
-  else if (mccs.length === 1) mccSel.value = mccs[0].mcc;
+function onActividadSATChange(sel){
+  const actividad=sel.value;
+  const mccSel=document.getElementById('mccSelect');
+  if(!mccSel)return;
+  const mccs=actividad&&MCC_ACT_TO_MCC[actividad]?MCC_ACT_TO_MCC[actividad]:[];
+  mccSel.innerHTML=`<option value="">${mccs.length?'— Seleccionar MCC —':actividad?'Sin MCC asignado':'Selecciona actividad primero'}</option>`+mccs.map(m=>`<option value="${escapeAttr(m.mcc)}">${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
+  if(mccs.length===1)mccSel.value=mccs[0].mcc;
 }
 
 </script>
