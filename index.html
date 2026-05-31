@@ -646,7 +646,7 @@ const SAVED_URL = localStorage.getItem('COREPAY_API_BASE_URL') || _CURRENT_GS_UR
 const CONFIG = {
   API_BASE_URL: SAVED_URL,
   TABLE_COLUMNS: ['id_lead','origen','owner','nombre_comercial','servicio_potencial','num_sucursales','facturacion_promedio','status','prioridad','probabilidad_cierre','nombre_contacto','telefono','fecha_seguimiento'],
-  EXPORT_COLUMNS: ['id_lead','origen','owner','nombre_comercial','grupo_comercial','tipo_persona','razon_social','rfc','actividad_sat','mcc','direccion_fiscal','giro_preliminar','servicio_potencial','num_sucursales','facturacion_promedio','ticket_promedio','tasa_debito','tasa_credito','tasa_amex','tasa_internacional','tasa_vales','plazos_msi','tasa_msi','tasa_msi_3','tasa_msi_6','tasa_msi_9','tasa_msi_12','tasa_msi_18','penalizaciones_cuotas','concepto','monto_penalizacion','principal_problematica','adquirente_actual','servicios_actuales','servicios_de_interes','tipo_tpvs_tiene','tipo_tpvs_necesita','contactos_extra','drive_links','objecion_principal','asis_ecomm_debito','asis_ecomm_credito','asis_ecomm_amex','asis_ecomm_intl','asis_ecomm_vales','asis_ecomm_costo_txn','asis_cashback_pct','asis_otros_concepto','asis_otros_monto','asis_otros_frecuencia','asis_integ_software','asis_integ_tipo_costo','asis_integ_costo','status','status_2','probabilidad_cierre','prioridad','razon_perdida','proxima_accion','fecha_seguimiento','nombre_contacto','puesto','email','telefono','calle','num_ext','int','colonia','cp','estado','municipio','comentarios','owner_otro','servicio_potencial_otro','concepto_otro','principal_problematica_otro','adquirente_actual_otro','servicios_actuales_otro','servicios_de_interes_otro','razon_perdida_otro','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag'],
+  EXPORT_COLUMNS: ['id_lead','origen','owner','nombre_comercial','grupo_comercial','tipo_persona','razon_social','rfc','actividad_sat','mcc','direccion_fiscal','giro_preliminar','servicio_potencial','num_sucursales','facturacion_promedio','ticket_promedio','tasa_debito','tasa_credito','tasa_amex','tasa_internacional','tasa_vales','plazos_msi','tasa_msi','tasa_msi_3','tasa_msi_6','tasa_msi_9','tasa_msi_12','tasa_msi_18','penalizaciones_cuotas','concepto','monto_penalizacion','principal_problematica','adquirente_actual','servicios_actuales','servicios_de_interes','tipo_tpvs_tiene','tipo_tpvs_necesita','contactos_extra','drive_links','objecion_principal','asis_ecomm_debito','asis_ecomm_credito','asis_ecomm_amex','asis_ecomm_intl','asis_ecomm_vales','asis_ecomm_costo_txn','asis_cashback_pct','asis_otros_concepto','asis_otros_monto','asis_otros_frecuencia','asis_integ_software','asis_integ_tipo_costo','asis_integ_costo','status','status_2','probabilidad_cierre','prioridad','razon_perdida','proxima_accion','fecha_seguimiento','nombre_contacto','puesto','rol_contacto','email','telefono','calle','num_ext','int','colonia','cp','estado','municipio','comentarios','owner_otro','servicio_potencial_otro','concepto_otro','principal_problematica_otro','adquirente_actual_otro','servicios_actuales_otro','servicios_de_interes_otro','razon_perdida_otro','fecha_alta','marca_temporal','ultima_actualizacion','activo','duplicado_flag','tobe_tasa_debito','tobe_tasa_credito','tobe_tasa_amex','tobe_tasa_intl','tobe_tasa_vales','tobe_plazos_msi','tobe_tasa_msi_3','tobe_tasa_msi_6','tobe_tasa_msi_9','tobe_tasa_msi_12','tobe_tasa_msi_18','tobe_renta_mensual','tobe_ecomm_debito','tobe_ecomm_credito','tobe_ecomm_amex','tobe_ecomm_intl','tobe_ecomm_vales','tobe_ecomm_costo_txn','tobe_ecomm_otros_concepto','tobe_ecomm_otros_monto','tobe_otros_concepto','tobe_otros_monto','tobe_otros_frecuencia','tobe_integ_software','tobe_integ_tipo_costo','tobe_integ_costo','tobe_cashback_pct'],
   KPI_STATUS_MAP: {
     pendientes:['PENDIENTE'],
     contactados:['CONTACTADO','WHATSAPP ENVIADO','MAIL ENVIADO','VISITA/LLAMADA PROGRAMADA','PRESENTACIÓN ENVIADA'],
@@ -2515,23 +2515,15 @@ function collectDrawerPayload() {
     if (input.dataset.format==='money') value = normalizeMoneyPayload(value);
     if (input.dataset.format==='percent') value = normalizePercentPayload(value);
     const field = input.dataset.field;
-    // fix27: solo sobreescribir si el campo tiene valor, O si el original tambien estaba vacio
-    const originalVal = String(base[field] || '').trim();
-    const newVal = String(value || '').trim();
-    if (newVal !== '' || originalVal === '') {
-      payload[field] = value;
-    }
+    // fix-save: siempre escribir el valor del DOM — condicion fix27 bloqueaba selects/campos con valor existente
+    payload[field] = value;
   });
 
   [...el.drawerBody.querySelectorAll('.multi-select')].forEach(container => {
     const field = container.dataset.field;
     const selected = [...container.querySelectorAll('input[type="checkbox"]:checked')].map(i=>i.value);
-    const newVal = selected.join(' | ');
-    const originalVal = String(base[field] || '').trim();
-    // fix27: solo sobreescribir multi si hay seleccion, o si original era vacio
-    if (newVal !== '' || originalVal === '') {
-      payload[field] = newVal;
-    }
+    // fix-save: siempre escribir multi — si vacio es intencion del usuario
+    payload[field] = selected.join(' | ');
   });
 
   // fix29: normalizar teléfono al guardar
@@ -2547,15 +2539,12 @@ function collectDrawerPayload() {
     } catch(e) {}
   }
 
-  // MC-F: capturar campos con data-key (actividad_sat, mcc) que no usan data-field
-  [...el.drawerBody.querySelectorAll('[data-key]')].forEach(el => {
-    const key = el.dataset.key;
-    if (!key) return;
-    const val = el.value || '';
-    const originalVal = String(base[key] || '').trim();
-    if (val !== '' || originalVal === '') {
-      payload[key] = val;
-    }
+  // MC-F: capturar campos con data-key (actividad_sat) que no usan data-field
+  // fix-save: excluir mcc (ya lo captura data-field en mccField) — evitar sobreescritura con vacío
+  [...el.drawerBody.querySelectorAll('[data-key]')].forEach(elem => {
+    const key = elem.dataset.key;
+    if (!key || key === 'mcc') return; // mcc ya lo lee data-field loop — no duplicar
+    payload[key] = elem.value || '';
   });
 
   // MC-129: filtrar payload — solo campos en EXPORT_COLUMNS para evitar payload gigante
@@ -2668,15 +2657,21 @@ function bindMoneyInput(input) {
 function bindPercentInput(input) {
   input.addEventListener('focus', ()=>{
     // Al enfocar: quitar el % para que el usuario edite el número limpio
-    // 0.90% → 0.90 | 2.50% → 2.50 | vacío → vacío
     if (input.value === '' || input.value === null) return;
     const n = parseNumeric(input.value);
     input.value = (input.value !== '') ? String(n.toFixed(2)) : '';
   });
   input.addEventListener('blur', ()=>{
-    // Al salir: agregar % al número. 0.90 → 0.90% | 2.50 → 2.50% | vacío → vacío
+    // Al salir: agregar % al número
     if (input.value === '' || input.value === null) { input.value = ''; return; }
     input.value = formatPercent(input.value);
+  });
+  // fix-enter: Enter normaliza igual que blur — sin necesitar mouse
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      input.blur();
+    }
   });
 }
 
