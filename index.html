@@ -2453,7 +2453,29 @@ async function saveLead() {
     } else {
       payload.id_lead = state.selectedLead.id_lead;
       payload.ultima_actualizacion = new Date().toISOString();
-      await apiPost('updateLead', payload);
+
+      // fix-tobe: separar campos tobe_* → van a PROPUESTAS via savePropuesta
+      // El resto → CRM_MASTER via updateLead
+      const TOBE_KEYS = ['tobe_tasa_debito','tobe_tasa_credito','tobe_tasa_amex','tobe_tasa_intl',
+        'tobe_tasa_vales','tobe_plazos_msi','tobe_tasa_msi_3','tobe_tasa_msi_6','tobe_tasa_msi_9',
+        'tobe_tasa_msi_12','tobe_tasa_msi_18','tobe_renta_mensual','tobe_ecomm_debito',
+        'tobe_ecomm_credito','tobe_ecomm_amex','tobe_ecomm_intl','tobe_ecomm_vales',
+        'tobe_ecomm_costo_txn','tobe_ecomm_otros_concepto','tobe_ecomm_otros_monto',
+        'tobe_otros_concepto','tobe_otros_monto','tobe_otros_frecuencia','tobe_integ_software',
+        'tobe_integ_tipo_costo','tobe_integ_costo','tobe_cashback_pct'];
+
+      const crmPayload  = {};
+      const tobePayload = { id_lead: payload.id_lead, nombre_comercial: payload.nombre_comercial };
+      Object.keys(payload).forEach(k => {
+        if (TOBE_KEYS.includes(k)) tobePayload[k] = payload[k];
+        else crmPayload[k] = payload[k];
+      });
+
+      const hasTobe = TOBE_KEYS.some(k => tobePayload[k] !== undefined && tobePayload[k] !== '');
+      const calls = [apiPost('updateLead', crmPayload)];
+      if (hasTobe) calls.push(apiPost('savePropuesta', tobePayload));
+      await Promise.all(calls);
+
       // fix26: actualizar estado local + persistir en localStorage
       const localIdx = state.leads.findIndex(l => String(l.id_lead) === String(state.selectedLead.id_lead));
       if (localIdx !== -1) {
@@ -2461,7 +2483,7 @@ async function saveLead() {
         state.selectedLead = state.leads[localIdx];
       }
       lcSave(payload.id_lead, payload);
-      applyFilters(); // re-renderiza conservando filtros activos
+      applyFilters();
       el.saveFeedback.textContent = '✅ Cambios guardados.';
       closeDrawer();
       return;
@@ -2515,15 +2537,30 @@ function collectDrawerPayload() {
     if (input.dataset.format==='money') value = normalizeMoneyPayload(value);
     if (input.dataset.format==='percent') value = normalizePercentPayload(value);
     const field = input.dataset.field;
-    // fix-save: siempre escribir el valor del DOM — condicion fix27 bloqueaba selects/campos con valor existente
-    payload[field] = value;
+    // fix-save-b: escribir siempre para selects/text; para percent/money solo si visible o tiene valor
+    // Evita borrar campos colapsados (secciones ocultas) que llegan con value=''
+    const isHidden = input.closest('[style*="display:none"]') || input.closest('[style*="display: none"]');
+    const originalVal = String(base[field] || '').trim();
+    const newVal = String(value || '').trim();
+    if (isHidden && newVal === '' && originalVal !== '') {
+      // campo oculto sin valor nuevo — conservar original
+      payload[field] = base[field];
+    } else {
+      payload[field] = value;
+    }
   });
 
   [...el.drawerBody.querySelectorAll('.multi-select')].forEach(container => {
     const field = container.dataset.field;
     const selected = [...container.querySelectorAll('input[type="checkbox"]:checked')].map(i=>i.value);
-    // fix-save: siempre escribir multi — si vacio es intencion del usuario
-    payload[field] = selected.join(' | ');
+    const isHidden = container.closest('[style*="display:none"]') || container.closest('[style*="display: none"]');
+    const originalVal = String(base[field] || '').trim();
+    const newVal = selected.join(' | ');
+    if (isHidden && newVal === '' && originalVal !== '') {
+      payload[field] = base[field];
+    } else {
+      payload[field] = newVal;
+    }
   });
 
   // fix29: normalizar teléfono al guardar
@@ -3727,8 +3764,11 @@ function onActividadSATChange(sel){
   const mccSel=document.getElementById('mccSelect');
   if(!mccSel)return;
   const mccs=actividad&&MCC_ACT_TO_MCC[actividad]?MCC_ACT_TO_MCC[actividad]:[];
+  const prevMcc = mccSel.value; // fix-mcc: guardar valor previo antes de reconstruir
   mccSel.innerHTML=`<option value="">${mccs.length?'— Seleccionar MCC —':actividad?'Sin MCC asignado':'Selecciona actividad primero'}</option>`+mccs.map(m=>`<option value="${escapeAttr(m.mcc)}">${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
-  if(mccs.length===1)mccSel.value=mccs[0].mcc;
+  // fix-mcc: restaurar valor previo si sigue siendo válido, si no auto-select único
+  if(prevMcc && mccs.some(m=>m.mcc===prevMcc)) mccSel.value=prevMcc;
+  else if(mccs.length===1) mccSel.value=mccs[0].mcc;
 }
 
 </script>
