@@ -819,9 +819,21 @@ function saveApiUrl() {
 async function loadAll() {
   try {
     setApiStatus('Sincronizando...', 'ok');
-    const [catalogsResp, leadsResp] = await Promise.all([apiGet('getCatalogs'), apiGet('getLeads')]);
+    // fix-tobe-load: cargar leads + catálogos + propuestas en paralelo
+    const [catalogsResp, leadsResp, propResp] = await Promise.all([
+      apiGet('getCatalogs'),
+      apiGet('getLeads'),
+      apiGet('getPropuestas').catch(() => ({ data: [] })) // no bloquear si falla
+    ]);
     state.catalogs = parseCatalogs(catalogsResp);
     const rawLeads = normalizeLeads(leadsResp.data || leadsResp.rows || leadsResp || []);
+    // fix-tobe-load: mergear datos tobe_* de PROPUESTAS en cada lead por id_lead
+    const propMap = {};
+    (propResp.data || []).forEach(p => { if (p.id_lead) propMap[String(p.id_lead).trim()] = p; });
+    rawLeads.forEach(lead => {
+      const prop = propMap[String(lead.id_lead || '').trim()];
+      if (prop) Object.assign(lead, prop); // tobe_* se inyectan en el objeto lead
+    });
     // fix26: mergear con caché local — datos locales ganan si son más recientes
     state.leads = lcMergeLeads(rawLeads);
     state.lastSync = new Date();
@@ -2320,15 +2332,19 @@ function wireDrawerInteractions() {
     closeOrphanDropdown();
   }, true);
   el.drawerBody.addEventListener('scroll', function(){ closeOrphanDropdown(); });
-  // Enter en inputs del drawer guarda el lead (excepto textarea)
+  // Enter en inputs del drawer: solo normaliza el campo (blur) — NO guarda
+  // Guardar es SIEMPRE acción explícita con el botón para evitar duplicados
   el.drawerBody.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'date') {
       e.preventDefault();
-      saveLead();
+      e.target.blur(); // normaliza percent/money sin disparar saveLead
     }
   });
   [...el.drawerBody.querySelectorAll('input[data-format="money"]')].forEach(bindMoneyInput);
   [...el.drawerBody.querySelectorAll('input[data-format="percent"]')].forEach(bindPercentInput);
+  // fix-mcc-init: si actividad_sat ya tiene valor al abrir, disparar llenado del MCC select
+  const actSel = el.drawerBody.querySelector('[data-field="actividad_sat"]');
+  if (actSel && actSel.value) onActividadSATChange(actSel);
   // Normalizar teléfonos al perder foco (contacto principal + adicionales)
   [...el.drawerBody.querySelectorAll('input[data-field="telefono"], .ci-field[data-key="tel"]')].forEach(inp => {
     inp.addEventListener('blur', () => { if(inp.value) inp.value = formatPhone(inp.value); });
@@ -2399,36 +2415,24 @@ function refreshMultiSummary(container) {
 ======================================================= */
 const LC_PREFIX = 'cp_lead_';
 
-function lcSave(id_lead, payload) {
-  if (!id_lead) return;
+// fix-lc-purge: limpiar caché local corrupto al iniciar — Sheets es la fuente de verdad
+(function purgeLcCache() {
   try {
-    const entry = { payload, ts: Date.now() };
-    localStorage.setItem(LC_PREFIX + String(id_lead), JSON.stringify(entry));
-  } catch(e) { /* localStorage lleno — no bloquear */ }
+    const keys = Object.keys(localStorage).filter(k => k.startsWith(LC_PREFIX));
+    keys.forEach(k => localStorage.removeItem(k));
+  } catch(e) {}
+})();
+
+function lcSave(id_lead, payload) {
+  // fix-lc-purge: ya no usamos localStorage para leads — Sheets es SoT
+  // Mantenemos la función por compatibilidad pero no escribe
 }
 
-function lcGet(id_lead) {
-  if (!id_lead) return null;
-  try {
-    const raw = localStorage.getItem(LC_PREFIX + String(id_lead));
-    if (!raw) return null;
-    return JSON.parse(raw); // {payload, ts}
-  } catch(e) { return null; }
-}
+function lcGet(id_lead) { return null; }
 
 function lcMergeLeads(leadsFromSheets) {
-  return leadsFromSheets.map(lead => {
-    const cached = lcGet(lead.id_lead);
-    if (!cached) return lead;
-    // Si el caché es más reciente que ultima_actualizacion de Sheets
-    const sheetTs = lead.ultima_actualizacion ? new Date(lead.ultima_actualizacion).getTime() : 0;
-    if (cached.ts > sheetTs + 2000) { // +2s margen
-      return { ...lead, ...cached.payload };
-    }
-    // Sheets ya tiene la versión fresca — limpiar caché viejo
-    localStorage.removeItem(LC_PREFIX + String(lead.id_lead));
-    return lead;
-  });
+  // fix-lc-purge: sin merge local — devolver Sheets tal cual
+  return leadsFromSheets;
 }
 
 /* ===== SAVE / DELETE ===== */
@@ -2671,10 +2675,31 @@ function containsOther(v) { return splitMultiValue(v).some(isOtherSelected); }
 function splitMultiValue(v) { return String(v||'').split('|').map(x=>x.trim()).filter(Boolean); }
 function parseNumeric(v) { const n=Number(String(v||'').replace(/[^\d.-]/g,'')); return isNaN(n)?0:n; }
 function formatMoney(v) { if(v===''||v==null)return''; const n=parseNumeric(v); return `$${new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)}`; }
-function formatPercent(v) { if(v===''||v==null)return''; const n=parseNumeric(v); return `${n.toFixed(2)}%`; }
+function formatPercent(v) {
+  // Vacío siempre es vacío. Con valor: mostrar N.NN%
+  if(v===''||v==null||v===undefined) return '';
+  const s = String(v).trim();
+  if(s==='') return '';
+  // Si el string no tiene ningún dígito, es vacío
+  if(!/\d/.test(s)) return '';
+  const n = parseNumeric(s);
+  return n.toFixed(2)+'%';
+}
 function formatProb(v) { if(v===''||v==null)return''; const n=parseNumeric(v); const pct=(n>0&&n<=1)?n*100:n; return `${Math.round(pct)}%`; }
-function normalizeMoneyPayload(v) { const n=parseNumeric(v); return v===''?'':`$${new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)}`; }
-function normalizePercentPayload(v) { if(v===''||v===null||v===undefined)return''; const n=parseNumeric(v); return `${n.toFixed(2)}%`; }
+function normalizeMoneyPayload(v) {
+  if(v===''||v===null||v===undefined) return '';
+  const s = String(v).trim();
+  if(s===''||!/\d/.test(s)) return '';
+  const n = parseNumeric(s);
+  return '$'+new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+}
+function normalizePercentPayload(v) {
+  if(v===''||v===null||v===undefined) return '';
+  const s = String(v).trim();
+  if(s===''||!/\d/.test(s)) return '';
+  const n = parseNumeric(s);
+  return n.toFixed(2)+'%';
+}
 
 function readonlyField(label,val) { return `<div class="field"><label>${escapeHtml(label)}</label><div class="readonly mono">${escapeHtml(val||'—')}</div></div>`; }
 function textField(name,label,value,type='text',extraClass='') { return `<div class="field ${extraClass}" data-field-wrap="${name}"><label>${escapeHtml(label)}</label><input data-field="${name}" type="${type}" value="${escapeAttr(value||'')}" style="border:1px solid var(--line2)" /></div>`; }
@@ -2700,23 +2725,20 @@ function bindMoneyInput(input) {
   input.addEventListener('blur', ()=>input.value=input.value?formatMoney(input.value):'');
 }
 function bindPercentInput(input) {
-  input.addEventListener('focus', ()=>{
-    // Al enfocar: quitar el % para que el usuario edite el número limpio
-    if (input.value === '' || input.value === null) return;
+  input.addEventListener('focus', () => {
+    // Quitar el % al enfocar para editar número limpio: "0.98%" → "0.98"
+    if (!input.value) return;
     const n = parseNumeric(input.value);
-    input.value = (input.value !== '') ? String(n.toFixed(2)) : '';
+    input.value = n ? n.toFixed(2) : '';
   });
-  input.addEventListener('blur', ()=>{
-    // Al salir: agregar % al número
-    if (input.value === '' || input.value === null) { input.value = ''; return; }
-    input.value = formatPercent(input.value);
+  input.addEventListener('blur', () => {
+    // Agregar % al salir: "0.98" → "0.98%"
+    if (!input.value || !input.value.trim()) { input.value = ''; return; }
+    const n = parseNumeric(input.value);
+    input.value = n || input.value.trim() !== '' ? formatPercent(input.value) : '';
   });
-  // fix-enter: Enter normaliza igual que blur — sin necesitar mouse
   input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      input.blur();
-    }
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
   });
 }
 
