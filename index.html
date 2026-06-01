@@ -2507,8 +2507,21 @@ function splitPayloadForSave(payload) {
 }
 
 function hasPropuestaPayloadData(payload) {
+  // MC-138 (#8): un lead entra a PROPUESTAS SOLO si tiene al menos un campo TO BE con
+  // valor real. Se ignoran las llaves compartidas (id_lead, nombre_comercial) y la marca
+  // de tiempo, y también placeholders sin significado ('0', '0%', '$0.00', '-', etc.),
+  // para no crear filas basura (número de lead sin propuesta real).
   const ignore = new Set(['id_lead','nombre_comercial','ultima_actualizacion_tobe']);
-  return Object.keys(payload || {}).some(k => !ignore.has(k) && String(payload[k] ?? '').trim() !== '');
+  const isEmptyPlaceholder = v => {
+    const s = String(v ?? '').trim();
+    if (s === '') return true;
+    // normaliza '$0.00', '0%', '0.00', '0' → cero puro
+    const num = s.replace(/[$%,\s]/g, '');
+    if (num !== '' && !isNaN(num) && parseFloat(num) === 0) return true;
+    if (s === '-' || s === '—' || s === '{}' || s === '[]') return true;
+    return false;
+  };
+  return Object.keys(payload || {}).some(k => !ignore.has(k) && !isEmptyPlaceholder(payload[k]));
 }
 
 let _autoSaveTimer = null;
