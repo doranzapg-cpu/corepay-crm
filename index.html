@@ -3848,13 +3848,17 @@ function selectFieldDynamic(key,label,val,options){
   return `<div class="field"><label>${escapeHtml(label)}</label><select data-key="${escapeAttr(key)}" onchange="onActividadSATChange(this)"><option value="">— Seleccionar —</option>${opts}</select></div>`;
 }
 function mccField(key,val,actividad){
+  // MC-137-PRE (Bug B): el MCC guardado vuelve del Sheet como NÚMERO (4225), pero los
+  // m.mcc del catálogo son STRING ("4225"). La comparación estricta val===m.mcc daba
+  // false (4225 !== "4225"), así que el <option> nunca recibía `selected` y el select
+  // se veía en "— Seleccionar MCC —" pese a tener el dato en el Sheet. Se normalizan
+  // ambos lados a String para que el option correcto quede seleccionado.
+  const valStr=String(val==null?'':val).trim();
   const mccs=actividad&&MCC_ACT_TO_MCC[actividad]?MCC_ACT_TO_MCC[actividad]:[];
-  let opts=mccs.map(m=>`<option value="${escapeAttr(m.mcc)}"${val===m.mcc?' selected':''}>${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
-  // MC-137-PRE (Bug B): si el MCC ya guardado NO está en las opciones derivadas de la
-  // actividad, el <option selected> nunca se emitía y el select se veía VACÍO al recargar
-  // (el dato seguía vivo en el Sheet). Ahora, si hay valor persistido y no quedó cubierto,
-  // se inyecta un option selected propio para que el CRM muestre el MCC real.
-  const valStr=String(val||'').trim();
+  let opts=mccs.map(m=>`<option value="${escapeAttr(m.mcc)}"${String(m.mcc)===valStr?' selected':''}>${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
+  // Si el MCC persistido NO está en las opciones derivadas de la actividad (catálogo
+  // cambió, actividad distinta, etc.), se inyecta un option selected propio para no
+  // perder el dato visualmente.
   const yaPresente=mccs.some(m=>String(m.mcc)===valStr);
   if(valStr!==''&&!yaPresente){
     opts=`<option value="${escapeAttr(valStr)}" selected>${escapeHtml(valStr)} · (guardado)</option>`+opts;
