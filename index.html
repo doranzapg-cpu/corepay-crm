@@ -1293,7 +1293,8 @@ function blankLeadTemplate() {
     contactos_extra:'[]', drive_links:'[]',
     calle:'', num_ext:'', int:'', colonia:'', cp:'', estado:'', municipio:'', comentarios:'',
     owner_otro:'', servicio_potencial_otro:'', concepto_otro:'', principal_problematica_otro:'', adquirente_actual_otro:'', servicios_actuales_otro:'', servicios_de_interes_otro:'',
-    fecha_alta:now, ultima_actualizacion:now
+    fecha_alta:now, ultima_actualizacion:now,
+    activo:'SI'  // MC-137 (#6): bandera de VIDA del lead (SI=vivo, NO=cancelado). NO es el status comercial.
   };
 }
 
@@ -2527,6 +2528,16 @@ async function autoSaveLead() {
   await saveLead({ closeAfter: false, reload: false, auto: true });
 }
 
+// MC-137 (#7): dispara la sincronización de la pestaña LEADS_ACTIVOS tras un save.
+// Fire-and-forget: NO bloquea la UI y NUNCA rompe el flujo de guardado si falla
+// (la sincronización es secundaria). Solo se invoca en altas y saves MANUALES,
+// nunca en autosave, para no añadir tráfico de red en cada tecleo.
+function fireSyncActivos() {
+  try {
+    apiPost('syncActivos').catch(() => {}); // silencioso: el sync es secundario
+  } catch (e) { /* no-op */ }
+}
+
 async function saveLead(opts) {
   opts = opts || {};
   const closeAfter = opts.closeAfter !== false; // default true (botón manual)
@@ -2558,6 +2569,7 @@ async function saveLead(opts) {
       // Recargar leads desde Sheet para obtener _rowNumber real y propuesta TO BE persistida
       await loadAll();
       applyFilters();
+      fireSyncActivos(); // MC-137 (#7): el alta puede tener status ACTIVO/TRANSACCIONANDO
       if (closeAfter) closeDrawer();
       return;
     } else {
@@ -2586,6 +2598,7 @@ async function saveLead(opts) {
       el.saveFeedback.textContent = auto
         ? '✅ Autoguardado ' + new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})
         : '✅ Cambios guardados.';
+      if (!auto) fireSyncActivos(); // MC-137 (#7): solo en save manual; un cambio de status puede mover el lead dentro/fuera de ACTIVOS
       if (closeAfter) closeDrawer();
       return;
     }
