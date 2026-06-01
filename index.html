@@ -2479,14 +2479,27 @@ function lcMergeLeads(leadsFromSheets) {
 
 /* ===== SAVE / DELETE ===== */
 function splitPayloadForSave(payload) {
+  // MC-137-PRE (Bug A): id_lead y nombre_comercial son LLAVES COMPARTIDAS entre
+  // CRM_MASTER y PROPUESTAS — NO campos TO BE exclusivos. Antes el if/else excluyente
+  // las enrutaba SOLO a propuestaPayload (porque están listadas en TOBE_FIELDS), por lo
+  // que createLead/updateLead recibían un crmPayload SIN nombre_comercial y la fila en
+  // CRM_MASTER se creaba sin nombre. Ahora se tratan como compartidas: van a AMBOS payloads.
+  const SHARED_KEYS = new Set(['id_lead', 'nombre_comercial']);
   const tobeSet = new Set(CONFIG.TOBE_FIELDS || []);
   const crmPayload = {};
   const propuestaPayload = {};
   Object.keys(payload || {}).forEach(k => {
-    if (tobeSet.has(k)) propuestaPayload[k] = payload[k];
-    else crmPayload[k] = payload[k];
+    if (SHARED_KEYS.has(k)) {
+      // Llave compartida → a los dos lados.
+      crmPayload[k] = payload[k];
+      propuestaPayload[k] = payload[k];
+    } else if (tobeSet.has(k)) {
+      propuestaPayload[k] = payload[k];
+    } else {
+      crmPayload[k] = payload[k];
+    }
   });
-  // Llaves mínimas para upsert de PROPUESTAS.
+  // Llaves mínimas para upsert de PROPUESTAS (redundante pero seguro).
   if (payload.id_lead) propuestaPayload.id_lead = payload.id_lead;
   if (payload.nombre_comercial) propuestaPayload.nombre_comercial = payload.nombre_comercial;
   return { crmPayload, propuestaPayload };
@@ -3836,7 +3849,16 @@ function selectFieldDynamic(key,label,val,options){
 }
 function mccField(key,val,actividad){
   const mccs=actividad&&MCC_ACT_TO_MCC[actividad]?MCC_ACT_TO_MCC[actividad]:[];
-  const opts=mccs.map(m=>`<option value="${escapeAttr(m.mcc)}"${val===m.mcc?' selected':''}>${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
+  let opts=mccs.map(m=>`<option value="${escapeAttr(m.mcc)}"${val===m.mcc?' selected':''}>${m.mcc} · ${escapeHtml(m.desc.substring(0,55))}</option>`).join('');
+  // MC-137-PRE (Bug B): si el MCC ya guardado NO está en las opciones derivadas de la
+  // actividad, el <option selected> nunca se emitía y el select se veía VACÍO al recargar
+  // (el dato seguía vivo en el Sheet). Ahora, si hay valor persistido y no quedó cubierto,
+  // se inyecta un option selected propio para que el CRM muestre el MCC real.
+  const valStr=String(val||'').trim();
+  const yaPresente=mccs.some(m=>String(m.mcc)===valStr);
+  if(valStr!==''&&!yaPresente){
+    opts=`<option value="${escapeAttr(valStr)}" selected>${escapeHtml(valStr)} · (guardado)</option>`+opts;
+  }
   return `<div class="field"><label>MCC</label><select id="mccSelect" data-key="${escapeAttr(key)}" data-field="${escapeAttr(key)}"><option value="">${mccs.length?'— Seleccionar MCC —':actividad?'Sin MCC asignado':'Selecciona actividad primero'}</option>${opts}</select></div>`;
 }
 function onActividadSATChange(sel){
