@@ -2699,7 +2699,9 @@ function collectDrawerPayload() {
   }
 
   // MC-F: capturar campos con data-key (actividad_sat, mcc) que no usan data-field
-  [...el.drawerBody.querySelectorAll('[data-key]')].forEach(el => {
+  // MC-150-fix: excluir ci-field (contactos_extra) y dli-field (drive_links) — tienen data-key
+  // pero sus valores NO deben pisar los campos del contacto principal (nombre, email, puesto, tel).
+  [...el.drawerBody.querySelectorAll('[data-key]:not(.ci-field):not(.dli-field)')].forEach(el => {
     const key = el.dataset.key;
     if (!key) return;
     const val = el.value || '';
